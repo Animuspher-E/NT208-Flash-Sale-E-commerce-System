@@ -1,0 +1,30 @@
+{
+  "name": "flashsale-backend",
+  "version": "1.0.0",
+  "description": "Backend cho hệ thống Flash Sale - NT208",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "node prisma/seeders/data.seed.js"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "helmet": "^7.0.0",
+    "ioredis": "^5.3.2",
+    "jsonwebtoken": "^9.0.0",
+    "socket.io": "^4.6.1",
+    "zod": "^3.21.4"
+  },
+  "devDependencies": {
+    "@prisma/client": "^5.0.0",
+    "nodemon": "^3.0.1",
+    "prisma": "^5.0.0"
+  }
+}
