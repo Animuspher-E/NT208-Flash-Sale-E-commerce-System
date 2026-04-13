@@ -55,4 +55,16 @@ async function errorHandler(err, req, res, next) {
   });
 }
 
+/**
+ * catchAsync - Wrapper cho async route handler
+ * Tự động bắt lỗi và forward tới Express errorHandler
+ * Thay vì phải viết try/catch trong mỗi controller
+ */
+function catchAsync(fn) {
+  return (req, res, next) => {
+    Promise.resolve(fn(req, res, next)).catch(next);
+  };
+}
+
 module.exports = errorHandler;
+module.exports.catchAsync = catchAsync;
