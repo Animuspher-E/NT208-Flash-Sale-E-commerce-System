@@ -39,34 +39,38 @@ Hệ thống thương mại điện tử chuyên biệt cho các sự kiện **F
 
 ---
 
-## 🚥 Cài đặt và Chạy thử
+## 🚥 Cài đặt và Chạy thử (Với Docker)
 
-### 1. Yêu cầu hệ thống
+Hệ thống đã được đóng gói hoàn toàn trong Docker. Bạn có thể triển khai nhanh chóng theo các bước sau:
 
-* Node.js v18.x trở lên.
-* MySQL v8.0.
-* Redis Server.
-* Nginx (Cho môi trường staging/production).
+### 1. Chuẩn bị
+*   Máy tính đã cài đặt **Docker** và **Docker Desktop**.
+*   Sao chép file `.env.example` thành `.env` trong thư mục `backend/` (Thông số mặc định đã khớp với Docker).
 
-### 2. Các bước cài đặt
-
+### 2. Triển khai với Docker Compose
+Mở terminal tại thư mục gốc của dự án và chạy lệnh:
 ```bash
-# Clone dự án
-git clone [https://github.com/Animuspher-E/NT208-Flash-Sale-E-commerce-System](https://github.com/Animuspher-E/NT208-Flash-Sale-E-commerce-System)
+docker-compose up -d --build
+```
+Lệnh này sẽ tự động tải các Image và khởi chạy 6 dịch vụ: **Backend, MySQL, Redis, Nginx, Adminer, Redis-Commander**.
 
-# 1. Cài đặt Backend
-cd backend
-npm install
+### 3. Khởi tạo Cơ sở dữ liệu
+Sau khi các container đã ở trạng thái "Running", hãy chạy lệnh sau để khởi tạo các bảng dữ liệu:
+```bash
+docker exec -it nt208-backend npx prisma db push
+```
 
-# Khởi tạo Database Prisma (Đảm bảo đã cấu hình file .env)
-npx prisma generate
-npx prisma db push
+### 4. Truy cập hệ thống
+*   **API chính (HTTPS):** [https://localhost](https://localhost)
+*   **Trang quản lý MySQL (Adminer):** [http://localhost:8080](http://localhost:8080)
+    *   *System: MySQL | Server: mysql | User: root | Pass: password*
+*   **Trang quản lý Redis:** [http://localhost:8081](http://localhost:8081)
 
-# 2. Cài đặt Frontend
-cd ../frontend
-npm install
+---
 
-# 3. Cấu hình Nginx (Tùy chọn)
-# Copy file cấu hình mẫu từ thư mục dự án vào hệ thống Nginx
-sudo cp ../nginx/nginx.conf /etc/nginx/nginx.conf
-sudo systemctl restart nginx
+## 🛠 Lệnh hữu ích thường dùng
+
+*   **Xem logs của Backend:** `docker logs -f nt208-backend`
+*   **Dừng hệ thống:** `docker-compose down`
+*   **Khởi động lại:** `docker-compose restart`
+*   **Cập nhật code mới vào Docker:** `docker-compose up -d --build backend`
