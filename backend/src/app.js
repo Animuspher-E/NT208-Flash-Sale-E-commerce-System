@@ -10,9 +10,9 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-const flashsaleRoutes = require('./routes/v1/flashsale.routes');
-const authRoutes = require('./routes/v1/auth.routes');
-const userRoutes = require('./routes/v1/user.routes');
+const flashsaleRoutes = require('./routes/flashsale.routes');
+const authRoutes = require('./routes/auth.routes');
+const userRoutes = require('./routes/user.routes');
 const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
@@ -27,9 +27,9 @@ app.use(cors({
 app.use(express.json());
 
 // Routes
-app.use('/api/v1/flashsale', flashsaleRoutes);
-app.use('/api/v1/auth', authRoutes);
-app.use('/api/v1/users', userRoutes);
+app.use('/api/flashsale', flashsaleRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', message: 'Server đang chạy!' });

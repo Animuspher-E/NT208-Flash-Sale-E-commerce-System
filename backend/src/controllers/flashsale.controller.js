@@ -7,10 +7,10 @@
 //   Không chứa logic nghiệp vụ (logic ở service)
 //
 // Các API this controller xử lý:
-//   POST /api/v1/flashsale/buy            => Mua hàng Flash Sale
-//   GET  /api/v1/flashsale/products       => Lấy danh sách sản phẩm Flash Sale
-//   GET  /api/v1/flashsale/stock/:id    => Lấy tồn kho 1 sản phẩm
-//   POST /api/v1/flashsale/warmup         => Kích hoạt Cache Warm-up (Admin)
+//   POST /api/flashsale/buy            => Mua hàng Flash Sale
+//   GET  /api/flashsale/products       => Lấy danh sách sản phẩm Flash Sale
+//   GET  /api/flashsale/stock/:id    => Lấy tồn kho 1 sản phẩm
+//   POST /api/flashsale/warmup         => Kích hoạt Cache Warm-up (Admin)
 // ================================================
 
 const flashsaleService = require('../services/flashsale.service');
