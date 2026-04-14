@@ -1,12 +1,6 @@
 # Thư mục chứa thư viện
 node_modules/
 
-# File cấu hình nhạy cảm
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
 
 # Log files
 npm-debug.log*

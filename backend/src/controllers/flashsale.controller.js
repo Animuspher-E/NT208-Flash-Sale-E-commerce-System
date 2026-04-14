@@ -93,7 +93,7 @@ async function getStock(req, res, next) {
     next(error);
   }
 }
-// API Kích hoạt Cache Warm-up (Chỉ dành cho Admin)
+// API Kích hoạt Cache Warm-up
 async function triggerWarmUp(req, res, next) {
   try {
     console.log('[Admin] Bắt đầu Cache Warm-up theo yêu cầu...');
