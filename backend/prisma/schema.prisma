@@ -1,6 +1,6 @@
-// prisma/schema.prisma
-// Database Schema cho Flash Sale E-commerce Platform
-// Quản lý Users, Products, Inventory, Orders
+// ============================================
+// PRISMA SCHEMA - FLASH SALE E-COMMERCE
+// ============================================
 
 generator client {
   provider = "prisma-client-js"
@@ -12,258 +12,260 @@ datasource db {
 }
 
 // ============================================
-// 1. USER MODEL - Quản lý người dùng
+// 1. USER
 // ============================================
 model User {
-  id              Int       @id @default(autoincrement())
-  email           String    @unique @db.VarChar(255)
-  password        String    @db.VarChar(255) // Bcrypt hash
-  name            String    @db.VarChar(255)
-  phone           String?   @db.VarChar(20)
-  address         String?   @db.Text
-  
-  // Relations
-  orders          Order[]
-  
-  // Audit
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  deletedAt       DateTime?
+  id          Int      @id @default(autoincrement())
+  email       String   @unique @db.VarChar(255)
+  password    String   @db.VarChar(255)
+  name        String   @db.VarChar(255)
+  phone       String?  @db.VarChar(20)
+  address     String?  @db.Text
+
+  orders      Order[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
 
   @@index([email])
-  @@index([createdAt])
 }
 
 // ============================================
-// 2. PRODUCT MODEL - Quản lý sản phẩm
+// 2. CATEGORY
+// ============================================
+model Category {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique @db.VarChar(100)
+
+  products  Product[]
+
+  createdAt DateTime @default(now())
+}
+
+// ============================================
+// 3. PRODUCT
 // ============================================
 model Product {
   id              Int       @id @default(autoincrement())
   name            String    @db.VarChar(255)
   description     String?   @db.Text
-  price           Float     @db.Float
-  originalPrice   Float?    @db.Float // Giá gốc trước giảm
+
+  // Pricing
+  price           Float
+  originalPrice   Float?
+  discount        Float     @default(0)
+
+  // UI data
+  rating          Float     @default(0)
+  sold            Int       @default(0)
+  location        String?   @db.VarChar(255)
+
+  // Media
   image           String?   @db.VarChar(500)
-  sku             String?   @unique @db.VarChar(100)
-  
-  // Stock tracking
-  stock           Int       @default(0) // Tồn kho thực
-  minimumStock    Int       @default(10) // Cảnh báo
-  
-  // Status
-  isActive        Boolean   @default(true)
+
+  // Category
+  categoryId      Int
+  category        Category  @relation(fields: [categoryId], references: [id])
+
+  // Stock
+  stock           Int       @default(0)
+  minimumStock    Int       @default(10)
+
+  // Flash sale flags
   isFlashSale     Boolean   @default(false)
   flashSaleStart  DateTime?
   flashSaleEnd    DateTime?
-  
+
   // Relations
   inventory       Inventory?
   orderItems      OrderItem[]
-  
-  // Audit
+  flashSales      FlashSale[]
+  reviews         Review[]
+
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
-  deletedAt       DateTime?
 
-  @@index([isFlashSale])
-  @@index([flashSaleStart])
-  @@index([createdAt])
+  @@index([categoryId])
+  @@index([discount])
+  @@index([sold])
+  @@index([rating])
 }
 
 // ============================================
-// 3. INVENTORY MODEL - Quản lý tồn kho chi tiết
+// 4. INVENTORY
 // ============================================
 model Inventory {
   id              Int       @id @default(autoincrement())
   productId       Int       @unique
-  
-  // Stock levels
-  availableStock  Int       @default(0) // Hàng còn bán được
-  reservedStock   Int       @default(0) // Đã bán nhưng chưa xác nhận
-  damagedStock    Int       @default(0) // Hỏng
-  
-  // Tracking
+
+  availableStock  Int       @default(0)
+  reservedStock   Int       @default(0)
+  damagedStock    Int       @default(0)
+
   lastStockCheck  DateTime?
   nextStockCheck  DateTime?
-  
-  // Relations
+
   product         Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
   movements       InventoryMovement[]
-  
-  // Audit
+
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
-
-  @@index([productId])
 }
 
 // ============================================
-// 4. INVENTORY MOVEMENT - Lịch sử thay đổi kho
+// 5. INVENTORY MOVEMENT
 // ============================================
 model InventoryMovement {
-  id              Int       @id @default(autoincrement())
-  inventoryId     Int
-  
-  // Movement details
-  type            String    @db.VarChar(50) // "IN", "OUT", "ADJUST", "RETURN"
-  quantity        Int
-  reason          String?   @db.VarChar(255)
-  reference       String?   @db.VarChar(100) // Order ID hoặc reference
-  
-  // Relations
-  inventory       Inventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
-  
-  // Audit
-  createdBy       Int?
-  createdAt       DateTime  @default(now())
+  id          Int       @id @default(autoincrement())
+  inventoryId Int
+
+  type        String    @db.VarChar(50) // IN, OUT, ADJUST
+  quantity    Int
+  reason      String?   @db.VarChar(255)
+  reference   String?   @db.VarChar(100)
+
+  inventory   Inventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
+
+  createdBy   Int?
+  createdAt   DateTime  @default(now())
 
   @@index([inventoryId])
-  @@index([createdAt])
 }
 
 // ============================================
-// 5. ORDER MODEL - Quản lý đơn hàng
+// 6. ORDER
 // ============================================
 model Order {
   id              Int       @id @default(autoincrement())
   userId          Int
-  
-  // Order info
+
   orderNumber     String    @unique @db.VarChar(50)
+
   totalPrice      Float
-  discountAmount  Float?    @default(0)
+  discountAmount  Float     @default(0)
   finalPrice      Float
-  
-  // Status workflow: pending → confirmed → paid → shipped → delivered → completed
+
   status          String    @default("pending") @db.VarChar(50)
-  paymentStatus   String    @default("unpaid") @db.VarChar(50) // paid, unpaid, refunded
-  shippingStatus  String    @default("pending") @db.VarChar(50) // pending, shipped, delivered
-  
-  // Shipping
+  paymentStatus   String    @default("unpaid") @db.VarChar(50)
+  shippingStatus  String    @default("pending") @db.VarChar(50)
+
   shippingAddress String?   @db.Text
   trackingNumber  String?   @db.VarChar(100)
-  estimatedDelivery DateTime?
-  
-  // Relations
+
   user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   items           OrderItem[]
   payments        Payment[]
-  
-  // Audit
+
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
-  cancelledAt     DateTime?
 
   @@index([userId])
   @@index([status])
-  @@index([createdAt])
-  @@index([orderNumber])
 }
 
 // ============================================
-// 6. ORDER ITEM MODEL - Chi tiết các sản phẩm trong đơn
+// 7. ORDER ITEM
 // ============================================
 model OrderItem {
-  id              Int       @id @default(autoincrement())
-  orderId         Int
-  productId       Int
-  
-  // Item details
-  quantity        Int
-  unitPrice       Float     // Giá tại thời điểm đặt hàng
-  subtotal        Float     // quantity * unitPrice
-  
-  // Discount
-  discountPercent Float?    @default(0)
-  discountAmount  Float?    @default(0)
-  
-  // Relations
-  order           Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product         Product   @relation(fields: [productId], references: [id])
-  
-  // Audit
-  createdAt       DateTime  @default(now())
+  id          Int     @id @default(autoincrement())
+  orderId     Int
+  productId   Int
+
+  quantity    Int
+  unitPrice   Float
+  discount    Float   @default(0)
+  subtotal    Float
+
+  order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product     Product @relation(fields: [productId], references: [id])
+
+  createdAt   DateTime @default(now())
 
   @@index([orderId])
   @@index([productId])
 }
 
 // ============================================
-// 7. PAYMENT MODEL - Quản lý thanh toán
+// 8. PAYMENT
 // ============================================
 model Payment {
-  id              Int       @id @default(autoincrement())
-  orderId         Int
-  
-  // Payment details
-  amount          Float
-  method          String    @db.VarChar(50) // "credit_card", "bank_transfer", "e_wallet"
-  transactionId   String?   @unique @db.VarChar(100)
-  
-  // Status
-  status          String    @default("pending") @db.VarChar(50) // pending, completed, failed, refunded
-  
-  // Relations
-  order           Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  
-  // Audit
-  paidAt          DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  id            Int     @id @default(autoincrement())
+  orderId       Int
+
+  amount        Float
+  method        String  @db.VarChar(50)
+  transactionId String? @unique @db.VarChar(100)
+
+  status        String  @default("pending") @db.VarChar(50)
+
+  order         Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  paidAt        DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   @@index([orderId])
-  @@index([status])
 }
 
 // ============================================
-// 8. FLASH SALE CONFIG - Cấu hình flash sale
+// 9. FLASH SALE (THEO PRODUCT)
 // ============================================
 model FlashSale {
-  id              Int       @id @default(autoincrement())
-  
-  // Event details
-  name            String    @db.VarChar(255)
-  description     String?   @db.Text
-  
-  // Schedule
-  startTime       DateTime
-  endTime         DateTime
-  
-  // Config
-  isActive        Boolean   @default(true)
-  maxQuantity     Int       @default(1000) // Tổng số lượng flash sale
-  
-  // Audit
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  id          Int       @id @default(autoincrement())
+  productId   Int
 
+  discount    Float
+  quantity    Int
+
+  startTime   DateTime
+  endTime     DateTime
+
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime  @default(now())
+
+  @@index([productId])
   @@index([startTime])
-  @@index([endTime])
 }
 
 // ============================================
-// 9. AUDIT LOG - Ghi log tất cả thay đổi quan trọng
+// 10. REVIEW (RATING THẬT)
+// ============================================
+model Review {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  productId Int
+
+  rating    Float
+  comment   String?  @db.Text
+
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([productId])
+}
+
+// ============================================
+// 11. AUDIT LOG
 // ============================================
 model AuditLog {
-  id              Int       @id @default(autoincrement())
-  
-  // What happened
-  action          String    @db.VarChar(100) // "CREATE_ORDER", "UPDATE_INVENTORY"
-  entity          String    @db.VarChar(50)  // "Order", "Product"
-  entityId        Int
-  
-  // Who did it
-  userId          Int?
-  
-  // Details
-  oldValue        Json?   @db.Json
-  newValue        Json?   @db.Json
-  ipAddress       String?   @db.VarChar(50)
-  
-  // Audit
-  createdAt       DateTime  @default(now())
+  id          Int      @id @default(autoincrement())
+
+  action      String   @db.VarChar(100)
+  entity      String   @db.VarChar(50)
+  entityId    Int
+
+  userId      Int?
+
+  oldValue    Json?
+  newValue    Json?
+
+  ipAddress   String?  @db.VarChar(50)
+
+  createdAt   DateTime @default(now())
 
   @@index([action])
   @@index([entityId])
-  @@index([createdAt])
 }
