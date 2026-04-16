@@ -4,6 +4,7 @@
 const authService = require('../services/auth.service');
 const logger = require('../utils/logger');
 const { catchAsync } = require('../middlewares/errorHandler');
+const sendEmail = require('../utils/mailer');
 
 class AuthController {
     /**
@@ -122,6 +123,66 @@ class AuthController {
             message: 'Logout successful',
         });
     };
+
+    /**
+     * POST /auth/forgot-password
+     * Quên mật khẩu - Gửi mail xác nhận
+     */
+    forgotPassword = catchAsync(async (req, res) => {
+        const { email } = req.body;
+        
+        // 1. Tạo token và lưu vào DB
+        const resetToken = await authService.forgotPassword(email);
+
+        // 2. Tạo URL đặt lại mật khẩu (Trỏ tới Frontend)
+        const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password/${resetToken}`;
+
+        // 3. Gửi email
+        const message = `Bạn vừa yêu cầu đặt lại mật khẩu. Vui lòng nhấn vào link sau để thực hiện (Mã có hiệu lực trong 10 phút):\n\n${resetUrl}`;
+
+        try {
+            await sendEmail({
+                email: email,
+                subject: '[FlashSale] Yêu cầu khôi phục mật khẩu',
+                message: message,
+                html: `
+                    <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+                        <h2>Khôi phục mật khẩu</h2>
+                        <p>Chào bạn, chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn.</p>
+                        <p>Vui lòng nhấn vào nút bên dưới để tiến hành đổi mật khẩu mới (Mã có hiệu lực trong <b>10 phút</b>):</p>
+                        <div style="text-align: center; margin: 30px 0;">
+                            <a href="${resetUrl}" style="background-color: #007bff; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">ĐẶT LẠI MẬT KHẨU</a>
+                        </div>
+                        <p style="color: #666; font-size: 13px;">Nếu bạn không phải là người yêu cầu, vui lòng bỏ qua email này.</p>
+                    </div>
+                `
+            });
+
+            res.json({
+                success: true,
+                message: 'Mã khôi phục đã được gửi tới email của bạn'
+            });
+        } catch (error) {
+            logger.error('Send email error:', error);
+            throw new Error('Có lỗi xảy ra khi gửi email. Vui lòng thử lại sau.');
+        }
+    });
+
+    /**
+     * POST /auth/reset-password/:token
+     * Đặt lại mật khẩu mới
+     */
+    resetPassword = catchAsync(async (req, res) => {
+        const { token } = req.params;
+        const { password } = req.body;
+
+        await authService.resetPassword(token, password);
+
+        res.json({
+            success: true,
+            message: 'Đặt lại mật khẩu thành công! Bạn có thể đăng nhập ngay.'
+        });
+    });
 }
 
 module.exports = new AuthController();

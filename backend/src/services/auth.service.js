@@ -280,6 +280,88 @@ class AuthService {
             throw error;
         }
     }
+
+    /**
+     * Quên mật khẩu - Tạo token và lưu vào DB
+     * @param {string} email 
+     * @returns {Promise<string>} Token nguyên bản (để gửi mail)
+     */
+    async forgotPassword(email) {
+        try {
+            const user = await prisma.user.findUnique({ where: { email } });
+            if (!user) {
+                throw new Error('Email không tồn tại trong hệ thống');
+            }
+
+            // 1. Tạo token ngẫu nhiên
+            const crypto = require('crypto');
+            const resetToken = crypto.randomBytes(32).toString('hex');
+            
+            // 2. Mã hóa token trước khi lưu vào DB (để hacker có vào được DB cũng không lấy được token)
+            const hashedToken = crypto
+                .createHash('sha256')
+                .update(resetToken)
+                .digest('hex');
+
+            // 3. Lưu vào DB - Hết hạn sau 10 phút
+            await prisma.user.update({
+                where: { id: user.id },
+                data: {
+                    passwordResetToken: hashedToken,
+                    passwordResetExpires: new Date(Date.now() + 10 * 60 * 1000)
+                }
+            });
+
+            return resetToken;
+        } catch (error) {
+            logger.error('Forgot password service error:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Đặt lại mật khẩu bằng Token
+     * @param {string} token 
+     * @param {string} newPassword 
+     */
+    async resetPassword(token, newPassword) {
+        try {
+            const crypto = require('crypto');
+            const hashedToken = crypto
+                .createHash('sha256')
+                .update(token)
+                .digest('hex');
+
+            // 1. Tìm user có token khớp và chưa hết hạn
+            const user = await prisma.user.findFirst({
+                where: {
+                    passwordResetToken: hashedToken,
+                    passwordResetExpires: { gt: new Date() }
+                }
+            });
+
+            if (!user) {
+                throw new Error('Mã khôi phục không hợp lệ hoặc đã hết hạn');
+            }
+
+            // 2. Cập nhật mật khẩu mới và xóa token cũ
+            const hashedPassword = await this.hashPassword(newPassword);
+
+            await prisma.user.update({
+                where: { id: user.id },
+                data: {
+                    password: hashedPassword,
+                    passwordResetToken: null,
+                    passwordResetExpires: null
+                }
+            });
+
+            return user;
+        } catch (error) {
+            logger.error('Reset password service error:', error);
+            throw error;
+        }
+    }
 }
 
 module.exports = new AuthService();

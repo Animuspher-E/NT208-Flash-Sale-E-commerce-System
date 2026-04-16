@@ -28,6 +28,9 @@ model User {
   updatedAt   DateTime @updatedAt
   deletedAt   DateTime?
 
+  passwordResetToken   String?
+  passwordResetExpires DateTime?
+
   @@index([email])
 }
 

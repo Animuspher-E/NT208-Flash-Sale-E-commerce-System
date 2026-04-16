@@ -75,4 +75,26 @@ router.post(
     authController.logout
 );
 
+/**
+ * POST /api/auth/forgot-password
+ * Quên mật khẩu - Gửi mail xác nhận
+ * Body: { email }
+ */
+router.post(
+    '/forgot-password',
+    validate(schemas.forgotPasswordSchema),
+    authController.forgotPassword
+);
+
+/**
+ * POST /api/auth/reset-password/:token
+ * Đặt lại mật khẩu mới
+ * Body: { password, confirmPassword }
+ */
+router.post(
+    '/reset-password/:token',
+    validate(schemas.resetPasswordSchema),
+    authController.resetPassword
+);
+
 module.exports = router;

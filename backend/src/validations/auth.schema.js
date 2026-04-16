@@ -81,9 +81,38 @@ const changePasswordSchema = z.object({
     path: ['newPassword'],
 });
 
+/**
+ * Schema để validate POST /auth/forgot-password
+ */
+const forgotPasswordSchema = z.object({
+    email: z
+        .string({ required_error: 'Email là bắt buộc' })
+        .email('Email không hợp lệ')
+        .toLowerCase(),
+});
+
+/**
+ * Schema để validate POST /auth/reset-password
+ */
+const resetPasswordSchema = z.object({
+    password: z
+        .string({ required_error: 'Mật khẩu là bắt buộc' })
+        .min(8, 'Mật khẩu phải ít nhất 8 ký tự')
+        .regex(/[A-Z]/, 'Mật khẩu phải chứa ít nhất 1 chữ hoa')
+        .regex(/[0-9]/, 'Mật khẩu phải chứa ít nhất 1 chữ số')
+        .regex(/[^a-zA-Z0-9]/, 'Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt'),
+    confirmPassword: z
+        .string({ required_error: 'Xác nhận mật khẩu là bắt buộc' }),
+}).refine((data) => data.password === data.confirmPassword, {
+    message: 'Mật khẩu không khớp',
+    path: ['confirmPassword'],
+});
+
 module.exports = {
     registerSchema,
     loginSchema,
     refreshTokenSchema,
     changePasswordSchema,
+    forgotPasswordSchema,
+    resetPasswordSchema,
 };

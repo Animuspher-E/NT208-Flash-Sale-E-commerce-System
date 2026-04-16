@@ -17,7 +17,6 @@ if (process.env.NODE_ENV === 'production') {
         log: ['warn', 'error'],
     });
 } else {
-    // Development: Log mọi query để debug
     if (!global.prisma) {
         global.prisma = new PrismaClient({
             datasources: {
