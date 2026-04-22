@@ -24,6 +24,19 @@ services:
     volumes:
       - redis_data:/data
 
+  # --- MESSAGE QUEUE (RABBITMQ) ---
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: nt208-rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
   # --- BACKEND (NODE.JS) ---
   backend:
     build: ./backend
@@ -32,6 +45,7 @@ services:
     environment:
       - DATABASE_URL=mysql://root:password@mysql:3306/flashsale_db
       - REDIS_URL=redis://redis:6379
+      - RABBITMQ_URL=amqp://user:password@rabbitmq:5672
       - JWT_SECRET=your_super_secret_jwt_key_change_this_in_production
       - JWT_EXPIRES_IN=7d
       - NODE_ENV=development
@@ -39,6 +53,7 @@ services:
     depends_on:
       - mysql
       - redis
+      - rabbitmq
     ports:
       - "3000:3000"
 
@@ -77,3 +92,4 @@ services:
 volumes:
   mysql_data:
   redis_data:
+  rabbitmq_data:

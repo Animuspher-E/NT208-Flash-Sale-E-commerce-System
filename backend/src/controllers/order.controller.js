@@ -19,9 +19,9 @@ class OrderController {
 
         const result = await orderService.buyProduct(userId, productId, quantity);
 
-        res.status(201).json({
+        res.status(202).json({
             success: true,
-            message: 'Order created successfully',
+            message: 'Đơn hàng đang được hệ thống xử lý ngầm (RabbitMQ)',
             data: result,
         });
     });

@@ -17,12 +17,20 @@ const http = require('http');
 const app = require('./app');
 const { connectRedis } = require('./config/redis');
 const { connectSocket } = require('./config/socket');
+const { connectRabbitMQ } = require('./utils/rabbitmq'); // Thêm kết nối RabbitMQ
 const PORT = process.env.PORT || 3000;
 
 async function startServer() {
   try {
     console.log('[Server] Đang kết nối Redis...');
     connectRedis(); // Kết nối Redis
+    
+    console.log('[Server] Đang kết nối RabbitMQ...');
+    await connectRabbitMQ(); // Kết nối RabbitMQ
+    
+    // Khởi động Worker lắng nghe thông điệp mua hàng
+    require('./workers/order.worker').startWorker();
+    
     // Kết nối Database (MySQL qua Prisma)
     // const { connectDatabase } = require('./config/database');
     // await connectDatabase();
