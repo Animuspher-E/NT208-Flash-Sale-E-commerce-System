@@ -4,7 +4,7 @@ const { catchAsync } = require('../middlewares/errorHandler');
 class PaymentController {
     /**
      * POST /api/payment/create_url
-     * Người dùng click nút "Thanh toán bằng VNPay"
+     * Người dùng click nút "Thanh toán bằng PayOS"
      * Body: { orderId: 1 }
      */
     createPaymentUrl = catchAsync(async (req, res) => {
@@ -23,18 +23,14 @@ class PaymentController {
     });
 
     /**
-     * GET /api/payment/vnpay_ipn
-     * Webhook/IPN url để VNPay tự động gọi đến Server (Backend to Backend) nhằm xác thực giao dịch
+     * POST /api/payment/payos_webhook
+     * Webhook url để PayOS tự động gọi đến Server nhằm xác thực giao dịch
      */
-    vnpayIpn = catchAsync(async (req, res) => {
-        const result = await paymentService.vnpayIpn(req.query);
+    payosWebhook = catchAsync(async (req, res) => {
+        const result = await paymentService.payosWebhook(req.body);
         
-        // VNPay yêu cầu trả về theo đúng mẫu của họ "{ rspCode: '00', Message: '...' }"
-        // Không bọc lại trong { success: true }
-        res.status(200).json({
-            RspCode: result.code,
-            Message: result.Message
-        });
+        // Trả về kết quả xử lý webhook
+        res.status(200).json(result);
     });
 }
 

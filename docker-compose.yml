@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # --- DATABASE (MYSQL) ---
+  # DATABASE (MYSQL)
   mysql:
     image: mysql:8.0
     container_name: nt208-mysql
@@ -14,7 +14,7 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
 
-  # --- CACHING (REDIS) ---
+  # CACHING (REDIS)
   redis:
     image: redis:alpine
     container_name: nt208-redis
@@ -24,7 +24,7 @@ services:
     volumes:
       - redis_data:/data
 
-  # --- MESSAGE QUEUE (RABBITMQ) ---
+  # MESSAGE QUEUE (RABBITMQ)
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: nt208-rabbitmq
@@ -37,7 +37,7 @@ services:
       RABBITMQ_DEFAULT_PASS: password
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
-  # --- BACKEND (NODE.JS) ---
+  # BACKEND (NODE.JS)
   backend:
     build: ./backend
     container_name: nt208-backend
@@ -57,7 +57,7 @@ services:
     ports:
       - "3000:3000"
 
-  # --- PROXY (NGINX) ---
+  # PROXY (NGINX)
   nginx:
     image: nginx:1.29.8-alpine
     container_name: nt208-nginx
@@ -71,7 +71,7 @@ services:
     depends_on:
       - backend
 
-  # --- CÔNG CỤ QUẢN LÝ DATABASE (Giao diện Web) ---
+  # CÔNG CỤ QUẢN LÝ DATABASE
   adminer:
     image: adminer
     container_name: nt208-adminer

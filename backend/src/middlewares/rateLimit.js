@@ -26,7 +26,7 @@ function createRateLimit(options = {}) {
   const windowSeconds = options.windowSeconds || 1; // Cửa sổ thời gian 1 giây
   return async function rateLimitMiddleware(req, res, next) {
     const redis = getRedisClient();
-    const userId = req.user.userId; // Lấy từ token
+    const userId = req.user.userId; 
     const key = `ratelimit:${userId}`;
     try {
       const currentCount = await redis.incr(key);

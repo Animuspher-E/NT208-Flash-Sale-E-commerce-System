@@ -2,12 +2,12 @@
 const express = require('express');
 const paymentController = require('../controllers/payment.controller');
 const router = express.Router();
-const verifyToken = require('../middlewares/verifyToken');
+const verifyToken = require('../middlewares/auth');
 
 // API lấy URL thanh toán (Cần người dùng đăng nhập)
 router.post('/create_url', verifyToken, paymentController.createPaymentUrl);
 
-// API để VNPay tự động gọi đến cập nhật DB (IPN) (KHÔNG được chặn xác thực!)
-router.get('/vnpay_ipn', paymentController.vnpayIpn);
+// API để PayOS tự động gọi đến cập nhật DB (Webhook) (KHÔNG được chặn xác thực!)
+router.post('/payos_webhook', paymentController.payosWebhook);
 
 module.exports = router;
