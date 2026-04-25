@@ -15,13 +15,28 @@ async function main() {
 
   // 1. Tạo User test
   const hashedPassword = await bcrypt.hash('password123', 10);
-  const user = await prisma.user.create({
+  
+  // Tài khoản User thường
+  await prisma.user.create({
     data: {
       email: 'test@example.com',
       password: hashedPassword,
       name: 'Người dùng thử nghiệm',
       phone: '0987654321',
-      address: 'Đại học Công nghệ thông tin'
+      address: 'Đại học Công nghệ thông tin',
+      role: 'user'
+    }
+  });
+
+  // Tài khoản Admin
+  await prisma.user.create({
+    data: {
+      email: 'admin@flashsale.com',
+      password: hashedPassword,
+      name: 'Quản trị viên',
+      phone: '0123456789',
+      address: 'Văn phòng FlashSale',
+      role: 'admin'
     }
   });
 

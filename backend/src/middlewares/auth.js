@@ -56,4 +56,15 @@ function authMiddleware(req, res, next) {
   }
 }
 
-module.exports = authMiddleware;
+function isAdmin(req, res, next) {
+  if (req.user && req.user.role === 'admin') {
+    next();
+  } else {
+    return res.status(403).json({
+      success: false,
+      message: 'Quyền truy cập bị từ chối. Chỉ dành cho Admin.'
+    });
+  }
+}
+
+module.exports = { authMiddleware, isAdmin };

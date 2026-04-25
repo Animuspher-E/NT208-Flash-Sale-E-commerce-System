@@ -2,7 +2,7 @@
 const express = require('express');
 const paymentController = require('../controllers/payment.controller');
 const router = express.Router();
-const verifyToken = require('../middlewares/auth');
+const { authMiddleware: verifyToken } = require('../middlewares/auth');
 
 // API lấy URL thanh toán (Cần người dùng đăng nhập)
 router.post('/create_url', verifyToken, paymentController.createPaymentUrl);

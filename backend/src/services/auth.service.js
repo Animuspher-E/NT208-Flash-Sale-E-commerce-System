@@ -47,12 +47,13 @@ class AuthService {
      * @param {string} email - Email của user
      * @returns {string} JWT token
      */
-    generateToken(userId, email) {
+    generateToken(userId, email, role = 'user') {
         try {
             const token = jwt.sign(
                 {
                     userId: userId,
                     email: email,
+                    role: role,
                     iat: Math.floor(Date.now() / 1000), // Issued at
                 },
                 JWT_SECRET,
@@ -113,11 +114,13 @@ class AuthService {
                     email,
                     password: hashedPassword,
                     name,
+                    role: 'user', // Mặc định là user khi đăng ký
                 },
                 select: {
                     id: true,
                     email: true,
                     name: true,
+                    role: true,
                     createdAt: true,
                 },
             });
@@ -155,7 +158,7 @@ class AuthService {
             }
 
             // 3. Tạo token
-            const token = this.generateToken(user.id, user.email);
+            const token = this.generateToken(user.id, user.email, user.role);
 
             logger.info(`User logged in: ${email}`);
 
@@ -164,6 +167,7 @@ class AuthService {
                     id: user.id,
                     email: user.email,
                     name: user.name,
+                    role: user.role,
                 },
                 token,
             };

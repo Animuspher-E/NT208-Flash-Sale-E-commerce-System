@@ -14,7 +14,7 @@
 
 const express = require('express');
 const router = express.Router();
-const authMiddleware = require('../middlewares/auth');
+const { authMiddleware, isAdmin } = require('../middlewares/auth');
 const { flashSaleRateLimit } = require('../middlewares/rateLimit');
 const validate = require('../middlewares/validate');
 const { buySchema } = require('../validations/order.schema');
@@ -29,6 +29,6 @@ router.post(
   validate(buySchema),
   flashsaleController.buy
 ); //POST /api/flashsale/buy
-router.post('/warmup', flashsaleController.triggerWarmUp); //POST /api/flashsale/warmup
+router.post('/warmup', authMiddleware, isAdmin, flashsaleController.triggerWarmUp); //POST /api/flashsale/warmup
 
 module.exports = router;
