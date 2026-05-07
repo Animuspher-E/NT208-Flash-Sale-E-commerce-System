@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flash Sale E-Commerce | Giỏ hàng</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="../assets/css/ecommerce.css">
+</head>
+
+<body>
+  <main class="app-page">
+    <div class="app-shell">
+      <header class="app-header">
+        <a class="logo" href="home.html" aria-label="E-Commerce">
+          <i class="fa-solid fa-bolt"></i>
+          E-<span>Commerce</span>
+        </a>
+
+        <nav class="nav-tabs" aria-label="Điều hướng">
+          <a class="nav-tab active" href="cart.html">
+            <i class="fa-solid fa-cart-shopping"></i>
+            Giỏ hàng
+          </a>
+          <a class="nav-tab" href="orders.html">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            Lịch sử
+          </a>
+        </nav>
+
+        <div class="header-actions">
+          <button class="icon-btn" onclick="goHome()">
+            <i class="fa-solid fa-house"></i>
+          </button>
+          <a class="icon-btn cart-btn" href="cart.html">
+            <i class="fa-solid fa-cart-shopping"></i>
+            <span class="cart-badge" id="cartCount">0</span>
+          </a>
+          <button class="icon-btn" onclick="goProfile()">
+            <img id="headerAvatar" src="./img/default-avatar.png" class="avatar-mini">
+          </button>
+          <button class="icon-btn" id="logoutBtn" type="button" aria-label="Đăng xuất" title="Đăng xuất">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          </button>
+        </div>
+      </header>
+
+      <section class="hero-band" aria-label="Tổng quan giỏ hàng">
+        <div>
+          <h1>Giỏ hàng Flash Sale</h1>
+          <p>Chọn sản phẩm Flash Sale yêu thích, thêm vào giỏ và chốt đơn nhanh khi sản phẩm còn hàng.</p>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <strong id="productCount">0</strong>
+            <span>Sản phẩm</span>
+          </div>
+          <div class="hero-stat">
+            <strong id="cartTotalShort">0đ</strong>
+            <span>Tổng giỏ</span>
+          </div>
+          <div class="hero-stat">
+            <strong id="cartItemCountShort">0</strong>
+            <span>Trong giỏ</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="app-panel">
+        <div id="appMessage" class="app-message" role="status" aria-live="polite"></div>
+
+        <div class="section-toolbar">
+          <div class="section-title">
+            <h2>Sản phẩm Flash Sale</h2>
+            <p>Cập nhật các sản phẩm Flash Sale đang mở bán.</p>
+          </div>
+          <div class="toolbar-actions">
+            <button class="ghost-button" id="refreshProductsBtn" type="button">
+              <i class="fa-solid fa-rotate"></i>
+              Tải lại
+            </button>
+            <button class="danger-button hidden" id="warmupBtn" type="button">
+              <i class="fa-solid fa-fire"></i>
+              Nạp Redis
+            </button>
+          </div>
+        </div>
+
+        <div id="productGrid" class="product-grid"></div>
+      </section>
+
+      <section class="app-panel">
+        <div class="section-toolbar">
+          <div class="section-title">
+            <h2>Giỏ hàng</h2>
+          </div>
+          <div class="toolbar-actions">
+            <button class="ghost-button" id="clearCartBtn" type="button">
+              <i class="fa-solid fa-trash"></i>
+              Xóa giỏ
+            </button>
+          </div>
+        </div>
+
+        <div class="cart-layout">
+          <div id="cartList" class="cart-list"></div>
+          <aside class="summary-card" aria-label="Tóm tắt giỏ hàng">
+            <h3>Tóm tắt</h3>
+            <div class="summary-line">
+              <span>Số sản phẩm</span>
+              <strong id="cartItemCount">0</strong>
+            </div>
+            <div class="summary-line">
+              <span>Tạm tính</span>
+              <strong id="cartSubtotal">0đ</strong>
+            </div>
+            <div class="summary-line">
+              <span>Trạng thái</span>
+              <strong id="cartStatus">Đang trống</strong>
+            </div>
+            <button class="primary-button" id="checkoutBtn" type="button">
+              <i class="fa-solid fa-bolt"></i>
+              Chốt đơn
+            </button>
+          </aside>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="../assets/js/ecommerce-common.js"></script>
+  <script src="../assets/js/home/cart.js"></script>
+  <script>
+    const BF = window.ECommerce;
+    if (!BF.requireAuth()) {
+      throw new Error("Authentication required");
+    }
+
+    const state = {
+      products: [],
+      cart: BF.readCart(),
+      isCheckingOut: false
+    };
+
+    const els = {
+      appMessage: document.getElementById("appMessage"),
+      productGrid: document.getElementById("productGrid"),
+      cartList: document.getElementById("cartList"),
+      productCount: document.getElementById("productCount"),
+      cartCount: document.getElementById("cartCount"),
+      cartItemCount: document.getElementById("cartItemCount"),
+      cartItemCountShort: document.getElementById("cartItemCountShort"),
+      cartSubtotal: document.getElementById("cartSubtotal"),
+      cartTotalShort: document.getElementById("cartTotalShort"),
+      cartStatus: document.getElementById("cartStatus"),
+      checkoutBtn: document.getElementById("checkoutBtn"),
+      warmupBtn: document.getElementById("warmupBtn")
+    };
+
+    function setAppMessage(text, type = "info") {
+      BF.setMessage(els.appMessage, text, type);
+    }
+
+    function renderStats() {
+      const total = state.cart.reduce((sum, item) => sum + Number(item.price || 0), 0);
+      els.productCount.textContent = state.products.length;
+      els.cartCount.textContent = state.cart.length;
+      els.cartItemCount.textContent = state.cart.length;
+      els.cartItemCountShort.textContent = state.cart.length;
+      els.cartSubtotal.textContent = BF.formatCurrency(total);
+      els.cartTotalShort.textContent = BF.formatCurrency(total);
+      els.cartStatus.textContent = state.cart.length ? "Có thể chốt đơn" : "Đang trống";
+    }
+
+    async function loadProducts() {
+      try {
+        const data = await BF.apiRequest("/api/flashsale/products", { auth: false });
+        state.products = Array.isArray(data.data) ? data.data : [];
+        renderProducts();
+        renderStats();
+        setAppMessage("");
+      } catch (error) {
+        state.products = [];
+        els.productGrid.innerHTML = BF.emptyState("fa-triangle-exclamation", "Không tải được sản phẩm", error.message);
+        setAppMessage(error.message || "Không tải được sản phẩm.", "error");
+      }
+    }
+
+    function renderProducts() {
+      if (!state.products.length) {
+        els.productGrid.innerHTML = BF.emptyState(
+          "fa-box-open",
+          "Chưa có sản phẩm Flash Sale",
+          "Hiện chưa có sản phẩm Flash Sale. Vui lòng quay lại sau."
+        );
+        return;
+      }
+
+      els.productGrid.innerHTML = state.products.map(function (product) {
+        const stock = Number(product.stock || 0);
+        const discount = Number(product.discount || 0);
+        const image = product.image || "https://images.unsplash.com/photo-1607082349566-187342175e2f?q=80&w=900&auto=format&fit=crop";
+        const oldPrice = product.originalPrice
+          ? `<span class="old-price">${BF.formatCurrency(product.originalPrice)}</span>`
+          : "";
+
+        return `
+          <article class="product-card">
+            <div class="product-image">
+              <img src="${BF.escapeHtml(image)}" alt="${BF.escapeHtml(product.name || "Sản phẩm")}">
+              <span class="sale-badge">${discount ? `-${discount}%` : "FLASH"}</span>
+              <span class="stock-badge">${stock} còn lại</span>
+            </div>
+            <div class="product-body">
+              <h3>${BF.escapeHtml(product.name || "Sản phẩm")}</h3>
+              <p class="product-desc">${BF.escapeHtml(product.description || "Sản phẩm Flash Sale trong hệ thống E-Commerce.")}</p>
+              <div class="product-meta">
+                <span><i class="fa-solid fa-location-dot"></i> ${BF.escapeHtml(product.location || "Online")}</span>
+                <span><i class="fa-solid fa-star"></i> ${Number(product.rating || 0).toFixed(1)}</span>
+              </div>
+              <div class="price-row">
+                <span class="price">${BF.formatCurrency(product.price)}</span>
+                ${oldPrice}
+              </div>
+              <div class="product-actions">
+                <button class="ghost-button" type="button" data-product-action="add" data-product-id="${product.id}" ${stock <= 0 ? "disabled" : ""}>
+                  <i class="fa-solid fa-cart-plus"></i>
+                  Thêm
+                </button>
+                <button class="danger-button" type="button" data-product-action="buy" data-product-id="${product.id}" ${stock <= 0 ? "disabled" : ""}>
+                  <i class="fa-solid fa-bolt"></i>
+                  Mua ngay
+                </button>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function findProduct(productId) {
+      return state.products.find(product => Number(product.id) === Number(productId));
+    }
+
+    function saveAndRenderCart() {
+      BF.saveCart(state.cart);
+      renderCart();
+      renderStats();
+    }
+
+    function addToCart(product) {
+      if (!product) return;
+      if (Number(product.stock || 0) <= 0) {
+        setAppMessage("Sản phẩm đã hết hàng.", "error");
+        return;
+      }
+      if (state.cart.some(item => Number(item.id) === Number(product.id))) {
+        setAppMessage("Sản phẩm đã có trong giỏ hàng. Mỗi tài khoản chỉ mua tối đa 1 sản phẩm Flash Sale.", "info");
+        return;
+      }
+
+      state.cart.push({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        stock: product.stock
+      });
+      saveAndRenderCart();
+      setAppMessage("Đã thêm sản phẩm vào giỏ hàng.", "success");
+    }
+
+    function removeFromCart(productId) {
+      state.cart = state.cart.filter(item => Number(item.id) !== Number(productId));
+      saveAndRenderCart();
+    }
+
+    function clearCart() {
+      state.cart = [];
+      saveAndRenderCart();
+      setAppMessage("Đã xóa giỏ hàng.", "info");
+    }
+
+    function renderCart() {
+      if (!state.cart.length) {
+        els.cartList.innerHTML = BF.emptyState("fa-cart-shopping", "Giỏ hàng trống", "Thêm sản phẩm Flash Sale để chốt đơn.");
+        return;
+      }
+
+      els.cartList.innerHTML = state.cart.map(function (item) {
+        const image = item.image || "https://images.unsplash.com/photo-1607082349566-187342175e2f?q=80&w=900&auto=format&fit=crop";
+        return `
+          <article class="cart-item">
+            <div class="cart-thumb">
+              <img src="${BF.escapeHtml(image)}" alt="${BF.escapeHtml(item.name || "Sản phẩm")}">
+            </div>
+            <div class="item-main">
+              <h3>${BF.escapeHtml(item.name || "Sản phẩm")}</h3>
+              <p>Số lượng: 1 sản phẩm Flash Sale</p>
+              <p><strong>${BF.formatCurrency(item.price)}</strong></p>
+            </div>
+            <button class="ghost-button" type="button" data-cart-remove="${item.id}">
+              <i class="fa-solid fa-trash"></i>
+              Xóa
+            </button>
+          </article>
+        `;
+      }).join("");
+    }
+
+    async function buyProduct(product, options = {}) {
+      const data = await BF.apiRequest("/api/flashsale/buy", {
+        method: "POST",
+        body: {
+          productId: Number(product.id),
+          quantity: 1
+        }
+      });
+      const orderId = data && data.data ? data.data.orderId : null;
+
+      if (!options.silent) {
+        setAppMessage(`Đã chốt đơn${orderId ? ` #${orderId}` : ""} cho ${product.name}.`, "success");
+      }
+
+      return {
+        orderId,
+        productId: data && data.data ? data.data.productId : Number(product.id),
+        remainingStock: data && data.data ? data.data.remainingStock : null,
+        raw: data
+      };
+    }
+
+    async function buyNow(product) {
+      if (!product) return;
+      const button = document.querySelector(`[data-product-action="buy"][data-product-id="${product.id}"]`);
+      BF.setButtonLoading(button, true, "Đang mua");
+      try {
+        await buyProduct(product);
+        removeFromCart(product.id);
+        await loadProducts();
+        window.location.href = "orders.html";
+      } catch (error) {
+        setAppMessage(error.message || "Không thể mua sản phẩm.", "error");
+      } finally {
+        BF.setButtonLoading(button, false);
+      }
+    }
+
+    async function checkoutCart() {
+      if (!state.cart.length || state.isCheckingOut) return;
+
+      state.isCheckingOut = true;
+      BF.setButtonLoading(els.checkoutBtn, true, "Đang chốt đơn");
+      const purchasedIds = [];
+      const failures = [];
+
+      for (const item of [...state.cart]) {
+        try {
+          await buyProduct(item, { silent: true });
+          purchasedIds.push(Number(item.id));
+        } catch (error) {
+          failures.push(`${item.name}: ${error.message}`);
+        }
+      }
+
+      state.cart = state.cart.filter(item => !purchasedIds.includes(Number(item.id)));
+      saveAndRenderCart();
+      await loadProducts();
+
+      if (purchasedIds.length && failures.length) {
+        setAppMessage(`Đã chốt ${purchasedIds.length} sản phẩm. ${failures.length} sản phẩm lỗi: ${failures.join("; ")}`, "info");
+      } else if (purchasedIds.length) {
+        window.location.href = "orders.html";
+      } else {
+        setAppMessage(failures.join("; ") || "Không thể chốt đơn.", "error");
+      }
+
+      state.isCheckingOut = false;
+      BF.setButtonLoading(els.checkoutBtn, false);
+    }
+
+    async function warmupCache() {
+      BF.setButtonLoading(els.warmupBtn, true, "Đang nạp");
+      try {
+        const data = await BF.apiRequest("/api/flashsale/warmup", {
+          method: "POST",
+          body: {}
+        });
+        setAppMessage(data.message || "Đã nạp dữ liệu Flash Sale vào Redis.", "success");
+        await loadProducts();
+      } catch (error) {
+        setAppMessage(error.message || "Không thể nạp Redis.", "error");
+      } finally {
+        BF.setButtonLoading(els.warmupBtn, false);
+      }
+    }
+
+    document.getElementById("logoutBtn").addEventListener("click", BF.logout);
+    document.getElementById("refreshProductsBtn").addEventListener("click", loadProducts);
+    document.getElementById("clearCartBtn").addEventListener("click", clearCart);
+    document.getElementById("checkoutBtn").addEventListener("click", checkoutCart);
+    document.getElementById("warmupBtn").addEventListener("click", warmupCache);
+
+    els.productGrid.addEventListener("click", function (event) {
+      const button = event.target.closest("[data-product-action]");
+      if (!button) return;
+
+      const product = findProduct(button.dataset.productId);
+      if (button.dataset.productAction === "add") addToCart(product);
+      if (button.dataset.productAction === "buy") buyNow(product);
+    });
+
+    els.cartList.addEventListener("click", function (event) {
+      const button = event.target.closest("[data-cart-remove]");
+      if (!button) return;
+      removeFromCart(button.dataset.cartRemove);
+    });
+
+    const currentUser = BF.getUser() || {};
+    els.warmupBtn.classList.toggle("hidden", currentUser.role !== "admin");
+    BF.renderUserHeader();
+    renderCart();
+    renderStats();
+    loadProducts();
+  </script>
+</body>
+</html>

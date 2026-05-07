@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flash Sale E-Commerce | Lịch sử đơn hàng</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="../assets/css/ecommerce.css">
+</head>
+
+<body>
+  <main class="app-page">
+    <div class="app-shell">
+      <header class="app-header">
+        <a class="logo" href="home.html" aria-label="E-Commerce">
+          <i class="fa-solid fa-bolt"></i>
+          E-<span>Commerce</span>
+        </a>
+
+        <nav class="nav-tabs" aria-label="Điều hướng">
+          <a class="nav-tab" href="cart.html">
+            <i class="fa-solid fa-cart-shopping"></i>
+            Giỏ hàng
+          </a>
+          <a class="nav-tab active" href="orders.html">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            Lịch sử
+          </a>
+        </nav>
+
+        <div class="header-actions">
+          <button class="icon-btn" onclick="goHome()">
+            <i class="fa-solid fa-house"></i>
+          </button>
+          <a class="icon-btn badge-button" href="cart.html" aria-label="Mở giỏ hàng" title="Mở giỏ hàng">
+            <i class="fa-solid fa-cart-shopping"></i>
+            <span class="badge" id="cartCount">0</span>
+          </a>
+          <button class="icon-btn" onclick="goProfile()">
+            <img id="headerAvatar" src="./img/default-avatar.png" class="avatar-mini">
+          </button>
+          <button class="icon-btn" id="logoutBtn" type="button" aria-label="Đăng xuất" title="Đăng xuất">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          </button>
+        </div>
+      </header>
+
+      <div class="api-pill">
+        <i class="fa-solid fa-server"></i>
+        <span id="apiBaseText"></span>
+        <button type="button" id="changeApiBtn">Đổi API</button>
+      </div>
+
+      <section class="hero-band" aria-label="Tổng quan lịch sử đơn hàng">
+        <div>
+          <h1>Lịch sử đơn hàng</h1>
+          <p>Theo dõi các đơn đã chốt qua backend NT208, xem chi tiết và tạo liên kết thanh toán PayOS khi cần.</p>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <strong id="orderCount">0</strong>
+            <span>Đơn đang hiển thị</span>
+          </div>
+          <div class="hero-stat">
+            <strong id="orderPageShort">1/1</strong>
+            <span>Trang</span>
+          </div>
+          <div class="hero-stat">
+            <strong id="cartCountShort">0</strong>
+            <span>Trong giỏ</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="app-panel">
+        <div id="appMessage" class="app-message" role="status" aria-live="polite"></div>
+
+        <div class="section-toolbar">
+          <div class="section-title">
+            <h2>Đơn hàng của tôi</h2>
+            <p>Dữ liệu lấy từ <strong>/api/users/orders</strong> bằng JWT đang đăng nhập.</p>
+          </div>
+          <div class="order-controls">
+            <select class="order-filter" id="orderStatusFilter" aria-label="Lọc trạng thái đơn hàng">
+              <option value="">Tất cả trạng thái</option>
+              <option value="pending">Chờ xử lý</option>
+              <option value="confirmed">Đã xác nhận</option>
+              <option value="paid">Đã thanh toán</option>
+              <option value="shipped">Đang giao</option>
+              <option value="delivered">Đã giao</option>
+              <option value="completed">Hoàn tất</option>
+              <option value="cancelled">Đã hủy</option>
+            </select>
+            <button class="ghost-button" id="refreshOrdersBtn" type="button">
+              <i class="fa-solid fa-rotate"></i>
+              Tải lại
+            </button>
+          </div>
+        </div>
+
+        <div id="orderList" class="order-list"></div>
+
+        <div class="pagination">
+          <button class="ghost-button" id="prevOrdersBtn" type="button">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+          <span id="orderPageText">Trang 1/1</span>
+          <button class="ghost-button" id="nextOrdersBtn" type="button">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div id="orderModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="orderModalTitle">
+    <article class="modal-card">
+      <header class="modal-header">
+        <h3 id="orderModalTitle">Chi tiết đơn hàng</h3>
+        <button class="icon-btn" id="closeOrderModal" type="button" aria-label="Đóng" title="Đóng">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </header>
+      <div class="modal-body" id="orderModalBody"></div>
+    </article>
+  </div>
+
+  <script src="../assets/js/ecommerce-common.js"></script>
+  <script src="../assets/js/home/cart.js"></script>
+  <script>
+    const BF = window.ECommerce;
+    if (!BF.requireAuth()) {
+      throw new Error("Authentication required");
+    }
+
+    const state = {
+      orders: [],
+      page: 1,
+      totalPages: 1,
+      status: ""
+    };
+
+    const els = {
+      appMessage: document.getElementById("appMessage"),
+      orderList: document.getElementById("orderList"),
+      orderStatusFilter: document.getElementById("orderStatusFilter"),
+      orderPageText: document.getElementById("orderPageText"),
+      orderPageShort: document.getElementById("orderPageShort"),
+      orderCount: document.getElementById("orderCount"),
+      cartCountShort: document.getElementById("cartCountShort"),
+      prevOrdersBtn: document.getElementById("prevOrdersBtn"),
+      nextOrdersBtn: document.getElementById("nextOrdersBtn"),
+      orderModal: document.getElementById("orderModal"),
+      orderModalBody: document.getElementById("orderModalBody")
+    };
+
+    function setAppMessage(text, type = "info") {
+      BF.setMessage(els.appMessage, text, type);
+    }
+
+    function renderStats() {
+      els.orderCount.textContent = state.orders.length;
+      els.orderPageShort.textContent = `${state.page}/${state.totalPages}`;
+      els.cartCountShort.textContent = BF.readCart().length;
+      BF.renderUserHeader();
+    }
+
+    async function loadOrders(page = 1) {
+      try {
+        const params = new URLSearchParams({
+          page: String(page),
+          limit: "10"
+        });
+
+        if (state.status) {
+          params.set("status", state.status);
+        }
+
+        const data = await BF.apiRequest(`/api/users/orders?${params.toString()}`);
+        const payload = data.data || {};
+        state.orders = Array.isArray(payload.orders) ? payload.orders : [];
+        state.page = Number(payload.page || page);
+        state.totalPages = Number(payload.totalPages || 1) || 1;
+        renderOrders();
+        renderStats();
+        setAppMessage("");
+      } catch (error) {
+        state.orders = [];
+        els.orderList.innerHTML = BF.emptyState("fa-triangle-exclamation", "Không tải được lịch sử đơn hàng", error.message);
+        setAppMessage(error.message || "Không tải được lịch sử đơn hàng.", "error");
+        renderStats();
+      }
+    }
+
+    function renderOrders() {
+      if (!state.orders.length) {
+        els.orderList.innerHTML = BF.emptyState("fa-clock-rotate-left", "Chưa có đơn hàng", "Các đơn đã chốt sẽ xuất hiện tại đây.");
+      } else {
+        els.orderList.innerHTML = state.orders.map(function (order) {
+          const items = Array.isArray(order.items) ? order.items : [];
+          const itemNames = items.map(function (item) {
+            return item.product ? item.product.name : `Sản phẩm #${item.productId}`;
+          }).join(", ");
+          const status = order.status || "pending";
+          const paymentStatus = order.paymentStatus || "unpaid";
+
+          return `
+            <article class="order-card">
+              <div class="order-main">
+                <div class="order-meta">
+                  <span class="status-pill ${BF.escapeHtml(status)}">${BF.statusLabel(status)}</span>
+                  <span class="status-pill ${BF.escapeHtml(paymentStatus)}">${BF.paymentLabel(paymentStatus)}</span>
+                </div>
+                <h3>${BF.escapeHtml(order.orderNumber || `Đơn #${order.id}`)}</h3>
+                <p>${BF.escapeHtml(itemNames || "Không có sản phẩm")}</p>
+                <p>${BF.formatDate(order.createdAt)} · <strong>${BF.formatCurrency(order.finalPrice || order.totalPrice)}</strong></p>
+              </div>
+              <div class="order-actions">
+                <button class="ghost-button" type="button" data-order-detail="${order.id}">
+                  <i class="fa-solid fa-eye"></i>
+                  Chi tiết
+                </button>
+                <button class="primary-button" type="button" data-order-pay="${order.id}" ${paymentStatus === "paid" ? "disabled" : ""}>
+                  <i class="fa-solid fa-qrcode"></i>
+                  PayOS
+                </button>
+              </div>
+            </article>
+          `;
+        }).join("");
+      }
+
+      els.orderPageText.textContent = `Trang ${state.page}/${state.totalPages}`;
+      els.prevOrdersBtn.disabled = state.page <= 1;
+      els.nextOrdersBtn.disabled = state.page >= state.totalPages;
+    }
+
+    async function showOrderDetail(orderId) {
+      try {
+        const data = await BF.apiRequest(`/api/users/orders/${orderId}`);
+        const order = data.data || {};
+        const items = Array.isArray(order.items) ? order.items : [];
+
+        els.orderModalBody.innerHTML = `
+          <div class="summary-line">
+            <span>Mã đơn</span>
+            <strong>${BF.escapeHtml(order.orderNumber || `#${order.id}`)}</strong>
+          </div>
+          <div class="summary-line">
+            <span>Trạng thái</span>
+            <strong>${BF.statusLabel(order.status)}</strong>
+          </div>
+          <div class="summary-line">
+            <span>Thanh toán</span>
+            <strong>${BF.paymentLabel(order.paymentStatus)}</strong>
+          </div>
+          <div class="summary-line">
+            <span>Tổng tiền</span>
+            <strong>${BF.formatCurrency(order.finalPrice || order.totalPrice)}</strong>
+          </div>
+          <div class="detail-items">
+            ${items.map(function (item) {
+              const product = item.product || {};
+              return `
+                <article class="cart-item">
+                  <div class="cart-thumb">
+                    <img src="${BF.escapeHtml(product.image || "https://images.unsplash.com/photo-1607082349566-187342175e2f?q=80&w=900&auto=format&fit=crop")}" alt="${BF.escapeHtml(product.name || "Sản phẩm")}">
+                  </div>
+                  <div class="item-main">
+                    <h3>${BF.escapeHtml(product.name || `Sản phẩm #${item.productId}`)}</h3>
+                    <p>Số lượng: ${item.quantity}</p>
+                    <p><strong>${BF.formatCurrency(item.subtotal || item.unitPrice)}</strong></p>
+                  </div>
+                </article>
+              `;
+            }).join("")}
+          </div>
+        `;
+        els.orderModal.classList.remove("hidden");
+      } catch (error) {
+        setAppMessage(error.message || "Không tải được chi tiết đơn hàng.", "error");
+      }
+    }
+
+    async function createPayment(orderId, button) {
+      BF.setButtonLoading(button, true, "Đang tạo QR");
+      try {
+        const data = await BF.apiRequest("/api/payment/create_url", {
+          method: "POST",
+          body: { orderId: Number(orderId) }
+        });
+        const url = data && data.data ? data.data.url : null;
+        if (!url) {
+          throw new Error("Backend không trả về URL thanh toán.");
+        }
+        window.open(url, "_blank", "noopener");
+        setAppMessage("Đã tạo liên kết thanh toán PayOS.", "success");
+      } catch (error) {
+        setAppMessage(error.message || "Không tạo được thanh toán PayOS.", "error");
+      } finally {
+        BF.setButtonLoading(button, false);
+      }
+    }
+
+    document.getElementById("logoutBtn").addEventListener("click", BF.logout);
+    document.getElementById("refreshOrdersBtn").addEventListener("click", function () {
+      loadOrders(state.page);
+    });
+
+    document.getElementById("changeApiBtn").addEventListener("click", function () {
+      const nextValue = window.prompt("API base URL", BF.getApiBaseUrl());
+      if (!nextValue) return;
+      BF.setApiBaseUrl(nextValue);
+      BF.renderUserHeader();
+      setAppMessage("Đã đổi API backend.", "info");
+      loadOrders(1);
+    });
+
+    els.orderStatusFilter.addEventListener("change", function () {
+      state.status = els.orderStatusFilter.value;
+      loadOrders(1);
+    });
+
+    els.prevOrdersBtn.addEventListener("click", function () {
+      if (state.page > 1) loadOrders(state.page - 1);
+    });
+
+    els.nextOrdersBtn.addEventListener("click", function () {
+      if (state.page < state.totalPages) loadOrders(state.page + 1);
+    });
+
+    els.orderList.addEventListener("click", function (event) {
+      const detailButton = event.target.closest("[data-order-detail]");
+      const payButton = event.target.closest("[data-order-pay]");
+      if (detailButton) showOrderDetail(detailButton.dataset.orderDetail);
+      if (payButton) createPayment(payButton.dataset.orderPay, payButton);
+    });
+
+    document.getElementById("closeOrderModal").addEventListener("click", function () {
+      els.orderModal.classList.add("hidden");
+    });
+
+    els.orderModal.addEventListener("click", function (event) {
+      if (event.target === els.orderModal) {
+        els.orderModal.classList.add("hidden");
+      }
+    });
+
+    BF.renderUserHeader();
+    renderStats();
+    loadOrders(1);
+  </script>
+</body>
+</html>
