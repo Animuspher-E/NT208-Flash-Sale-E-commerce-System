@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Flash Sale E-Commerce | Đăng nhập</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="stylesheet" href="../assets/css/ecommerce.css">
+  <link rel="stylesheet" href="../assets/css/auth-cart-orders.css">
 </head>
 
 <body>
@@ -20,8 +20,8 @@
           </span>
           <h1>E-<span>Commerce</span></h1>
           <p>
-            Nơi mua sắm trực tuyến với những ưu đãi không thể bỏ lỡ. Đăng nhập hoặc đăng ký để trải nghiệm săn sale
-            nhanh chóng và tiện lợi.
+            Trang xác thực dùng chung với backend NT208. Sau khi đăng nhập, token JWT
+            được lưu để truy cập giỏ hàng và lịch sử đơn hàng.
           </p>
 
           <div class="system-stats" aria-label="Điểm nhấn hệ thống">
@@ -33,12 +33,12 @@
             <div class="stat">
               <i class="fa-solid fa-cart-shopping"></i>
               <strong>Giỏ hàng</strong>
-              <span>Lưu sản phẩm yêu thích</span>
+              <span>Tách riêng ở Cart.html</span>
             </div>
             <div class="stat">
               <i class="fa-solid fa-clock-rotate-left"></i>
               <strong>Lịch sử</strong>
-              <span>Theo dõi lịch sử mua sắm</span>
+              <span>Tách riêng ở Profile.html</span>
             </div>
           </div>
         </div>
@@ -173,7 +173,7 @@
     </section>
   </main>
 
-  <script src="../assets/js/ecommerce-common.js"></script>
+  <script src="../assets/js/auth-cart-orders-common.js"></script>
   <script>
     const BF = window.ECommerce;
     const els = {

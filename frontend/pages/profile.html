@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flash Sale E-Commerce | Thông tin</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="../assets/css/profile.css">
+</head>
+
+<body>
+
+<div class="header">
+  <div class="logo" onclick="goHome()">
+    <i class="fa-solid fa-bolt"></i>
+    E-<span>Commerce</span>
+  </div>
+
+  <div class="search">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input id="searchInput" placeholder="Tìm kiếm sản phẩm...">
+  </div>
+
+  <div class="nav">
+    <button class="icon-btn" onclick="goHome()">
+      <i class="fa-solid fa-house"></i>
+    </button>
+
+    <button class="icon-btn" onclick="viewCart()">
+      <i class="fa-solid fa-cart-shopping"></i>
+      <span class="cart-badge" id="cart">0</span>
+    </button>
+
+    <button class="icon-btn" onclick="goProfile()">
+      <img id="headerAvatar" src="./img/default-avatar.png" class="avatar-mini">
+    </button>
+
+    <button class="icon-btn" id="logoutBtn" type="button">
+      <i class="fa-solid fa-arrow-right-from-bracket"></i>
+    </button>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="avatar-box">
+      <div class="avatar">
+        <img id="avatarPreview" src="./img/default-avatar.png">
+        <input type="file" id="avatarInput" accept="image/*">
+      </div>
+
+      <label for="avatarInput" class="upload-btn">
+        Chọn ảnh
+      </label>
+    </div>
+
+    <div class="menu">
+      <div class="menu-item active" onclick="showTab(event, 'profile')">Hồ sơ</div>
+      <div class="menu-item" onclick="showTab(event, 'bank')">Ngân hàng</div>
+      <div class="menu-item" onclick="showTab(event, 'address')">Địa chỉ</div>
+      <div class="menu-item" onclick="showTab(event, 'password')">Đổi mật khẩu</div>
+      <div class="menu-item" onclick="showTab(event, 'delete')">Xóa tài khoản</div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- HỒ SƠ -->
+    <div id="profileTab">
+      <h2>Hồ sơ</h2>
+
+      <div class="form-group">
+        <label>Tên đăng nhập</label>
+        <input id="username">
+      </div>
+
+      <div class="form-group">
+        <label>Tên</label>
+        <input id="name">
+      </div>
+
+      <div class="form-group">
+        <label>Email</label>
+        <input id="email">
+      </div>
+
+      <div class="form-group">
+        <label>Số điện thoại</label>
+        <input id="phone">
+      </div>
+
+      <div class="form-group">
+        <label>Giới tính</label>
+        <select id="gender">
+          <option value="Nam">Nam</option>
+          <option value="Nữ">Nữ</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Ngày sinh</label>
+        <input type="date" id="dob">
+      </div>
+
+      <button class="btn" onclick="saveProfile()">Lưu</button>
+
+      <div id="profileMessage" class="form-message"></div>
+    </div>
+
+    <!-- NGÂN HÀNG -->
+    <div id="bankTab" class="hidden">
+      <h2>Ngân hàng</h2>
+
+      <div class="form-group">
+        <label>Số tài khoản</label>
+        <input id="bankNumber" placeholder="Nhập số tài khoản">
+      </div>
+
+      <div class ="form-group">
+        <select id="bankName">
+          <option value="">-- Chọn ngân hàng --</option>
+          <option value="Vietcombank">Vietcombank</option>
+          <option value="Techcombank">Techcombank</option>
+          <option value="MB Bank">MB Bank</option>
+          <option value="ACB">ACB</option>
+          <option value="BIDV">BIDV</option>
+          <option value="TPBank">TPBank</option>
+          <option value="Sacombank">Sacombank</option>
+          <option value="Agribank">Agribank</option>
+          <option value="VIB">VIB</option>
+          <option value="HDBank">HDBank</option>
+          <option value="VPBank">VPBank</option>
+          <option value="LPBank">LPBank</option>
+          <option value="OCB">OCB</option>
+        </select>
+      </div>
+
+      <button class="btn" onclick="addBank()">Liên kết</button>
+
+      <div id="bankList"></div>
+      <div id="bankMessage" class="form-message"></div>
+    </div>
+
+    <!-- ĐỊA CHỈ -->
+    <div id="addressTab" class="hidden">
+      <h2>Địa chỉ</h2>
+
+      <div class="form-group">
+        <label>Họ tên</label>
+        <input id="fullName">
+      </div>
+
+      <div class="form-group">
+        <label>Số điện thoại</label>
+        <input id="phoneAddress">
+      </div>
+
+      <div class="form-group">
+        <label>Tỉnh/Thành phố</label> 
+        <select id="province">
+          <option value="">Chọn tỉnh</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Quận/Huyện</label>
+        <select id="district">
+          <option value="">Chọn quận</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Xã/Phường</label>
+        <select id="ward">
+          <option value="">Chọn phường</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Địa chỉ cụ thể</label>
+        <input id="detailAddress" placeholder="Số nhà, tên đường">
+      </div>
+
+      <button class="btn" onclick="addAddress()">+ Thêm địa chỉ</button>
+
+      <div id="addressList"></div>
+      <div id="addressMessage" class="form-message"></div>
+    </div>
+
+    <!-- PASSWORD -->
+    <div id="passwordTab" class="hidden">
+      <h2>Đổi mật khẩu</h2>
+
+      <div class="form-group">
+        <input id="oldPass" type="password" placeholder="Mật khẩu cũ">
+      </div>
+
+      <div class="form-group">
+        <input id="newPass" type="password" placeholder="Mật khẩu mới">
+      </div>
+
+      <div class="form-group">
+        <input id="confirmPass" type="password" placeholder="Xác nhận mật khẩu">
+      </div>
+
+      <button class="btn" onclick="changePassword()">Cập nhật</button>
+
+      <div id="passwordMessage" class="form-message"></div>
+    </div>
+
+    <!-- DELETE ACCOUNT -->
+    <div id="deleteTab" class="hidden">
+      <h2>Xóa tài khoản</h2>
+
+      <div class="address-box">
+        <p style="color:red;">⚠ Hành động này không thể hoàn tác. Tài khoản của bạn sẽ bị xóa vĩnh viễn.</p>
+      </div>
+
+      <button class="btn" onclick="showDeleteConfirm()">Xóa tài khoản</button>
+
+      <div id="deleteConfirmBox" class="hidden address-box">
+        <p>Bạn có chắc chắn muốn xóa tài khoản?</p>
+        <button class="btn" onclick="deleteAccount()">Xác nhận</button>
+        <button class="btn" onclick="cancelDelete()">Hủy</button>
+      </div>
+
+      <div id="deleteMessage" class="form-message"></div>
+    </div>
+
+  </div>
+</div>
+
+<script src="../assets/js/profile/data.js"></script>
+<script src="../assets/js/home/cart.js"></script>
+<script src="../assets/js/profile/main.js"></script>
+<script src="../assets/js/profile/address.js"></script>
+<script src="../assets/js/profile/user.js"></script>
+<script src="../assets/js/profile/bank.js"></script>
+<script src="../assets/js/home/data.js"></script>
+<script src="../assets/js/home/render.js"></script>
+<script src="../assets/js/home/search.js"></script>
+
+</body>
+</html>
