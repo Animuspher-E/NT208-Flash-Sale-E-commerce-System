@@ -1,231 +1,459 @@
+// ================================================
+// File: assets/js/admin/dashboard.js
+// Mục đích: Logic toàn bộ trang Admin Panel
+//   - Kiểm tra quyền admin
+//   - Load thống kê, sản phẩm, đơn hàng, khách hàng
+//   - CRUD sản phẩm (Thêm / Sửa / Xóa)
+//   - Bật / Tắt Flash Sale cho từng sản phẩm
+//   - Warm-up Redis Cache
+// ================================================
+
 const BF = window.ECommerce;
 
-// Định dạng tiền tệ
-function formatCurrency(value) {
-  return Number(value || 0).toLocaleString('vi-VN') + ' đ';
+// ─────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────
+function fmt(v) { return Number(v || 0).toLocaleString('vi-VN') + ' đ'; }
+function fmtDate(d) { if (!d) return '—'; return new Date(d).toLocaleString('vi-VN'); }
+function statusBadge(status) {
+  const map = {
+    pending: 'bg-yellow-100 text-yellow-800',
+    confirmed: 'bg-blue-100 text-blue-800',
+    processing: 'bg-blue-100 text-blue-800',
+    delivered: 'bg-green-100 text-green-800',
+    completed: 'bg-green-100 text-green-800',
+    cancelled: 'bg-red-100 text-red-800',
+  };
+  const labels = {
+    pending: 'Chờ xử lý', confirmed: 'Đã xác nhận', processing: 'Đang xử lý',
+    delivered: 'Đã giao', completed: 'Hoàn tất', cancelled: 'Đã hủy'
+  };
+  return `<span class="px-2 py-0.5 rounded-full text-xs font-semibold ${map[status] || 'bg-gray-100 text-gray-700'}">${labels[status] || status}</span>`;
 }
 
-// Định dạng ngày
-function formatDate(dateString) {
-  if (!dateString) return '';
-  const date = new Date(dateString);
-  return date.toLocaleDateString('vi-VN') + ' ' + date.toLocaleTimeString('vi-VN');
-}
-
-// Kiểm tra quyền Admin
+// ─────────────────────────────────────────────
+// AUTH CHECK
+// ─────────────────────────────────────────────
 function checkAdmin() {
   const user = BF.getUser();
   const token = BF.getToken();
-
   if (!token || !user || user.role !== 'admin') {
     alert('Bạn không có quyền truy cập trang này!');
-    window.location.href = 'home.html';
+    window.location.href = 'auth.html';
     return false;
   }
   return true;
 }
 
-// SPA: Chuyển đổi Tab
-window.switchTab = function(tabId) {
-  // Ẩn tất cả tab
-  document.querySelectorAll('.tab-content').forEach(el => {
-    el.classList.add('hidden');
-  });
-  
-  // Xóa active style trên tất cả nav buttons
+// ─────────────────────────────────────────────
+// TAB NAVIGATION
+// ─────────────────────────────────────────────
+window.switchTab = function (tabId) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
   document.querySelectorAll('.nav-btn').forEach(el => {
-    el.className = 'nav-btn flex items-center px-3 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-red-600 rounded-lg font-medium transition-colors';
+    el.className = 'nav-btn flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-red-600 rounded-lg font-medium transition-colors';
   });
-
-  // Hiện tab được chọn
-  document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-  
-  // Thêm active style cho nav button được chọn
+  document.getElementById(`tab-${tabId}`)?.classList.remove('hidden');
   const activeNav = document.getElementById(`nav-${tabId}`);
-  if (activeNav) {
-    activeNav.className = 'nav-btn flex items-center px-3 py-2.5 bg-red-50 text-red-600 rounded-lg font-medium';
-  }
+  if (activeNav) activeNav.className = 'nav-btn flex items-center gap-3 px-3 py-2.5 bg-red-50 text-red-600 rounded-lg font-semibold';
 
-  // Tùy theo tab mà load dữ liệu
+  const titles = { dashboard: 'Tổng quan', products: 'Quản lý Sản phẩm', orders: 'Quản lý Đơn hàng', customers: 'Quản lý Khách hàng' };
+  const titleEl = document.getElementById('pageTitle');
+  if (titleEl) titleEl.textContent = titles[tabId] || tabId;
+
   if (tabId === 'dashboard') loadDashboard();
   if (tabId === 'products') loadProducts();
-  if (tabId === 'orders') loadFullOrders();
+  if (tabId === 'orders') loadOrders();
   if (tabId === 'customers') loadCustomers();
-}
+};
 
-// Load Dashboard (Stats + Recent Orders)
+// ─────────────────────────────────────────────
+// DASHBOARD
+// ─────────────────────────────────────────────
 async function loadDashboard() {
   try {
-    const statsRes = await BF.apiRequest('/api/admin/stats');
+    const [statsRes, ordersRes] = await Promise.all([
+      BF.apiRequest('/api/admin/stats'),
+      BF.apiRequest('/api/admin/orders')
+    ]);
+
     if (statsRes.success) {
       const d = statsRes.data;
       document.getElementById('stat-totalOrders').textContent = d.totalOrders.toLocaleString();
       document.getElementById('stat-paidOrders').textContent = d.paidOrders.toLocaleString();
       document.getElementById('stat-totalUsers').textContent = d.totalUsers.toLocaleString();
-      document.getElementById('stat-totalRevenue').textContent = formatCurrency(d.totalRevenue);
+      document.getElementById('stat-totalRevenue').textContent = fmt(d.totalRevenue);
     }
 
-    const ordersRes = await BF.apiRequest('/api/admin/orders');
     if (ordersRes.success) {
       const tbody = document.getElementById('recentOrdersTable');
       tbody.innerHTML = '';
-      if (ordersRes.data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="py-4 text-center text-gray-500">Chưa có đơn hàng nào</td></tr>';
+      if (!ordersRes.data.length) {
+        tbody.innerHTML = '<tr><td colspan="5" class="py-6 text-center text-gray-400">Chưa có đơn hàng nào</td></tr>';
         return;
       }
-
-      ordersRes.data.forEach(o => {
-        let statusClass = 'bg-gray-100 text-gray-800';
-        if (o.status === 'pending') statusClass = 'bg-yellow-100 text-yellow-800';
-        if (o.status === 'delivered') statusClass = 'bg-green-100 text-green-800';
-        if (o.status === 'processing') statusClass = 'bg-blue-100 text-blue-800';
-        if (o.status === 'cancelled') statusClass = 'bg-red-100 text-red-800';
-
+      ordersRes.data.slice(0, 10).forEach(o => {
         tbody.innerHTML += `
           <tr class="border-b border-gray-50 hover:bg-gray-50 transition-colors">
-            <td class="py-4 font-bold text-gray-800">${o.orderNumber}</td>
-            <td class="py-4 text-gray-600">${o.user?.name || 'Unknown'}</td>
-            <td class="py-4 text-gray-500 text-xs">${formatDate(o.createdAt)}</td>
-            <td class="py-4 font-medium text-gray-800">${formatCurrency(o.finalPrice)}</td>
-            <td class="py-4"><span class="px-2.5 py-1 ${statusClass} rounded-md font-medium text-xs">${o.status}</span></td>
-          </tr>
-        `;
+            <td class="py-3 font-bold text-gray-800 text-sm">${o.orderNumber}</td>
+            <td class="py-3 text-gray-600 text-sm">${o.user?.name || '—'}</td>
+            <td class="py-3 text-gray-400 text-xs">${fmtDate(o.createdAt)}</td>
+            <td class="py-3 font-medium text-red-600 text-sm">${fmt(o.finalPrice)}</td>
+            <td class="py-3">${statusBadge(o.status)}</td>
+          </tr>`;
       });
     }
-  } catch (error) {
-    console.error("Lỗi load dashboard:", error);
+  } catch (err) {
+    console.error('Lỗi load dashboard:', err);
   }
 }
 
-// Load danh sách sản phẩm
-async function loadProducts() {
+// ─────────────────────────────────────────────
+// PRODUCTS
+// ─────────────────────────────────────────────
+let allCategories = [];
+let currentFilter = 'all'; // all | flashsale | normal
+
+async function loadProducts(filter) {
+  if (filter !== undefined) currentFilter = filter;
+
+  const filterBtn = (f) => document.getElementById(`filter-${f}`)?.classList;
+  ['all', 'flashsale', 'normal'].forEach(f => {
+    const cls = filterBtn(f);
+    if (!cls) return;
+    if (f === currentFilter) {
+      cls.add('bg-red-600', 'text-white');
+      cls.remove('bg-gray-100', 'text-gray-600');
+    } else {
+      cls.remove('bg-red-600', 'text-white');
+      cls.add('bg-gray-100', 'text-gray-600');
+    }
+  });
+
+  const params = new URLSearchParams();
+  if (currentFilter === 'flashsale') params.set('isFlashSale', 'true');
+  if (currentFilter === 'normal') params.set('isFlashSale', 'false');
+
+  const search = document.getElementById('productSearch')?.value?.trim();
+  if (search) params.set('search', search);
+
   try {
-    const res = await BF.apiRequest('/api/admin/products');
-    if (res.success) {
-      const tbody = document.getElementById('productsTable');
-      tbody.innerHTML = '';
-      if (res.data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="py-4 text-center text-gray-500">Không có dữ liệu</td></tr>';
-        return;
-      }
+    const [prodRes, catRes] = await Promise.all([
+      BF.apiRequest('/api/admin/products?' + params.toString()),
+      allCategories.length ? Promise.resolve({ data: allCategories }) : BF.apiRequest('/api/admin/categories')
+    ]);
 
-      res.data.forEach(p => {
-        tbody.innerHTML += `
-          <tr class="border-b border-gray-50 hover:bg-gray-50 transition-colors">
-            <td class="p-3 font-medium text-gray-500">${p.id}</td>
-            <td class="p-3"><img src="${p.image || '../assets/img/default-product.png'}" class="w-10 h-10 object-cover rounded-md"></td>
-            <td class="p-3 font-medium text-gray-800 truncate max-w-xs">${p.name}</td>
-            <td class="p-3 text-gray-600">${p.category?.name || 'N/A'}</td>
-            <td class="p-3 font-medium text-red-600">${formatCurrency(p.price)}</td>
-            <td class="p-3 font-bold ${p.stock > 10 ? 'text-green-600' : 'text-red-600'}">${p.stock}</td>
-            <td class="p-3 text-center">
-              <button class="text-blue-600 hover:text-blue-800 mr-2"><i class="fa-solid fa-pen-to-square"></i></button>
-              <button class="text-red-600 hover:text-red-800"><i class="fa-solid fa-trash"></i></button>
-            </td>
-          </tr>
-        `;
-      });
+    if (catRes.data) allCategories = catRes.data;
+    populateCategorySelect('productCategory');
+    populateCategorySelect('editProductCategory');
+
+    const tbody = document.getElementById('productsTable');
+    tbody.innerHTML = '';
+
+    if (!prodRes.data.length) {
+      tbody.innerHTML = '<tr><td colspan="8" class="py-8 text-center text-gray-400">Không có sản phẩm nào</td></tr>';
+      return;
     }
-  } catch (error) {
-    console.error("Lỗi load products:", error);
+
+    prodRes.data.forEach(p => {
+      const flashBadge = p.isFlashSale
+        ? '<span class="bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded-full">⚡ Flash Sale</span>'
+        : '<span class="bg-gray-100 text-gray-500 text-xs px-2 py-0.5 rounded-full">Thường</span>';
+
+      tbody.innerHTML += `
+        <tr class="border-b border-gray-50 hover:bg-red-50/30 transition-colors" id="product-row-${p.id}">
+          <td class="p-3 text-xs text-gray-400 font-medium">${p.id}</td>
+          <td class="p-3"><img src="${p.image || '../img/default-product.png'}" class="w-12 h-12 object-cover rounded-lg shadow-sm" onerror="this.src='../img/default-product.png'"></td>
+          <td class="p-3">
+            <div class="font-semibold text-gray-800 text-sm truncate max-w-[180px]">${BF.escapeHtml(p.name)}</div>
+            <div class="text-xs text-gray-400 mt-0.5">${p.category?.name || '—'}</div>
+          </td>
+          <td class="p-3 text-sm font-bold text-red-600">${fmt(p.price)}</td>
+          <td class="p-3 text-center">
+            <span class="font-bold text-sm ${p.stock > 10 ? 'text-green-600' : 'text-red-500'}">${p.stock}</span>
+          </td>
+          <td class="p-3">${flashBadge}</td>
+          <td class="p-3 text-xs text-gray-400">${p.discount > 0 ? '-' + p.discount + '%' : '—'}</td>
+          <td class="p-3">
+            <div class="flex items-center gap-1.5 justify-center">
+              <button onclick="openEditModal(${p.id})" title="Chỉnh sửa"
+                class="w-8 h-8 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors">
+                <i class="fa-solid fa-pen text-xs"></i>
+              </button>
+              <button onclick="toggleFlashSale(${p.id}, ${!p.isFlashSale})" title="${p.isFlashSale ? 'Tắt Flash Sale' : 'Bật Flash Sale'}"
+                class="w-8 h-8 flex items-center justify-center rounded-lg ${p.isFlashSale ? 'bg-orange-50 text-orange-500 hover:bg-orange-100' : 'bg-yellow-50 text-yellow-600 hover:bg-yellow-100'} transition-colors">
+                <i class="fa-solid fa-bolt text-xs"></i>
+              </button>
+              <button onclick="deleteProduct(${p.id}, '${BF.escapeHtml(p.name)}')" title="Xóa"
+                class="w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition-colors">
+                <i class="fa-solid fa-trash text-xs"></i>
+              </button>
+            </div>
+          </td>
+        </tr>`;
+    });
+  } catch (err) {
+    console.error('Lỗi load products:', err);
+    document.getElementById('productsTable').innerHTML =
+      '<tr><td colspan="8" class="py-6 text-center text-red-400">Lỗi tải dữ liệu: ' + err.message + '</td></tr>';
   }
 }
 
-// Load danh sách đơn hàng đầy đủ
-async function loadFullOrders() {
-  try {
-    const res = await BF.apiRequest('/api/admin/orders');
-    if (res.success) {
-      const tbody = document.getElementById('fullOrdersTable');
-      tbody.innerHTML = '';
-      if (res.data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="py-4 text-center text-gray-500">Không có dữ liệu</td></tr>';
-        return;
-      }
-
-      res.data.forEach(o => {
-        let statusClass = 'bg-gray-100 text-gray-800';
-        if (o.status === 'pending') statusClass = 'bg-yellow-100 text-yellow-800';
-        if (o.status === 'delivered') statusClass = 'bg-green-100 text-green-800';
-        if (o.status === 'processing') statusClass = 'bg-blue-100 text-blue-800';
-        if (o.status === 'cancelled') statusClass = 'bg-red-100 text-red-800';
-
-        tbody.innerHTML += `
-          <tr class="border-b border-gray-50 hover:bg-gray-50 transition-colors">
-            <td class="p-3 font-bold text-gray-800">${o.orderNumber}</td>
-            <td class="p-3 text-gray-600">${o.user?.name || 'Unknown'}</td>
-            <td class="p-3 text-gray-500 text-xs">${formatDate(o.createdAt)}</td>
-            <td class="p-3 font-medium text-gray-800">${formatCurrency(o.finalPrice)}</td>
-            <td class="p-3"><span class="px-2.5 py-1 ${statusClass} rounded-md font-medium text-xs">${o.status}</span></td>
-            <td class="p-3 text-center">
-              <button class="text-blue-600 hover:text-blue-800 mr-2"><i class="fa-solid fa-eye"></i></button>
-              <button class="text-green-600 hover:text-green-800"><i class="fa-solid fa-check"></i></button>
-            </td>
-          </tr>
-        `;
-      });
-    }
-  } catch (error) {
-    console.error("Lỗi load full orders:", error);
-  }
+function populateCategorySelect(selectId) {
+  const sel = document.getElementById(selectId);
+  if (!sel) return;
+  const current = sel.value;
+  sel.innerHTML = '<option value="">-- Chọn danh mục --</option>';
+  allCategories.forEach(c => {
+    sel.innerHTML += `<option value="${c.id}" ${current == c.id ? 'selected' : ''}>${c.name}</option>`;
+  });
 }
 
-// Load danh sách khách hàng
-async function loadCustomers() {
-  try {
-    const res = await BF.apiRequest('/api/admin/customers');
-    if (res.success) {
-      const tbody = document.getElementById('customersTable');
-      tbody.innerHTML = '';
-      if (res.data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="py-4 text-center text-gray-500">Không có dữ liệu</td></tr>';
-        return;
-      }
+// ADD PRODUCT
+window.openAddModal = function () {
+  document.getElementById('productFormTitle').textContent = 'Thêm sản phẩm mới';
+  document.getElementById('productForm').reset();
+  document.getElementById('productId').value = '';
+  toggleFlashSaleFields(false);
+  document.getElementById('productModal').classList.remove('hidden');
+};
 
-      res.data.forEach(c => {
-        tbody.innerHTML += `
-          <tr class="border-b border-gray-50 hover:bg-gray-50 transition-colors">
-            <td class="p-3 font-medium text-gray-500">${c.id}</td>
-            <td class="p-3 font-medium text-gray-800">${c.name}</td>
-            <td class="p-3 text-gray-600">${c.email}</td>
-            <td class="p-3 text-gray-600">${c.phone || 'N/A'}</td>
-            <td class="p-3 text-gray-500 text-xs">${formatDate(c.createdAt)}</td>
-          </tr>
-        `;
-      });
-    }
-  } catch (error) {
-    console.error("Lỗi load customers:", error);
-  }
+window.closeProductModal = function () {
+  document.getElementById('productModal').classList.add('hidden');
+};
+
+window.onFlashSaleToggle = function (checked) {
+  toggleFlashSaleFields(checked);
+};
+
+function toggleFlashSaleFields(show) {
+  document.getElementById('flashSaleFields').classList.toggle('hidden', !show);
 }
 
-// Khởi chạy khi load trang
-window.addEventListener('DOMContentLoaded', () => {
-  if (checkAdmin()) {
-    // Mặc định load tab dashboard
-    switchTab('dashboard');
+document.addEventListener('DOMContentLoaded', () => {
+  const checkbox = document.getElementById('isFlashSale');
+  if (checkbox) {
+    checkbox.addEventListener('change', () => toggleFlashSaleFields(checkbox.checked));
   }
 });
 
-// Hàm Warm-up Cache
-window.triggerWarmup = async function() {
-  const btn = document.getElementById('warmupBtn');
-  const msg = document.getElementById('adminMessage');
-  
-  btn.disabled = true;
-  btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Đang xử lý...';
-  msg.textContent = "";
+window.submitProductForm = async function (e) {
+  e.preventDefault();
+  const id = document.getElementById('productId').value;
+  const isFlashSaleEl = document.getElementById('isFlashSale');
+
+  const body = {
+    name: document.getElementById('productName').value,
+    description: document.getElementById('productDescription').value,
+    price: document.getElementById('productPrice').value,
+    originalPrice: document.getElementById('productOriginalPrice').value,
+    discount: document.getElementById('productDiscount').value,
+    stock: document.getElementById('productStock').value,
+    image: document.getElementById('productImage').value,
+    categoryId: document.getElementById('productCategory').value,
+    location: document.getElementById('productLocation').value,
+    isFlashSale: isFlashSaleEl?.checked || false,
+    flashSaleStart: document.getElementById('flashSaleStart').value || null,
+    flashSaleEnd: document.getElementById('flashSaleEnd').value || null,
+  };
+
+  const btn = document.getElementById('submitProductBtn');
+  BF.setButtonLoading(btn, true, id ? 'Đang cập nhật...' : 'Đang thêm...');
 
   try {
-    const data = await BF.apiRequest('/api/flashsale/warmup', {
-      method: 'POST'
-    });
-    
-    msg.innerHTML = `<span class="text-green-600"><i class="fa-solid fa-circle-check"></i> ${data.message || "Cache Warm-up thành công!"}</span>`;
-  } catch (error) {
-    msg.innerHTML = `<span class="text-red-600"><i class="fa-solid fa-circle-xmark"></i> ${error.message || "Có lỗi xảy ra khi warm-up cache."}</span>`;
+    if (id) {
+      await BF.apiRequest(`/api/admin/products/${id}`, { method: 'PUT', body });
+      showToast('✅ Cập nhật sản phẩm thành công!', 'success');
+    } else {
+      await BF.apiRequest('/api/admin/products', { method: 'POST', body });
+      showToast('✅ Thêm sản phẩm thành công!', 'success');
+    }
+    closeProductModal();
+    loadProducts();
+  } catch (err) {
+    showToast('❌ ' + err.message, 'error');
   } finally {
-    btn.disabled = false;
-    btn.innerHTML = '<i class="fa-solid fa-bolt"></i> Bắt đầu Warm-up';
+    BF.setButtonLoading(btn, false);
   }
 };
+
+// EDIT PRODUCT
+window.openEditModal = async function (id) {
+  try {
+    const res = await BF.apiRequest(`/api/admin/products?search=`);
+    const product = res.data.find(p => p.id === id);
+    if (!product) return showToast('Không tìm thấy sản phẩm', 'error');
+
+    document.getElementById('productFormTitle').textContent = 'Chỉnh sửa sản phẩm';
+    document.getElementById('productId').value = product.id;
+    document.getElementById('productName').value = product.name || '';
+    document.getElementById('productDescription').value = product.description || '';
+    document.getElementById('productPrice').value = product.price || '';
+    document.getElementById('productOriginalPrice').value = product.originalPrice || '';
+    document.getElementById('productDiscount').value = product.discount || 0;
+    document.getElementById('productStock').value = product.stock || 0;
+    document.getElementById('productImage').value = product.image || '';
+    document.getElementById('productLocation').value = product.location || '';
+    document.getElementById('isFlashSale').checked = product.isFlashSale;
+
+    populateCategorySelect('productCategory');
+    setTimeout(() => { document.getElementById('productCategory').value = product.categoryId; }, 50);
+
+    if (product.flashSaleStart) {
+      document.getElementById('flashSaleStart').value = new Date(product.flashSaleStart).toISOString().slice(0, 16);
+    }
+    if (product.flashSaleEnd) {
+      document.getElementById('flashSaleEnd').value = new Date(product.flashSaleEnd).toISOString().slice(0, 16);
+    }
+
+    toggleFlashSaleFields(product.isFlashSale);
+    document.getElementById('productModal').classList.remove('hidden');
+  } catch (err) {
+    showToast('❌ ' + err.message, 'error');
+  }
+};
+
+// TOGGLE FLASH SALE
+window.toggleFlashSale = async function (id, enable) {
+  const action = enable ? 'bật Flash Sale' : 'tắt Flash Sale';
+  if (!confirm(`Bạn có chắc muốn ${action} cho sản phẩm này?`)) return;
+
+  try {
+    const body = { isFlashSale: enable };
+    if (enable) {
+      body.flashSaleStart = new Date().toISOString();
+      body.flashSaleEnd = new Date(Date.now() + 86400000).toISOString(); // +24h mặc định
+    }
+    await BF.apiRequest(`/api/admin/products/${id}/flashsale`, { method: 'PATCH', body });
+    showToast(`✅ Đã ${action} thành công!`, 'success');
+    loadProducts();
+  } catch (err) {
+    showToast('❌ ' + err.message, 'error');
+  }
+};
+
+// DELETE PRODUCT
+window.deleteProduct = async function (id, name) {
+  if (!confirm(`Xóa sản phẩm "${name}"?\nHành động này không thể hoàn tác!`)) return;
+  try {
+    await BF.apiRequest(`/api/admin/products/${id}`, { method: 'DELETE' });
+    showToast('✅ Xóa sản phẩm thành công!', 'success');
+    loadProducts();
+  } catch (err) {
+    showToast('❌ ' + err.message, 'error');
+  }
+};
+
+// ─────────────────────────────────────────────
+// ORDERS
+// ─────────────────────────────────────────────
+async function loadOrders() {
+  try {
+    const res = await BF.apiRequest('/api/admin/orders');
+    const tbody = document.getElementById('fullOrdersTable');
+    tbody.innerHTML = '';
+
+    if (!res.data.length) {
+      tbody.innerHTML = '<tr><td colspan="6" class="py-8 text-center text-gray-400">Chưa có đơn hàng nào</td></tr>';
+      return;
+    }
+
+    res.data.forEach(o => {
+      tbody.innerHTML += `
+        <tr class="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+          <td class="p-3 font-bold text-gray-800 text-sm">${o.orderNumber}</td>
+          <td class="p-3">
+            <div class="font-medium text-sm text-gray-800">${o.user?.name || '—'}</div>
+            <div class="text-xs text-gray-400">${o.user?.email || ''}</div>
+          </td>
+          <td class="p-3 text-gray-400 text-xs">${fmtDate(o.createdAt)}</td>
+          <td class="p-3 font-bold text-red-600 text-sm">${fmt(o.finalPrice)}</td>
+          <td class="p-3">${statusBadge(o.status)}</td>
+          <td class="p-3 text-xs text-gray-500">${o.items?.map(i => i.product?.name).join(', ') || '—'}</td>
+        </tr>`;
+    });
+  } catch (err) {
+    console.error('Lỗi load orders:', err);
+  }
+}
+
+// ─────────────────────────────────────────────
+// CUSTOMERS
+// ─────────────────────────────────────────────
+async function loadCustomers() {
+  try {
+    const res = await BF.apiRequest('/api/admin/customers');
+    const tbody = document.getElementById('customersTable');
+    tbody.innerHTML = '';
+
+    if (!res.data.length) {
+      tbody.innerHTML = '<tr><td colspan="5" class="py-8 text-center text-gray-400">Chưa có khách hàng nào</td></tr>';
+      return;
+    }
+
+    res.data.forEach(u => {
+      tbody.innerHTML += `
+        <tr class="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+          <td class="p-3 text-xs text-gray-400 font-medium">${u.id}</td>
+          <td class="p-3 font-medium text-gray-800 text-sm">${BF.escapeHtml(u.name)}</td>
+          <td class="p-3 text-gray-600 text-sm">${u.email}</td>
+          <td class="p-3 text-gray-600 text-sm">${u.phone || '—'}</td>
+          <td class="p-3 text-center">
+            <span class="bg-blue-50 text-blue-700 text-xs font-semibold px-2 py-0.5 rounded-full">${u._count?.orders || 0} đơn</span>
+          </td>
+          <td class="p-3 text-gray-400 text-xs">${fmtDate(u.createdAt)}</td>
+        </tr>`;
+    });
+  } catch (err) {
+    console.error('Lỗi load customers:', err);
+  }
+}
+
+// ─────────────────────────────────────────────
+// WARM-UP CACHE
+// ─────────────────────────────────────────────
+window.triggerWarmup = async function () {
+  const btn = document.getElementById('warmupBtn');
+  const msg = document.getElementById('adminMessage');
+  BF.setButtonLoading(btn, true, 'Đang nạp cache...');
+  msg.textContent = '';
+  try {
+    const data = await BF.apiRequest('/api/flashsale/warmup', { method: 'POST' });
+    msg.innerHTML = `<span class="text-green-600"><i class="fa-solid fa-circle-check mr-1"></i>${data.message || 'Cache Warm-up thành công!'}</span>`;
+  } catch (err) {
+    msg.innerHTML = `<span class="text-red-600"><i class="fa-solid fa-circle-xmark mr-1"></i>${err.message}</span>`;
+  } finally {
+    BF.setButtonLoading(btn, false);
+  }
+};
+
+// ─────────────────────────────────────────────
+// TOAST NOTIFICATION
+// ─────────────────────────────────────────────
+function showToast(msg, type = 'success') {
+  const toast = document.getElementById('toast');
+  if (!toast) return;
+  toast.textContent = msg;
+  toast.className = `fixed bottom-5 right-5 z-50 px-5 py-3 rounded-xl shadow-lg text-sm font-medium transition-all duration-300 ${type === 'success' ? 'bg-green-600 text-white' : 'bg-red-500 text-white'}`;
+  toast.classList.remove('opacity-0', 'translate-y-4');
+  setTimeout(() => { toast.classList.add('opacity-0', 'translate-y-4'); }, 3000);
+}
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  if (!checkAdmin()) return;
+
+  // Search products
+  const searchInput = document.getElementById('productSearch');
+  let debounceTimer;
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => loadProducts(), 400);
+    });
+  }
+
+  switchTab('dashboard');
+});

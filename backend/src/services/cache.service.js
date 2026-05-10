@@ -20,24 +20,28 @@
 // ================================================
 
 const { getRedisClient } = require('../config/redis');
-const { getPrismaClient } = require('../config/database');
+const prisma = require('../config/database');
 const REDIS_KEY_INFO = (productId) => `flashsale:product_${productId}:info`;
 const REDIS_KEY_STOCK = (productId) => `flashsale:product_${productId}:stock`;
 const CACHE_TTL_SECONDS = 24 * 60 * 60; // Thời gian hết hạn dữ liệu Redis: 24 giờ 
 
 async function warmUpCache() {
   const redis = getRedisClient();
-  const prisma = getPrismaClient();
   console.log('[Cache] Bắt đầu cache warm-up...');
   try {
     const products = await prisma.product.findMany({
-      where: { isActive: true },
+      where: { isFlashSale: true },
       select: {
         id: true,
         name: true,
         price: true,
         image: true,
         stock: true,
+        discount: true,
+        sold: true,
+        location: true,
+        rating: true,
+        flashSaleEnd: true
       }
     });
     console.log(`[Cache] Tìm thấy ${products.length} sản phẩm Flash Sale cần warm-up`);
@@ -46,6 +50,11 @@ async function warmUpCache() {
         name: product.name,
         price: product.price,
         image: product.image,
+        discount: product.discount,
+        sold: product.sold,
+        location: product.location,
+        rating: product.rating,
+        flashSaleEnd: product.flashSaleEnd
       };
       await redis.set(
         REDIS_KEY_INFO(product.id),
@@ -83,6 +92,11 @@ async function getProductFromCache(productId) {
     price: info.price,
     image: info.image,
     stock: parseInt(stock) || 0,
+    discount: info.discount,
+    sold: info.sold,
+    location: info.location,
+    rating: info.rating,
+    flashSaleEnd: info.flashSaleEnd
   };
 }
 async function getAllProductsFromCache() {
@@ -93,7 +107,7 @@ async function getAllProductsFromCache() {
   }
   const products = await Promise.all(
     infoKeys.map(async (infoKey) => {
-      const productId = infoKey.split(':')[2].replace('product_', '');
+      const productId = infoKey.split(':')[1].replace('product_', '');
       const infoJson = await redis.get(infoKey);
       const stock = await redis.get(REDIS_KEY_STOCK(productId));
       const info = JSON.parse(infoJson);
@@ -103,6 +117,11 @@ async function getAllProductsFromCache() {
         price: info.price,
         image: info.image,
         stock: parseInt(stock) || 0,
+        discount: info.discount,
+        sold: info.sold,
+        location: info.location,
+        rating: info.rating,
+        flashSaleEnd: info.flashSaleEnd
       };
     })
   );
