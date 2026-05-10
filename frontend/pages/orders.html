@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Flash Sale E-Commerce | Lịch sử đơn hàng</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="stylesheet" href="../assets/css/ecommerce.css">
+  <link rel="stylesheet" href="../assets/css/auth-cart-orders.css">
 </head>
 
 <body>
@@ -125,7 +126,7 @@
     </article>
   </div>
 
-  <script src="../assets/js/ecommerce-common.js"></script>
+  <script src="../assets/js/auth-cart-orders-common.js"></script>
   <script src="../assets/js/home/cart.js"></script>
   <script>
     const BF = window.ECommerce;
@@ -260,8 +261,8 @@
           </div>
           <div class="detail-items">
             ${items.map(function (item) {
-              const product = item.product || {};
-              return `
+          const product = item.product || {};
+          return `
                 <article class="cart-item">
                   <div class="cart-thumb">
                     <img src="${BF.escapeHtml(product.image || "https://images.unsplash.com/photo-1607082349566-187342175e2f?q=80&w=900&auto=format&fit=crop")}" alt="${BF.escapeHtml(product.name || "Sản phẩm")}">
@@ -273,7 +274,7 @@
                   </div>
                 </article>
               `;
-            }).join("")}
+        }).join("")}
           </div>
         `;
         els.orderModal.classList.remove("hidden");
@@ -351,4 +352,5 @@
     loadOrders(1);
   </script>
 </body>
+
 </html>

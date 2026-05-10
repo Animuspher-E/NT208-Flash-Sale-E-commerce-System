@@ -7,11 +7,11 @@ window.addEventListener("DOMContentLoaded", async () => {
 
   bindInputs();
 
-  initProfileUI();   
+  initProfileUI();
   initAvatar();
-  initLogout();  
+  initLogout();
 
-  await loadProfile(); 
+  await loadProfile();
 
   renderBanks();
   renderAddresses();
@@ -69,7 +69,7 @@ async function loadProfile() {
 
     localStorage.setItem("user", JSON.stringify(mergedUser));
 
-    initProfileUI(); 
+    initProfileUI();
   } catch {
     console.warn("API lỗi → dùng localStorage");
     initProfileUI();
@@ -95,7 +95,7 @@ function initAvatar() {
 
       localStorage.setItem("user", JSON.stringify(newUser));
 
-      initProfileUI(); 
+      initProfileUI();
       window.dispatchEvent(new Event("userUpdated"));
     };
 
@@ -184,6 +184,90 @@ async function saveProfile() {
 
   } catch (err) {
     showMessage("profileMessage", "Lỗi cập nhật!", "error");
+  }
+}
+
+async function changePassword() {
+
+  const oldPass = document
+    .getElementById("oldPass")
+    .value
+    .trim();
+
+  const newPass = document
+    .getElementById("newPass")
+    .value
+    .trim();
+
+  const confirmPass = document
+    .getElementById("confirmPass")
+    .value
+    .trim();
+
+  const token = localStorage.getItem("token");
+
+  if (!oldPass || !newPass || !confirmPass) {
+    return showMessage("passwordMessage", "Vui lòng nhập đầy đủ thông tin!");
+  }
+
+  if (newPass.length < 6) {
+    return showMessage("passwordMessage", "Mật khẩu mới phải >= 6 ký tự!");
+  }
+
+  if (newPass !== confirmPass) {
+    return showMessage("passwordMessage", "Xác nhận mật khẩu không khớp!");
+  }
+
+  if (oldPass === newPass) {
+
+    return showMessage(
+      "passwordMessage",
+      "Mật khẩu mới không được trùng mật khẩu cũ!"
+    );
+  }
+
+  try {
+
+    const response = await fetch(
+      "http://localhost:3000/api/auth/change-password",
+      {
+
+        method: "PUT",
+
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token
+        },
+
+        body: JSON.stringify({
+
+          oldPassword: oldPass,
+
+          newPassword: newPass
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+
+      throw new Error(
+        data.message || "Đổi mật khẩu thất bại!"
+      );
+    }
+
+    document.getElementById("oldPass").value = "";
+
+    document.getElementById("newPass").value = "";
+
+    document.getElementById("confirmPass").value = "";
+
+    showMessage("passwordMessage", "Đổi mật khẩu thành công!", "success");
+
+  } catch (err) {
+
+    showMessage("passwordMessage", err.message);
   }
 }
 
