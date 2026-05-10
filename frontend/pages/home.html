@@ -33,14 +33,40 @@
         <span class="cart-badge" id="cart">0</span>
       </button>
 
-      <button class="icon-btn" id="userBtn" onclick="handleUserClick()">
-        <img id="userAvatar" class="avatar-mini hidden">
+      <!-- Chưa đăng nhập -->
+      <button class="icon-btn" id="loginBtn" onclick="window.location.href='auth.html'">
         <span id="loginText">Đăng nhập</span>
       </button>
 
-      <button class="icon-btn hidden" id="logoutBtn" type="button">
-        <i class="fa-solid fa-arrow-right-from-bracket"></i>
-      </button>
+      <!-- Đã đăng nhập: Avatar + Dropdown -->
+      <div class="user-dropdown-wrapper hidden" id="userDropdownWrapper">
+        <button class="avatar-btn" id="avatarBtn" type="button">
+          <img id="userAvatar" class="avatar-mini" src="./img/default-avatar.png" alt="Avatar">
+        </button>
+        <div class="user-dropdown hidden" id="userDropdown">
+          <div class="dropdown-header">
+            <i class="fa-solid fa-user-circle"></i>
+            <div>
+              <strong id="dropdownUserName">Người dùng</strong>
+              <small id="dropdownUserEmail"></small>
+            </div>
+          </div>
+          <hr class="dropdown-divider">
+          <button class="dropdown-item" onclick="window.location.href='profile.html'">
+            <i class="fa-solid fa-id-card"></i>
+            Trang cá nhân
+          </button>
+          <button class="dropdown-item" onclick="window.location.href='orders.html'">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            Lịch sử đơn hàng
+          </button>
+          <hr class="dropdown-divider">
+          <button class="dropdown-item dropdown-logout" id="logoutBtn" type="button">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            Đăng xuất
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 

@@ -34,38 +34,45 @@ function pad(n) {
   return n.toString().padStart(2, "0");
 }
 
+function getToken() {
+  return localStorage.getItem("token") || sessionStorage.getItem("token");
+}
+
+function getStoredUser() {
+  try {
+    const raw = localStorage.getItem("user") || sessionStorage.getItem("user");
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
 function initUserUI() {
-  const token = localStorage.getItem("token");
+  const token = getToken();
+  const user = getStoredUser();
 
+  const loginBtn = document.getElementById("loginBtn");
+  const wrapper = document.getElementById("userDropdownWrapper");
   const avatar = document.getElementById("userAvatar");
-  const loginText = document.getElementById("loginText");
-  const logoutBtn = document.getElementById("logoutBtn");
+  const nameEl = document.getElementById("dropdownUserName");
+  const emailEl = document.getElementById("dropdownUserEmail");
 
-  if (!avatar || !loginText || !logoutBtn) return;
-
-  if (token) {
-    const user = JSON.parse(localStorage.getItem("user")) || {};
-
-    avatar.classList.remove("hidden");
-    loginText.classList.add("hidden");
-    logoutBtn.classList.remove("hidden");
-
-    avatar.src = user.avatar || "./img/default-avatar.png";
+  if (token && user && user.name) {
+    // Đã đăng nhập: ẩn nút "Đăng nhập", hiện avatar
+    if (loginBtn) loginBtn.style.display = "none";
+    if (wrapper) wrapper.style.display = "inline-block";
+    if (avatar) avatar.src = user.avatar || "./img/default-avatar.png";
+    if (nameEl) nameEl.textContent = user.name;
+    if (emailEl) emailEl.textContent = user.email || "";
   } else {
-    avatar.classList.add("hidden");
-    loginText.classList.remove("hidden");
-    logoutBtn.classList.add("hidden");
+    // Chưa đăng nhập: hiện nút "Đăng nhập", ẩn avatar
+    if (loginBtn) loginBtn.style.display = "";
+    if (wrapper) wrapper.style.display = "none";
   }
 }
 
-function handleUserClick() {
-  const token = localStorage.getItem("token");
-
-  if (token) {
-    window.location.href = "profile.html";
-  } else {
-    window.location.href = "auth.html";
-  }
+function toggleUserDropdown(e) {
+  e.stopPropagation();
+  const dropdown = document.getElementById("userDropdown");
+  if (dropdown) dropdown.classList.toggle("hidden");
 }
 
 window.addEventListener("DOMContentLoaded", async () => {
@@ -78,14 +85,26 @@ window.addEventListener("DOMContentLoaded", async () => {
   initUserUI();
   initSocket();
 
+  // Avatar click → toggle dropdown
+  const avatarBtn = document.getElementById("avatarBtn");
+  if (avatarBtn) avatarBtn.addEventListener("click", toggleUserDropdown);
+
+  // Logout
   const logoutBtn = document.getElementById("logoutBtn");
-  if (logoutBtn) {
-    logoutBtn.addEventListener("click", logout);
-  }
+  if (logoutBtn) logoutBtn.addEventListener("click", logout);
+
+  // Click ngoài dropdown → đóng
+  document.addEventListener("click", function (e) {
+    const dropdown = document.getElementById("userDropdown");
+    const wrapper = document.getElementById("userDropdownWrapper");
+    if (dropdown && wrapper && !wrapper.contains(e.target)) {
+      dropdown.classList.add("hidden");
+    }
+  });
 });
 
 function isLoggedIn() {
-  return !!localStorage.getItem("token");
+  return !!getToken();
 }
 
 function requireLogin() {
@@ -131,6 +150,8 @@ function logout() {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
   localStorage.removeItem("cart");
+  sessionStorage.removeItem("token");
+  sessionStorage.removeItem("user");
 
   initUserUI();
 

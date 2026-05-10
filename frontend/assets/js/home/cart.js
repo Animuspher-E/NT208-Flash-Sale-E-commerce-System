@@ -18,7 +18,7 @@ function saveCart(cart){
 }
 
 function add(id){
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 
   if(!token){
     window.location.href = "auth.html";
@@ -43,11 +43,20 @@ function add(id){
 }
 
 function updateCartUI(){
-  const cart = loadCart();
-
-  let total = cart.reduce((sum, item) => sum + item.quantity, 0);
-
+  const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+  
   const ids = ["cart", "cartCount"];
+  
+  if (!token) {
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.innerText = "0";
+    });
+    return;
+  }
+
+  const cart = loadCart();
+  let total = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   ids.forEach(id => {
     const el = document.getElementById(id);
@@ -56,7 +65,7 @@ function updateCartUI(){
 }
 
 function viewCart(){
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 
   if(!token){
     window.location.href = "auth.html";

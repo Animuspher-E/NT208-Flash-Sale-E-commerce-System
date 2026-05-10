@@ -1,5 +1,20 @@
 const API_URL = "http://localhost:3000";
 
+function getToken() {
+  return localStorage.getItem("token") || sessionStorage.getItem("token");
+}
+
+function getUser() {
+  try {
+    const raw = localStorage.getItem("user") || sessionStorage.getItem("user");
+    return raw ? JSON.parse(raw) : {};
+  } catch { return {}; }
+}
+
+function setUser(userObj) {
+  const storage = localStorage.getItem("token") ? localStorage : sessionStorage;
+  storage.setItem("user", JSON.stringify(userObj));
+}
 let usernameInput, nameInput, emailInput, phoneInput, genderInput, dobInput;
 
 window.addEventListener("DOMContentLoaded", async () => {
@@ -27,7 +42,7 @@ function bindInputs() {
 }
 
 function initProfileUI() {
-  const user = JSON.parse(localStorage.getItem("user")) || {};
+  const user = getUser();
 
   const defaultAvatar = "./img/default-avatar.png";
 
@@ -48,7 +63,7 @@ function initProfileUI() {
 }
 
 async function loadProfile() {
-  const token = localStorage.getItem("token");
+  const token = getToken();
 
   try {
     const res = await fetch(`${API_URL}/api/users/profile`, {
@@ -59,7 +74,7 @@ async function loadProfile() {
 
     const data = await res.json();
 
-    const oldUser = JSON.parse(localStorage.getItem("user")) || {};
+    const oldUser = getUser();
 
     const mergedUser = {
       ...oldUser,
@@ -67,7 +82,7 @@ async function loadProfile() {
       avatar: oldUser.avatar || data.avatar
     };
 
-    localStorage.setItem("user", JSON.stringify(mergedUser));
+    setUser(mergedUser);
 
     initProfileUI();
   } catch {
@@ -86,14 +101,14 @@ function initAvatar() {
     const reader = new FileReader();
 
     reader.onload = function (e) {
-      const oldUser = JSON.parse(localStorage.getItem("user")) || {};
+      const oldUser = getUser();
 
       const newUser = {
         ...oldUser,
         avatar: e.target.result
       };
 
-      localStorage.setItem("user", JSON.stringify(newUser));
+      setUser(newUser);
 
       initProfileUI();
       window.dispatchEvent(new Event("userUpdated"));
@@ -104,7 +119,7 @@ function initAvatar() {
 }
 
 async function saveProfile() {
-  const token = localStorage.getItem("token");
+  const token = getToken();
   if (!token) return window.location.href = "auth.html";
 
   if (!usernameInput.value.trim()) {
@@ -168,7 +183,7 @@ async function saveProfile() {
 
     const updated = await res.json();
 
-    const oldUser = JSON.parse(localStorage.getItem("user")) || {};
+    const oldUser = getUser();
 
     const mergedUser = {
       ...oldUser,
@@ -176,7 +191,7 @@ async function saveProfile() {
       avatar: oldUser.avatar
     };
 
-    localStorage.setItem("user", JSON.stringify(mergedUser));
+    setUser(mergedUser);
 
     initProfileUI();
 
@@ -204,7 +219,7 @@ async function changePassword() {
     .value
     .trim();
 
-  const token = localStorage.getItem("token");
+  const token = getToken();
 
   if (!oldPass || !newPass || !confirmPass) {
     return showMessage("passwordMessage", "Vui lòng nhập đầy đủ thông tin!");
@@ -281,11 +296,12 @@ function initLogout() {
 
 function logout() {
   localStorage.clear();
+  sessionStorage.clear();
   window.location.href = "auth.html";
 }
 
 function requireLogin() {
-  if (!localStorage.getItem("token")) {
+  if (!getToken()) {
     window.location.href = "auth.html";
     return false;
   }
