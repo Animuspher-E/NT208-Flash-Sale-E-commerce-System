@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | Flash Sale E-Commerce</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen text-gray-800 font-sans flex">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-white shadow-xl hidden md:flex flex-col min-h-screen fixed z-20">
+      <div class="h-16 flex items-center px-6 border-b border-gray-100">
+        <i class="fa-solid fa-bolt text-red-600 text-2xl mr-2"></i>
+        <span class="font-bold text-xl text-gray-800">Admin<span class="text-red-600">Panel</span></span>
+      </div>
+      
+      <div class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+        <a href="#" onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn flex items-center px-3 py-2.5 bg-red-50 text-red-600 rounded-lg font-medium">
+          <i class="fa-solid fa-chart-pie w-6"></i> Dashboard
+        </a>
+        <a href="#" onclick="switchTab('products')" id="nav-products" class="nav-btn flex items-center px-3 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-red-600 rounded-lg font-medium transition-colors">
+          <i class="fa-solid fa-box-open w-6"></i> Sản phẩm
+        </a>
+        <a href="#" onclick="switchTab('orders')" id="nav-orders" class="nav-btn flex items-center px-3 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-red-600 rounded-lg font-medium transition-colors">
+          <i class="fa-solid fa-receipt w-6"></i> Đơn hàng
+        </a>
+        <a href="#" onclick="switchTab('customers')" id="nav-customers" class="nav-btn flex items-center px-3 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-red-600 rounded-lg font-medium transition-colors">
+          <i class="fa-solid fa-users w-6"></i> Khách hàng
+        </a>
+      </div>
+  
+      <div class="p-4 border-t border-gray-100">
+        <a href="home.html" class="flex items-center justify-center w-full px-4 py-2 text-sm text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+          <i class="fa-solid fa-arrow-left mr-2"></i> Trở về trang cửa hàng
+        </a>
+      </div>
+    </aside>
+  
+    <!-- Main Content Area -->
+    <div class="flex-1 md:ml-64 flex flex-col min-h-screen">
+      
+      <!-- Top Header -->
+      <header class="h-16 bg-white shadow-sm flex items-center justify-between px-6 lg:px-8 z-10 sticky top-0">
+        <div class="flex items-center">
+          <button class="md:hidden text-gray-500 hover:text-gray-700 mr-4">
+            <i class="fa-solid fa-bars text-xl"></i>
+          </button>
+          <h2 id="pageTitle" class="text-xl font-semibold text-gray-800">Tổng quan</h2>
+        </div>
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-2 cursor-pointer" onclick="BF.logout()">
+            <div class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold">
+              <i class="fa-solid fa-power-off"></i>
+            </div>
+            <span class="text-sm font-medium text-gray-700 hidden sm:block">Đăng xuất</span>
+          </div>
+        </div>
+      </header>
+  
+      <!-- Page Content -->
+      <main class="flex-1 p-6 lg:p-8 overflow-x-hidden">
+        
+        <!-- DASHBOARD TAB -->
+        <div id="tab-dashboard" class="tab-content space-y-6">
+          <!-- WELCOME BANNER -->
+          <div class="bg-gradient-to-r from-red-500 to-red-600 text-white p-6 md:p-8 rounded-2xl shadow-lg relative overflow-hidden">
+            <div class="relative z-10">
+              <h1 class="text-3xl md:text-4xl font-bold mb-2">👋 Xin chào, Admin</h1>
+              <p class="text-red-100">Chào mừng trở lại! Đây là bảng điều khiển hệ thống cửa hàng Flash Sale.</p>
+            </div>
+            <i class="fa-solid fa-chart-line absolute -bottom-4 -right-4 text-9xl text-white opacity-10"></i>
+          </div>
+  
+          <!-- FLASH SALE ACTIONS -->
+          <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <h2 class="text-lg font-bold mb-4 text-gray-800 flex items-center"><i class="fa-solid fa-rocket text-red-500 mr-2"></i> Trình điều khiển Hệ thống</h2>
+            <div class="flex flex-col md:flex-row items-center justify-between bg-red-50 p-6 rounded-xl border border-red-100">
+              <div class="mb-4 md:mb-0">
+                <h3 class="font-bold text-red-700 text-xl flex items-center"><i class="fa-solid fa-fire mr-2"></i> Kích hoạt Flash Sale (Cache Warm-up)</h3>
+                <p class="text-red-600/80 mt-2 max-w-2xl">Tải toàn bộ dữ liệu sản phẩm từ MySQL lên bộ nhớ đệm Redis. Việc này đảm bảo hệ thống chịu được tải cao trong suốt sự kiện.</p>
+              </div>
+              <button id="warmupBtn" onclick="triggerWarmup()" class="bg-red-600 hover:bg-red-700 text-white px-8 py-3.5 rounded-xl font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-2 whitespace-nowrap transform hover:-translate-y-0.5">
+                <i class="fa-solid fa-bolt"></i> Bắt đầu Warm-up
+              </button>
+            </div>
+            <div id="adminMessage" class="mt-4 text-center font-medium"></div>
+          </div>
+  
+          <!-- STATS WIDGETS -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="p-6 rounded-xl bg-white border border-gray-100 shadow-sm flex items-center">
+              <div class="w-14 h-14 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-2xl mr-4"><i class="fa-solid fa-box"></i></div>
+              <div>
+                <div class="text-gray-500 text-sm font-medium mb-1">Tổng đơn hàng</div>
+                <div id="stat-totalOrders" class="text-2xl font-bold text-gray-800">...</div>
+              </div>
+            </div>
+            <div class="p-6 rounded-xl bg-white border border-gray-100 shadow-sm flex items-center">
+              <div class="w-14 h-14 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-2xl mr-4"><i class="fa-solid fa-credit-card"></i></div>
+              <div>
+                <div class="text-gray-500 text-sm font-medium mb-1">Đã thanh toán</div>
+                <div id="stat-paidOrders" class="text-2xl font-bold text-gray-800">...</div>
+              </div>
+            </div>
+            <div class="p-6 rounded-xl bg-white border border-gray-100 shadow-sm flex items-center">
+              <div class="w-14 h-14 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-2xl mr-4"><i class="fa-solid fa-users"></i></div>
+              <div>
+                <div class="text-gray-500 text-sm font-medium mb-1">Tổng khách hàng</div>
+                <div id="stat-totalUsers" class="text-2xl font-bold text-gray-800">...</div>
+              </div>
+            </div>
+            <div class="p-6 rounded-xl bg-white border border-gray-100 shadow-sm flex items-center">
+              <div class="w-14 h-14 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center text-2xl mr-4"><i class="fa-solid fa-sack-dollar"></i></div>
+              <div>
+                <div class="text-gray-500 text-sm font-medium mb-1">Doanh thu tạm tính</div>
+                <div id="stat-totalRevenue" class="text-2xl font-bold text-gray-800">...</div>
+              </div>
+            </div>
+          </div>
+  
+          <!-- RECENT ORDERS -->
+          <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-lg font-bold text-gray-800"><i class="fa-solid fa-receipt text-blue-500 mr-2"></i> Đơn hàng mới nhất</h2>
+              <button onclick="switchTab('orders')" class="text-sm text-blue-600 font-medium hover:text-blue-800">Xem tất cả</button>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="text-gray-400 text-sm border-b border-gray-100">
+                    <th class="pb-3 font-medium">Mã Đơn</th>
+                    <th class="pb-3 font-medium">Khách hàng</th>
+                    <th class="pb-3 font-medium">Ngày đặt</th>
+                    <th class="pb-3 font-medium">Tổng tiền</th>
+                    <th class="pb-3 font-medium">Trạng thái</th>
+                  </tr>
+                </thead>
+                <tbody class="text-sm" id="recentOrdersTable">
+                  <!-- Data will be populated here -->
+                  <tr><td colspan="5" class="py-4 text-center text-gray-500">Đang tải dữ liệu...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- PRODUCTS TAB -->
+        <div id="tab-products" class="tab-content hidden space-y-6">
+          <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-xl font-bold text-gray-800"><i class="fa-solid fa-box-open text-blue-500 mr-2"></i> Quản lý Sản phẩm</h2>
+              <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                <i class="fa-solid fa-plus mr-2"></i> Thêm sản phẩm
+              </button>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="text-gray-400 text-sm border-b border-gray-100 bg-gray-50">
+                    <th class="p-3 font-medium">ID</th>
+                    <th class="p-3 font-medium">Hình ảnh</th>
+                    <th class="p-3 font-medium">Tên sản phẩm</th>
+                    <th class="p-3 font-medium">Danh mục</th>
+                    <th class="p-3 font-medium">Giá bán</th>
+                    <th class="p-3 font-medium">Tồn kho</th>
+                    <th class="p-3 font-medium text-center">Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody class="text-sm" id="productsTable">
+                  <tr><td colspan="7" class="py-4 text-center text-gray-500">Đang tải dữ liệu...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ORDERS TAB -->
+        <div id="tab-orders" class="tab-content hidden space-y-6">
+          <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <h2 class="text-xl font-bold text-gray-800 mb-6"><i class="fa-solid fa-receipt text-blue-500 mr-2"></i> Quản lý Đơn hàng</h2>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="text-gray-400 text-sm border-b border-gray-100 bg-gray-50">
+                    <th class="p-3 font-medium">Mã Đơn</th>
+                    <th class="p-3 font-medium">Khách hàng</th>
+                    <th class="p-3 font-medium">Ngày đặt</th>
+                    <th class="p-3 font-medium">Tổng tiền</th>
+                    <th class="p-3 font-medium">Trạng thái</th>
+                    <th class="p-3 font-medium text-center">Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody class="text-sm" id="fullOrdersTable">
+                  <tr><td colspan="6" class="py-4 text-center text-gray-500">Đang tải dữ liệu...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- CUSTOMERS TAB -->
+        <div id="tab-customers" class="tab-content hidden space-y-6">
+          <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <h2 class="text-xl font-bold text-gray-800 mb-6"><i class="fa-solid fa-users text-blue-500 mr-2"></i> Quản lý Khách hàng</h2>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="text-gray-400 text-sm border-b border-gray-100 bg-gray-50">
+                    <th class="p-3 font-medium">ID</th>
+                    <th class="p-3 font-medium">Họ tên</th>
+                    <th class="p-3 font-medium">Email</th>
+                    <th class="p-3 font-medium">Số điện thoại</th>
+                    <th class="p-3 font-medium">Ngày tham gia</th>
+                  </tr>
+                </thead>
+                <tbody class="text-sm" id="customersTable">
+                  <tr><td colspan="5" class="py-4 text-center text-gray-500">Đang tải dữ liệu...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+  
+      </main>
+    </div>
+  
+    <script src="../assets/js/ecommerce-common.js"></script>
+    <script src="../assets/js/admin/dashboard.js"></script>
+  </body>
+  </html>
+

@@ -1,7 +1,6 @@
-const rabbitMQ = require('../utils/rabbitmq');
+const rabbitMQ = require('../config/rabbitmq');
 const prisma = require('../config/database');
-const logger = require('../utils/logger');
-// const { getRedisClient } = require('../config/redis');
+const logger = require('../config/logger');
 
 const startWorker = async () => {
     try {
@@ -33,10 +32,6 @@ const startWorker = async () => {
                 } catch (error) {
                     logger.error(`[Worker] LỖI xử lý đơn User=${userId}: ${error.message}`);
                     
-                    // TODO: NẾU THẤT BẠI CẦN ROLLBACK TỒN KHO TRÊN REDIS (nếu logic DB lỗi)
-                    // const redisClient = getRedisClient();
-                    // await redisClient.incrby(`inventory:${productId}`, quantity);
-                    
                     // Tùy nghiệp vụ: requeue false để bỏ qua lun, đổi thành true để rabbitMQ phát lại
                     channel.nack(msg, false, false); 
                 }
@@ -48,7 +43,7 @@ const startWorker = async () => {
 };
 
 const handleOrderCreation = async (userId, productId, quantity) => {
-    // Transaction an toàn trên MySQL
+    // Transaction an toàn trên PostgreSQL
     const newOrder = await prisma.$transaction(async (tx) => {
         const product = await tx.product.findUnique({ where: { id: productId } });
         if (!product) throw new Error('PRODUCT_NOT_FOUND');

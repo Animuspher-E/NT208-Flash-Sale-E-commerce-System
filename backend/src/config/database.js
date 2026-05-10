@@ -1,13 +1,12 @@
 
 // Khởi tạo Prisma Client với Connection Pool config
-// Đảm bảo MySQL không sập khi concurrent users cao
+// Đảm bảo Database không sập khi concurrent users cao
 
 const { PrismaClient } = require('@prisma/client');
 
 let prisma;
 
 if (process.env.NODE_ENV === 'production') {
-    // Production: Cần cấu hình connection pool cẩn thận
     prisma = new PrismaClient({
         datasources: {
             db: {
@@ -70,7 +69,7 @@ CONNECTION POOL CONFIG EXPLAINED:
 2. NẾU CẦN ĐIỀU CHỈNH:
    Thêm vào DATABASE_URL:
    
-   mysql://user:password@localhost:3306/dbname?pool_size=20
+   postgresql://user:password@localhost:5432/dbname?pool_size=20
    
    - pool_size=20: Tối đa 20 kết nối đồng thời
    - connection_limit=30: Limit của server

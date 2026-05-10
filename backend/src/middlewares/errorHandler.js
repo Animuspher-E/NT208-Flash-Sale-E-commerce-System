@@ -5,7 +5,7 @@
 //   Express tự nhận ra đây là Error Handler
 //
 // QUAN TRỌNG: Chứa logic ROLLBACK
-//   Khi ghi vào MySQL thất bại (bước order.service),
+//   Khi ghi vào Database thất bại (bước order.service),
 //   cần HOÀN TRẢ lại tồn kho trên Redis (INCR +1)
 //   và xóa userId khỏi danh sách đã mua
 //

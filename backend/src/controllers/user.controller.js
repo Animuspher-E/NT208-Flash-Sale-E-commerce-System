@@ -4,7 +4,7 @@
 // ================================================
 
 const userService = require('../services/user.service');
-const logger = require('../utils/logger');
+const logger = require('../config/logger');
 const { catchAsync } = require('../middlewares/errorHandler');
 
 class UserController {

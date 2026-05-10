@@ -1,16 +1,16 @@
 // ================================================
 // File: src/services/cache.service.js
 // Mục đích: Cache Warm-up - Nạp dữ liệu lên Redis trước giờ G
-//   Giảm tải tối đa cho MySQL khi Flash Sale diễn ra
-//   Vì hàng nghìn người cùng đọc dữ liệu 1 lúc -> Redis nhanh hơn MySQL
+//   Giảm tải tối đa cho Database khi Flash Sale diễn ra
+//   Vì hàng nghìn người cùng đọc dữ liệu 1 lúc -> Redis nhanh hơn Database
 //
 // Cách hoạt động:
 //   1. Khoảng 30 phút trước Flash Sale, gọi hàm warmUpCache()
-//   2. Đọc toàn bộ danh sách sản phẩm Flash Sale từ MySQL (1 lần duy nhất)
+//   2. Đọc toàn bộ danh sách sản phẩm Flash Sale từ Database (1 lần duy nhất)
 //   3. Nạp từng sản phẩm lên Redis:
 //      - Thông tin tĩnh:  flashsale:product_1:info  = JSON string
 //      - Tồn kho:         flashsale:product_1:stock = 100 (số nguyên)
-//   4. Từ đây, mọi request đọc sản phẩm đều lấy từ Redis, không cần MySQL
+//   4. Từ đây, mọi request đọc sản phẩm đều lấy từ Redis, không cần Database
 //
 // Ví dụ Redis sau khi warm-up:
 //   flashsale:product_1:info  => '{"name":"iPhone 15","price":15000000,"image":"..."}'

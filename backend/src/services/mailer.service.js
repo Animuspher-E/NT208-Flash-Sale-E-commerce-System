@@ -1,7 +1,7 @@
 const nodemailer = require('nodemailer');
 
 /**
- * Utility để gửi email
+ * Service để gửi email
  * Cấu hình được lấy từ file .env
  */
 const sendEmail = async (options) => {

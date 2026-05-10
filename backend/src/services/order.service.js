@@ -1,9 +1,9 @@
 // Xử lý đặt hàng với atomic transactions để tránh Over-selling
-// Đảm bảo MySQL + Redis sync hoặc rollback
+// Đảm bảo Database + Redis sync hoặc rollback
 
 const prisma = require('../config/database');
 const redis = require('../config/redis');
-const logger = require('../utils/logger');
+const logger = require('../config/logger');
 
 class OrderService {
     /**
@@ -142,13 +142,13 @@ class OrderService {
             // TRANSACTION THÀNH CÔNG → Cập nhật Redis
             // ========================================
             // ⚠️ Nếu Redis fail → Log error nhưng đừng throw
-            // Vì MySQL đã updated, mất tính sync là chấp nhận được
+            // Vì Database đã updated, mất tính sync là chấp nhận được
             try {
                 await redis.decr(`inventory:${productId}`);
                 await redis.incr(`sales:${productId}:${new Date().toISOString().split('T')[0]}`); // Thống kê sales hôm nay
             } catch (redisError) {
                 logger.error(`Redis update failed for product ${productId}:`, redisError);
-                // Không throw - MySQL là source of truth
+                // Không throw - Database là source of truth
             }
 
             // ========================================

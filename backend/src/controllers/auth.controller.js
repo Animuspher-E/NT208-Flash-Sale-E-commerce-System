@@ -2,9 +2,9 @@
 // Xử lý auth requests: login, register, refresh token
 
 const authService = require('../services/auth.service');
-const logger = require('../utils/logger');
+const logger = require('../config/logger');
 const { catchAsync } = require('../middlewares/errorHandler');
-const sendEmail = require('../utils/mailer');
+const sendEmail = require('../services/mailer.service');
 
 class AuthController {
     /**

@@ -4,7 +4,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const prisma = require('../config/database');
-const logger = require('../utils/logger');
+const logger = require('../config/logger');
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRY = '7d'; // Token hết hạn sau 7 ngày
