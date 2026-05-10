@@ -47,11 +47,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
 function logout() {
   localStorage.clear();
+  sessionStorage.clear();
   window.location.href = "auth.html";
 }
 
 window.addEventListener("DOMContentLoaded", () => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 
   if (!token) {
     window.location.href = "auth.html";
