@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
     const input = document.getElementById("searchInput");
 
+    // Tìm kiếm khi bấm Enter
     input.addEventListener("keydown", function (event) {
         if (event.key === "Enter") {
             event.preventDefault();
@@ -8,7 +9,18 @@ document.addEventListener("DOMContentLoaded", function () {
             handleSearch(keyword);
         }
     });
+
+    // Tìm kiếm real-time khi gõ (debounce 300ms)
+    let debounce;
+    input.addEventListener("input", function () {
+        clearTimeout(debounce);
+        debounce = setTimeout(() => {
+            const keyword = input.value.trim();
+            handleSearch(keyword);
+        }, 300);
+    });
 });
+
 
 function handleSearch(keyword) {
     if (!keyword) {
@@ -20,11 +32,13 @@ function handleSearch(keyword) {
 
     // lọc sản phẩm
     const result = products.filter(product => {
+        const catName = (product.category?.name || product.category || '').toLowerCase();
         return (
             product.name.toLowerCase().includes(keyword) ||
-            product.category.toLowerCase().includes(keyword)
+            catName.includes(keyword)
         );
     });
+
 
     document.getElementById("flash-section").style.display = "none";
     document.getElementById("best-section").style.display = "none";
