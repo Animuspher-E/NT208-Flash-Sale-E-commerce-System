@@ -8,63 +8,59 @@ Hệ thống thương mại điện tử chuyên biệt cho các sự kiện **F
 
 * **Frontend:** HTML, Vanilla CSS, Javascript.
 * **Backend:** Node.js (Express.js).
-* **Database:** PostgreSQL (Relational Database).
-* **ORM:** Prisma (Type-safe database client).
+* **Database:** PostgreSQL (Prisma ORM).
 * **Caching:** Redis (Lưu trữ tồn kho tạm thời).
 * **Message Queue:** RabbitMQ (Xử lý đơn hàng bất đồng bộ).
-* **Real-time:** Socket.io (Cập nhật trạng thái sản phẩm tức thì).
-* **Proxy Server:** Nginx (Reverse Proxy & Chống Spam vòng ngoài).
-* **Auth:** JWT & bcrypt.
+* **Real-time:** Socket.io (Cập nhật trạng thái tức thì).
 
 ---
 
-## 🏗 Kiến trúc hệ thống (System Architecture)
+## ✨ Tính năng nổi bật
 
-Hệ thống áp dụng mô hình xử lý phân lớp để giải quyết bài toán High Concurrency:
+### 1. Giao diện Admin tối giản (Minimalist Admin Dashboard)
+* **Thiết kế hiện đại:** Loại bỏ hoàn toàn icon rườm rà, tập trung vào trải nghiệm văn bản và dữ liệu thuần túy, chuyên nghiệp.
+* **Quản lý Flash Sale chuyên biệt:** Phân hệ Flash Sale được tách thành tab riêng, cho phép quản trị viên thêm sản phẩm vào chương trình bằng ID, thiết lập thời gian và mức giảm giá một cách nhanh chóng.
+* **Bật/Tắt nhanh:** Hỗ trợ toggle trạng thái Flash Sale trực tiếp ngay tại danh sách sản phẩm.
+* **Cache Warm-up:** Nạp dữ liệu lên Redis ngay trên giao diện Admin để chuẩn bị cho sự kiện.
 
-1. **Proxy & Filtering (Nginx):** Tiếp nhận traffic, giới hạn tần suất truy cập (Rate Limit).
-2. **Inventory Caching (Redis):** Trừ tồn kho trên RAM trước để đảm bảo phản hồi < 10ms.
-3. **Asynchronous Processing (RabbitMQ):** Đưa đơn hàng vào hàng đợi để xử lý dần vào Database, tránh nghẽn cổ chai.
-4. **Concurrency Control:** Sử dụng **Database Transactions** của Prisma để đảm bảo tính nhất quán.
+### 2. Trải nghiệm người dùng (User Experience)
+* **Tìm kiếm thời gian thực:** Thanh tìm kiếm tại trang chủ hoạt động tức thì khi gõ (Real-time search) với kỹ thuật Debounce tối ưu hiệu năng.
+* **Đồng hồ đếm ngược:** Cập nhật thời gian kết thúc Flash Sale chính xác đến từng giây.
+* **Thanh toán QR:** Tích hợp cổng PayOS giúp thanh toán qua ngân hàng cực nhanh.
 
 ---
 
-## 🚥 Hướng dẫn cài đặt
+## 🏗 Kiến trúc hệ thống
 
-### Cách 1: Sử dụng Docker (Khuyên dùng)
-Hệ thống đã được đóng gói hoàn toàn trong Docker.
+1. **Inventory Caching (Redis):** Trừ tồn kho trên RAM trước để đảm bảo phản hồi cực nhanh.
+2. **Asynchronous Processing (RabbitMQ):** Đưa đơn hàng vào hàng đợi để xử lý vào Database, tránh nghẽn cổ chai khi lượng truy cập lớn.
+3. **Concurrency Control:** Sử dụng Database Transactions để đảm bảo không bao giờ xảy ra tình trạng "bán lố" (overselling).
 
-1.  **Chuẩn bị:** Sao chép file `.env.example` thành `.env` trong thư mục `backend/`.
-2.  **Khởi chạy:** `docker-compose up -d --build`
-3.  **Khởi tạo Database:** 
-    ```bash
-    docker exec -it nt208-backend npx prisma db push
-    docker exec -it nt208-backend npm run db:seed
-    ```
-4.  **Truy cập:** 
-    * Frontend: Mở `frontend/index.html` (hoặc qua Nginx `http://localhost`).
-    * Backend API: `http://localhost:3000`.
+---
 
-### Cách 2: Cài đặt thủ công (Không dùng Docker)
+## 🚥 Hướng dẫn cài đặt & Chạy
+
+### Cài đặt môi trường
 Bạn cần cài đặt sẵn: Node.js, PostgreSQL, Redis, RabbitMQ.
 
-1.  **Thiết lập Dịch vụ:** Đảm bảo các dịch vụ PostgreSQL, Redis, RabbitMQ đang chạy trên máy.
-2.  **Cấu hình Backend:**
+1.  **Cấu hình Backend:**
     * Vào thư mục `backend/`, chạy `npm install`.
-    * Tạo file `.env` và cập nhật `DATABASE_URL`, `REDIS_URL`, `RABBITMQ_URL` khớp với máy của bạn.
-3.  **Khởi tạo Database:**
+    * Cập nhật file `.env` (đặc biệt là `DATABASE_URL` và mật khẩu Postgres).
+2.  **Khởi tạo Database:**
     ```bash
-    npx prisma generate
     npx prisma db push
     npm run db:seed
     ```
-4.  **Chạy ứng dụng:**
-    * Backend: `npm run dev` (tại thư mục `backend`).
-    * Frontend: Mở file `frontend/index.html` bằng trình duyệt (hoặc dùng Live Server).
+3.  **Chạy ứng dụng:**
+    * Backend: `npm run dev`
+    * Frontend: Mở `frontend/index.html` hoặc dùng **Live Server**.
+
+### Truy cập quản trị (Admin)
+* Đường dẫn: `frontend/pages/admin.html`
+* Tài khoản mặc định: `admin@flashsale.com` / `password123`
 
 ---
 
 ## 🛠 Lệnh hữu ích
-* **Seed dữ liệu:** `npm run db:seed`
-* **Xác nhận Warm-up (Admin):** `curl -X POST http://localhost:3000/api/flashsale/warmup`
-* **Xem log Docker:** `docker logs -f nt208-backend`
+* **Nạp dữ liệu (Warm-up):** Có thể thực hiện qua giao diện Admin hoặc gọi API: `POST /api/flashsale/warmup`
+* **Xem dữ liệu trực quan:** Sử dụng pgAdmin (DB), Redis Commander (Cache), hoặc RabbitMQ Management (Queue).

@@ -1,66 +1,80 @@
-# Tổng hợp API Hệ thống Flash Sale
+# 📘 Tài liệu API - Flash Sale System
 
-Tài liệu này cung cấp danh sách toàn bộ các API (Endpoints) hiện có thể gọi được trong hệ thống Backend.
+Tài liệu này cung cấp danh sách đầy đủ các API Endpoints hiện có trong hệ thống dành cho cả người dùng và quản trị viên.
 
 ---
 
-## Nhóm 1: Quản lý Bảo mật và Truy cập (Authentication)
+## 🔐 1. Xác thực (Authentication)
 *Đường dẫn gốc: `/api/auth`*
 
-| Chức năng           | Method | Endpoint                     | Chức năng chi tiết                                          | Cần Token |
-|---------------------|:------:|------------------------------|-------------------------------------------------------------|:---------:|
-| Đăng ký             | POST   | /api/auth/register           | Tiếp nhận email, tên, mật khẩu. Kiểm tra trùng lặp và lưu.  | Không     |
-| Đăng nhập           | POST   | /api/auth/login              | So khớp mật khẩu, trả về JWT Token để truy cập API khác.    | Không     |
-| Lấy Profile         | GET    | /api/auth/me                 | Lấy nhanh thông tin tài khoản đang đăng nhập.               | Có        |
-| Cấp lại Token       | POST   | /api/auth/refresh-token      | Cấp lại JWT Token mới khi token cũ vừa hết hạn.             | Có        |
-| Đổi mật khẩu        | POST   | /api/auth/change-password    | Thay đổi mật khẩu tài khoản đang đăng nhập.                 | Có        |
-| Đăng xuất           | POST   | /api/auth/logout             | Xóa token, đăng xuất người dùng khỏi hệ thống.              | Có        |
-| Khôi phục mật khẩu  | POST   | /api/auth/forgot-password    | Yêu cầu cấp lại MK, hệ thống gửi email xác nhận.            | Không     |
-| Cài lại mật khẩu    | POST   | /api/auth/reset-password/:token| Đặt lại mật khẩu mới dựa trên link/token trong email.       | Không     |
+| Endpoint | Method | Chức năng | Cần Token |
+|---|:---:|---|:---:|
+| `/register` | POST | Đăng ký tài khoản mới | Không |
+| `/login` | POST | Đăng nhập hệ thống | Không |
+| `/me` | GET | Lấy thông tin tài khoản hiện tại | Có |
+| `/refresh-token` | POST | Cấp lại token mới khi token cũ hết hạn | Có |
+| `/forgot-password` | POST | Quên mật khẩu - Gửi mail xác nhận | Không |
+| `/reset-password/:token` | POST | Đặt lại mật khẩu mới qua link email | Không |
+| `/change-password` | POST | Thay đổi mật khẩu (đang đăng nhập) | Có |
+| `/logout` | POST | Đăng xuất khỏi hệ thống | Có |
 
 ---
 
-## Nhóm 2: Quản lý Người dùng (User Management)
+## 👤 2. Người dùng (User Profile & History)
 *Đường dẫn gốc: `/api/users`*
 
-| Chức năng           | Method | Endpoint                | Chức năng chi tiết                                          | Cần Token |
-|---------------------|:------:|-------------------------|-------------------------------------------------------------|:---------:|
-| Hồ sơ cá nhân       | GET    | /api/users/profile      | Xem thông tin chi tiết: tên, SĐT, địa chỉ nhận hàng.        | Có        |
-| Cập nhật profile    | PUT    | /api/users/profile      | Cho phép thay đổi thông tin liên lạc và địa chỉ nhận hàng.  | Có        |
-| Danh sách đơn hàng  | GET    | /api/users/orders       | Xem lịch sử mua sắm (hỗ trợ phân trang, lọc theo status).   | Có        |
-| Chi tiết đơn hàng   | GET    | /api/users/orders/:id   | Lấy dữ liệu chi tiết của 1 đơn hàng cụ thể.                 | Có        |
-| Thống kê chi tiêu   | GET    | /api/users/statistics   | Trích xuất số đơn thành công, tổng tiền đã tiêu, v.v...     | Có        |
+| Endpoint | Method | Chức năng | Cần Token |
+|---|:---:|---|:---:|
+| `/profile` | GET | Xem hồ sơ cá nhân (SĐT, Địa chỉ...) | Có |
+| `/profile` | PUT | Cập nhật thông tin cá nhân | Có |
+| `/orders` | GET | Xem danh sách lịch sử đơn hàng (phân trang/lọc) | Có |
+| `/orders/:orderId` | GET | Xem chi tiết một đơn hàng cụ thể | Có |
+| `/statistics` | GET | Xem thống kê cá nhân (Tổng chi tiêu, số đơn...) | Có |
 
 ---
 
-## Nhóm 3: Flash Sale - Săn Deal Siêu Tốc
+## 🛒 3. Flash Sale & Mua hàng
 *Đường dẫn gốc: `/api/flashsale`*
 
-| Chức năng           | Method | Endpoint                  | Chức năng chi tiết                                          | Cần Token |
-|---------------------|:------:|---------------------------|-------------------------------------------------------------|:---------:|
-| DS Flash Sale       | GET    | /api/flashsale/products   | Hiển thị các sản phẩm đang có ưu đãi kèm đồng hồ đếm ngược. | Không     |
-| Check tồn kho       | GET    | /api/flashsale/stock/:id  | Lấy số lượng thực thụ còn lại trên RAM của Server.          | Không     |
-| Chốt đơn            | POST   | /api/flashsale/buy        | Trừ tồn kho bằng Redis và đẩy giao dịch vào RabbitMQ.       | Có        |
-| Nạp dữ liệu         | POST   | /api/flashsale/warmup     | (Dành cho Admin) Bơm dữ liệu từ MySQL lên Redis để chuẩn bị.| Có (Admin)|
+| Endpoint | Method | Chức năng | Cần Token |
+|---|:---:|---|:---:|
+| `/products` | GET | Lấy danh sách sản phẩm đang Flash Sale (từ Cache) | Không |
+| `/stock/:productId` | GET | Kiểm tra tồn kho thực tế của sản phẩm trên RAM | Không |
+| `/buy` | POST | Đặt hàng Flash Sale (Xử lý qua Redis & RabbitMQ) | Có |
+| `/warmup` | POST | Kích hoạt nạp dữ liệu lên Redis (Cache Warm-up) | Có (Admin) |
 
 ---
 
-## Nhóm 4: Cổng Thanh Toán PayOS (Xử lý QR Code)
+## 🛠️ 4. Quản trị (Admin Dashboard)
+*Đường dẫn gốc: `/api/admin` (Yêu cầu Role: ADMIN)*
+
+| Endpoint | Method | Chức năng |
+|---|:---:|---|
+| `/stats` | GET | Thống kê toàn hệ thống (Doanh thu, biểu đồ...) |
+| `/products` | GET | Danh sách toàn bộ sản phẩm (Search/Filter) |
+| `/products` | POST | Thêm sản phẩm mới vào Database |
+| `/products/:id` | PUT | Chỉnh sửa thông tin sản phẩm |
+| `/products/:id` | DELETE | Xóa sản phẩm khỏi hệ thống |
+| `/products/:id/flashsale` | PATCH | Cấu hình/Bật/Tắt trạng thái Flash Sale |
+| `/categories` | GET | Lấy danh sách các danh mục hàng hóa |
+| `/orders` | GET | Quản lý toàn bộ đơn hàng của khách |
+| `/customers` | GET | Xem danh sách khách hàng và mức độ tương tác |
+
+---
+
+## 💳 5. Thanh toán (Payment Integration)
 *Đường dẫn gốc: `/api/payment`*
 
-| Chức năng           | Method | Endpoint                  | Chức năng chi tiết                                          | Cần Token |
-|---------------------|:------:|---------------------------|-------------------------------------------------------------|:---------:|
-| Tạo Link Giao Dịch  | POST   | /api/payment/create_url   | Tạo link thanh toán/QR Code chuyển sang cổng PayOS.         | Có        |
-| Bắt Webhook         | POST   | /api/payment/payos_webhook| Đồng bộ trạng thái đơn hàng khi người dùng chuyển khoản xong.| Không     |
+| Endpoint | Method | Chức năng |
+|---|:---:|---|
+| `/create_url` | POST | Tạo link/QR Code thanh toán qua PayOS |
+| `/payos_webhook` | POST | Nhận thông báo tự động khi khách trả tiền xong |
 
 ---
 
-## Nhóm 5: Hệ thống chung & Monitoring
+## 📡 6. Socket.io Events
+*Cập nhật trạng thái thời gian thực*
 
-| Công cụ / API       | Dạng   | Endpoint / Giao diện   | Mục đích sử dụng                                            |
-|---------------------|--------|------------------------|-------------------------------------------------------------|
-| Health Check        | GET    | /health                | Trả về `{ status: 'OK' }`. Bot giám sát gọi tự động.        |
-| Adminer             | UI     | http://localhost:8080  | Quản trị cơ sở dữ liệu MySQL bằng giao diện trực quan.      |
-| Redis Commander     | UI     | http://localhost:8081  | Quản sát sự thay đổi nhanh như chớp của tồn kho trên Redis. |
-| RabbitMQ Management | UI     | http://localhost:15672 | Theo dõi số lượng đơn đang chờ xử lý trong Queue (Hàng đợi).|
-| Nginx Gateway       | HTTPS  | https://localhost      | Cổng Reverse Proxy, đảm nhiệm SSL và chặn Spam ở biên hệ thống.|
+- `product:update`: Nhận thông tin khi số lượng tồn kho thay đổi.
+- `flashsale:start`: Thông báo khi sự kiện Flash Sale bắt đầu.
+- `order:status`: Cập nhật trạng thái đơn hàng (đang xử lý, thành công).
