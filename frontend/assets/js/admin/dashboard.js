@@ -57,11 +57,12 @@ window.switchTab = function (tabId) {
   const activeNav = document.getElementById(`nav-${tabId}`);
   if (activeNav) activeNav.className = 'nav-btn flex items-center gap-3 px-3 py-2.5 bg-red-50 text-red-600 rounded-lg font-semibold';
 
-  const titles = { dashboard: 'Tổng quan', products: 'Quản lý Sản phẩm', orders: 'Quản lý Đơn hàng', customers: 'Quản lý Khách hàng' };
+  const titles = { dashboard: 'Tổng quan', flashsale: 'Quản lý Flash Sale', products: 'Quản lý Sản phẩm', orders: 'Quản lý Đơn hàng', customers: 'Quản lý Khách hàng' };
   const titleEl = document.getElementById('pageTitle');
   if (titleEl) titleEl.textContent = titles[tabId] || tabId;
 
   if (tabId === 'dashboard') loadDashboard();
+  if (tabId === 'flashsale') loadFlashSale();
   if (tabId === 'products') loadProducts();
   if (tabId === 'orders') loadOrders();
   if (tabId === 'customers') loadCustomers();
@@ -117,20 +118,20 @@ let currentFilter = 'all'; // all | flashsale | normal
 async function loadProducts(filter) {
   if (filter !== undefined) currentFilter = filter;
 
-  const filterBtn = (f) => document.getElementById(`filter-${f}`)?.classList;
-  ['all', 'flashsale', 'normal'].forEach(f => {
-    const cls = filterBtn(f);
-    if (!cls) return;
+
+  // Cập nhật màu nút filter
+  ['all', 'normal'].forEach(f => {
+    const btn = document.getElementById(`filter-${f}`);
+    if (!btn) return;
     if (f === currentFilter) {
-      cls.add('bg-red-600', 'text-white');
-      cls.remove('bg-gray-100', 'text-gray-600');
+      btn.className = 'px-4 py-1.5 rounded-lg text-sm font-semibold bg-red-600 text-white transition-colors';
     } else {
-      cls.remove('bg-red-600', 'text-white');
-      cls.add('bg-gray-100', 'text-gray-600');
+      btn.className = 'px-4 py-1.5 rounded-lg text-sm font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors';
     }
   });
 
   const params = new URLSearchParams();
+
   if (currentFilter === 'flashsale') params.set('isFlashSale', 'true');
   if (currentFilter === 'normal') params.set('isFlashSale', 'false');
 
@@ -151,19 +152,17 @@ async function loadProducts(filter) {
     tbody.innerHTML = '';
 
     if (!prodRes.data.length) {
-      tbody.innerHTML = '<tr><td colspan="8" class="py-8 text-center text-gray-400">Không có sản phẩm nào</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" class="py-8 text-center text-gray-400">Không có sản phẩm nào</td></tr>';
       return;
     }
 
     prodRes.data.forEach(p => {
-      const flashBadge = p.isFlashSale
-        ? '<span class="bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded-full">⚡ Flash Sale</span>'
-        : '<span class="bg-gray-100 text-gray-500 text-xs px-2 py-0.5 rounded-full">Thường</span>';
+      
 
       tbody.innerHTML += `
         <tr class="border-b border-gray-50 hover:bg-red-50/30 transition-colors" id="product-row-${p.id}">
           <td class="p-3 text-xs text-gray-400 font-medium">${p.id}</td>
-          <td class="p-3"><img src="${p.image || '../img/default-product.png'}" class="w-12 h-12 object-cover rounded-lg shadow-sm" onerror="this.src='../img/default-product.png'"></td>
+          <td class="p-3"><img src="${p.image || 'https://placehold.co/100x100?text=No+Image'}" class="w-12 h-12 object-cover rounded-lg shadow-sm" onerror="this.onerror=null; this.src='https://placehold.co/100x100?text=No+Image'"></td>
           <td class="p-3">
             <div class="font-semibold text-gray-800 text-sm truncate max-w-[180px]">${BF.escapeHtml(p.name)}</div>
             <div class="text-xs text-gray-400 mt-0.5">${p.category?.name || '—'}</div>
@@ -172,21 +171,25 @@ async function loadProducts(filter) {
           <td class="p-3 text-center">
             <span class="font-bold text-sm ${p.stock > 10 ? 'text-green-600' : 'text-red-500'}">${p.stock}</span>
           </td>
-          <td class="p-3">${flashBadge}</td>
+          <td class="p-3">
+            ${p.isFlashSale
+              ? '<span class="bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded-full">⚡ Flash Sale</span>'
+              : '<span class="bg-gray-100 text-gray-500 text-xs px-2 py-0.5 rounded-full">Thường</span>'}
+          </td>
           <td class="p-3 text-xs text-gray-400">${p.discount > 0 ? '-' + p.discount + '%' : '—'}</td>
           <td class="p-3">
             <div class="flex items-center gap-1.5 justify-center">
               <button onclick="openEditModal(${p.id})" title="Chỉnh sửa"
-                class="w-8 h-8 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors">
-                <i class="fa-solid fa-pen text-xs"></i>
+                class="w-8 h-8 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors text-xs font-bold">
+                Sửa
               </button>
               <button onclick="toggleFlashSale(${p.id}, ${!p.isFlashSale})" title="${p.isFlashSale ? 'Tắt Flash Sale' : 'Bật Flash Sale'}"
-                class="w-8 h-8 flex items-center justify-center rounded-lg ${p.isFlashSale ? 'bg-orange-50 text-orange-500 hover:bg-orange-100' : 'bg-yellow-50 text-yellow-600 hover:bg-yellow-100'} transition-colors">
-                <i class="fa-solid fa-bolt text-xs"></i>
+                class="w-8 h-8 flex items-center justify-center rounded-lg text-xs font-bold transition-colors ${p.isFlashSale ? 'bg-orange-50 text-orange-500 hover:bg-orange-100' : 'bg-yellow-50 text-yellow-600 hover:bg-yellow-100'}">
+                ${p.isFlashSale ? 'Tắt' : 'Bật'}
               </button>
               <button onclick="deleteProduct(${p.id}, '${BF.escapeHtml(p.name)}')" title="Xóa"
-                class="w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition-colors">
-                <i class="fa-solid fa-trash text-xs"></i>
+                class="w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition-colors text-xs font-bold">
+                Xóa
               </button>
             </div>
           </td>
@@ -195,7 +198,7 @@ async function loadProducts(filter) {
   } catch (err) {
     console.error('Lỗi load products:', err);
     document.getElementById('productsTable').innerHTML =
-      '<tr><td colspan="8" class="py-6 text-center text-red-400">Lỗi tải dữ liệu: ' + err.message + '</td></tr>';
+      '<tr><td colspan="7" class="py-6 text-center text-red-400">Lỗi tải dữ liệu: ' + err.message + '</td></tr>';
   }
 }
 
@@ -214,7 +217,7 @@ window.openAddModal = function () {
   document.getElementById('productFormTitle').textContent = 'Thêm sản phẩm mới';
   document.getElementById('productForm').reset();
   document.getElementById('productId').value = '';
-  toggleFlashSaleFields(false);
+  
   document.getElementById('productModal').classList.remove('hidden');
 };
 
@@ -222,26 +225,15 @@ window.closeProductModal = function () {
   document.getElementById('productModal').classList.add('hidden');
 };
 
-window.onFlashSaleToggle = function (checked) {
-  toggleFlashSaleFields(checked);
-};
 
-function toggleFlashSaleFields(show) {
-  document.getElementById('flashSaleFields').classList.toggle('hidden', !show);
-}
 
-document.addEventListener('DOMContentLoaded', () => {
-  const checkbox = document.getElementById('isFlashSale');
-  if (checkbox) {
-    checkbox.addEventListener('change', () => toggleFlashSaleFields(checkbox.checked));
-  }
-});
+
+
 
 window.submitProductForm = async function (e) {
   e.preventDefault();
   const id = document.getElementById('productId').value;
-  const isFlashSaleEl = document.getElementById('isFlashSale');
-
+  
   const body = {
     name: document.getElementById('productName').value,
     description: document.getElementById('productDescription').value,
@@ -252,9 +244,9 @@ window.submitProductForm = async function (e) {
     image: document.getElementById('productImage').value,
     categoryId: document.getElementById('productCategory').value,
     location: document.getElementById('productLocation').value,
-    isFlashSale: isFlashSaleEl?.checked || false,
-    flashSaleStart: document.getElementById('flashSaleStart').value || null,
-    flashSaleEnd: document.getElementById('flashSaleEnd').value || null,
+    
+    
+    
   };
 
   const btn = document.getElementById('submitProductBtn');
@@ -263,15 +255,15 @@ window.submitProductForm = async function (e) {
   try {
     if (id) {
       await BF.apiRequest(`/api/admin/products/${id}`, { method: 'PUT', body });
-      showToast('✅ Cập nhật sản phẩm thành công!', 'success');
+      showToast('Cập nhật sản phẩm thành công!', 'success');
     } else {
       await BF.apiRequest('/api/admin/products', { method: 'POST', body });
-      showToast('✅ Thêm sản phẩm thành công!', 'success');
+      showToast('Thêm sản phẩm thành công!', 'success');
     }
     closeProductModal();
     loadProducts();
   } catch (err) {
-    showToast('❌ ' + err.message, 'error');
+    showToast(err.message, 'error');
   } finally {
     BF.setButtonLoading(btn, false);
   }
@@ -294,30 +286,26 @@ window.openEditModal = async function (id) {
     document.getElementById('productStock').value = product.stock || 0;
     document.getElementById('productImage').value = product.image || '';
     document.getElementById('productLocation').value = product.location || '';
-    document.getElementById('isFlashSale').checked = product.isFlashSale;
+    
 
     populateCategorySelect('productCategory');
     setTimeout(() => { document.getElementById('productCategory').value = product.categoryId; }, 50);
 
-    if (product.flashSaleStart) {
-      document.getElementById('flashSaleStart').value = new Date(product.flashSaleStart).toISOString().slice(0, 16);
-    }
-    if (product.flashSaleEnd) {
-      document.getElementById('flashSaleEnd').value = new Date(product.flashSaleEnd).toISOString().slice(0, 16);
-    }
+    
+    
 
-    toggleFlashSaleFields(product.isFlashSale);
+    
     document.getElementById('productModal').classList.remove('hidden');
   } catch (err) {
-    showToast('❌ ' + err.message, 'error');
+    showToast(err.message, 'error');
   }
 };
 
-// TOGGLE FLASH SALE
+
+// TOGGLE FLASH SALE (từ bảng sản phẩm)
 window.toggleFlashSale = async function (id, enable) {
   const action = enable ? 'bật Flash Sale' : 'tắt Flash Sale';
   if (!confirm(`Bạn có chắc muốn ${action} cho sản phẩm này?`)) return;
-
   try {
     const body = { isFlashSale: enable };
     if (enable) {
@@ -325,22 +313,98 @@ window.toggleFlashSale = async function (id, enable) {
       body.flashSaleEnd = new Date(Date.now() + 86400000).toISOString(); // +24h mặc định
     }
     await BF.apiRequest(`/api/admin/products/${id}/flashsale`, { method: 'PATCH', body });
-    showToast(`✅ Đã ${action} thành công!`, 'success');
+    showToast(`Đã ${action} thành công!`, 'success');
     loadProducts();
   } catch (err) {
-    showToast('❌ ' + err.message, 'error');
+    showToast(err.message, 'error');
   }
 };
+
+// FLASHSALE TAB
+// ─────────────────────────────────────────────
+async function loadFlashSale() {
+  try {
+    const res = await BF.apiRequest('/api/admin/products?isFlashSale=true');
+    const tbody = document.getElementById('flashsaleTable');
+    if(!tbody) return;
+    tbody.innerHTML = '';
+    if (!res.data || !res.data.length) {
+      tbody.innerHTML = '<tr><td colspan="6" class="py-8 text-center text-gray-400">Không có sản phẩm nào trong Flash Sale</td></tr>';
+      return;
+    }
+    res.data.forEach(p => {
+      tbody.innerHTML += `
+        <tr class="border-b border-gray-50 hover:bg-red-50/30 transition-colors">
+          <td class="p-3 text-xs text-gray-400 font-medium">${p.id}</td>
+          <td class="p-3"><img src="${p.image || 'https://placehold.co/100x100?text=No+Image'}" class="w-12 h-12 object-cover rounded-lg shadow-sm" onerror="this.onerror=null; this.src='https://placehold.co/100x100?text=No+Image'"></td>
+          <td class="p-3 font-semibold text-gray-800 text-sm truncate max-w-[180px]">${BF.escapeHtml(p.name)}</td>
+          <td class="p-3 text-center text-xs text-red-500 font-bold">-${p.discount}%</td>
+          <td class="p-3 text-xs text-gray-500">
+            BĐ: ${p.flashSaleStart ? new Date(p.flashSaleStart).toLocaleString('vi-VN') : '—'}<br>
+            KT: ${p.flashSaleEnd ? new Date(p.flashSaleEnd).toLocaleString('vi-VN') : '—'}
+          </td>
+          <td class="p-3 text-center">
+            <button onclick="removeFlashSale(${p.id})" title="Xóa khỏi Flash Sale"
+              class="px-3 py-1 bg-red-50 text-red-500 hover:bg-red-100 rounded-lg text-xs font-bold transition-colors">Xóa khỏi FS</button>
+          </td>
+        </tr>`;
+    });
+  } catch (err) {
+    console.error('Lỗi load flash sale products:', err);
+  }
+}
+
+window.addFlashSale = async function() {
+  const id = document.getElementById('fsProductId').value;
+  const discount = document.getElementById('fsDiscount').value;
+  const start = document.getElementById('fsStart').value;
+  const end = document.getElementById('fsEnd').value;
+  
+  if(!id) return showToast('Vui lòng nhập ID sản phẩm', 'error');
+  
+  try {
+    const body = { 
+      isFlashSale: true, 
+      discount: discount || 0,
+    };
+    if (start) body.flashSaleStart = new Date(start).toISOString();
+    else body.flashSaleStart = new Date().toISOString();
+    
+    if (end) body.flashSaleEnd = new Date(end).toISOString();
+    else body.flashSaleEnd = new Date(Date.now() + 86400000).toISOString();
+    
+    await BF.apiRequest(`/api/admin/products/${id}/flashsale`, { method: 'PATCH', body });
+    showToast('Đã thêm sản phẩm vào Flash Sale!', 'success');
+    document.getElementById('fsProductId').value = '';
+    loadFlashSale();
+  } catch (err) {
+    showToast('Không tìm thấy sản phẩm hoặc lỗi: ' + err.message, 'error');
+  }
+};
+
+window.removeFlashSale = async function(id) {
+  if (!confirm('Xóa sản phẩm này khỏi danh sách Flash Sale?')) return;
+  try {
+    await BF.apiRequest(`/api/admin/products/${id}/flashsale`, { method: 'PATCH', body: { isFlashSale: false } });
+    showToast('Đã xóa khỏi Flash Sale!', 'success');
+    loadFlashSale();
+    if (currentFilter === 'flashsale') loadProducts(); // just in case
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+};
+
+// TOGGLE FLASH SALE
 
 // DELETE PRODUCT
 window.deleteProduct = async function (id, name) {
   if (!confirm(`Xóa sản phẩm "${name}"?\nHành động này không thể hoàn tác!`)) return;
   try {
     await BF.apiRequest(`/api/admin/products/${id}`, { method: 'DELETE' });
-    showToast('✅ Xóa sản phẩm thành công!', 'success');
+    showToast('Xóa sản phẩm thành công!', 'success');
     loadProducts();
   } catch (err) {
-    showToast('❌ ' + err.message, 'error');
+    showToast('' + err.message, 'error');
   }
 };
 
@@ -419,9 +483,9 @@ window.triggerWarmup = async function () {
   msg.textContent = '';
   try {
     const data = await BF.apiRequest('/api/flashsale/warmup', { method: 'POST' });
-    msg.innerHTML = `<span class="text-green-600"><i class="fa-solid fa-circle-check mr-1"></i>${data.message || 'Cache Warm-up thành công!'}</span>`;
+    msg.innerHTML = `<span class="text-green-600">${data.message || 'Cache Warm-up thành công!'}</span>`;
   } catch (err) {
-    msg.innerHTML = `<span class="text-red-600"><i class="fa-solid fa-circle-xmark mr-1"></i>${err.message}</span>`;
+    msg.innerHTML = `<span class="text-red-600">${err.message}</span>`;
   } finally {
     BF.setButtonLoading(btn, false);
   }

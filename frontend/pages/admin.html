@@ -21,33 +21,37 @@
   <!-- ─── SIDEBAR ─── -->
   <aside class="w-64 bg-white shadow-xl hidden md:flex flex-col min-h-screen fixed z-20">
     <div class="h-16 flex items-center px-6 border-b border-gray-100">
-      <i class="fa-solid fa-bolt text-red-600 text-2xl mr-2"></i>
+      
       <span class="font-bold text-xl text-gray-800">Admin<span class="text-red-600">Panel</span></span>
     </div>
 
     <div class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
       <a href="#" onclick="switchTab('dashboard')" id="nav-dashboard"
         class="nav-btn flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-red-600 rounded-lg font-medium transition-colors">
-        <i class="fa-solid fa-chart-pie w-5 text-center"></i> Tổng quan
+         Tổng quan
       </a>
       <a href="#" onclick="switchTab('products')" id="nav-products"
         class="nav-btn flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-red-600 rounded-lg font-medium transition-colors">
-        <i class="fa-solid fa-box-open w-5 text-center"></i> Sản phẩm
+         Sản phẩm
+      </a>
+      <a href="#" onclick="switchTab('flashsale')" id="nav-flashsale"
+        class="nav-btn flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-red-600 rounded-lg font-medium transition-colors">
+         Flash Sale
       </a>
       <a href="#" onclick="switchTab('orders')" id="nav-orders"
         class="nav-btn flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-red-600 rounded-lg font-medium transition-colors">
-        <i class="fa-solid fa-receipt w-5 text-center"></i> Đơn hàng
+         Đơn hàng
       </a>
       <a href="#" onclick="switchTab('customers')" id="nav-customers"
         class="nav-btn flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-red-600 rounded-lg font-medium transition-colors">
-        <i class="fa-solid fa-users w-5 text-center"></i> Khách hàng
+         Khách hàng
       </a>
     </div>
 
     <div class="p-4 border-t border-gray-100">
       <a href="home.html"
         class="flex items-center justify-center w-full px-4 py-2 text-sm text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
-        <i class="fa-solid fa-arrow-left mr-2"></i> Về trang cửa hàng
+         Về trang cửa hàng
       </a>
     </div>
   </aside>
@@ -60,7 +64,7 @@
       <h2 id="pageTitle" class="text-xl font-semibold text-gray-800">Tổng quan</h2>
       <div class="flex items-center gap-3 cursor-pointer group" onclick="ECommerce.logout()">
         <div class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center">
-          <i class="fa-solid fa-power-off text-sm"></i>
+          
         </div>
         <span class="text-sm font-medium text-gray-600 group-hover:text-red-600 hidden sm:block transition-colors">Đăng xuất</span>
       </div>
@@ -79,43 +83,25 @@
             <h1 class="text-3xl md:text-4xl font-bold mb-1">👋 Xin chào, Admin!</h1>
             <p class="text-red-100 text-sm">Chào mừng trở lại bảng điều khiển Flash Sale.</p>
           </div>
-          <i class="fa-solid fa-chart-line absolute -bottom-4 -right-4 text-9xl text-white opacity-10"></i>
-        </div>
-
-        <!-- FLASH SALE WARM-UP -->
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-          <h2 class="text-base font-bold mb-4 text-gray-800 flex items-center">
-            <i class="fa-solid fa-rocket text-red-500 mr-2"></i>Trình điều khiển Hệ thống
-          </h2>
-          <div class="flex flex-col md:flex-row items-center justify-between bg-red-50 p-5 rounded-xl border border-red-100 gap-4">
-            <div>
-              <h3 class="font-bold text-red-700 flex items-center gap-2"><i class="fa-solid fa-fire"></i>Kích hoạt Flash Sale (Cache Warm-up)</h3>
-              <p class="text-red-600/80 mt-1 text-sm max-w-xl">Tải toàn bộ dữ liệu sản phẩm Flash Sale từ Database lên Redis. Phải chạy trước khi bắt đầu sự kiện!</p>
-            </div>
-            <button id="warmupBtn" onclick="triggerWarmup()"
-              class="flex-shrink-0 bg-red-600 hover:bg-red-700 text-white px-7 py-3 rounded-xl font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-2 whitespace-nowrap">
-              <i class="fa-solid fa-bolt"></i> Bắt đầu Warm-up
-            </button>
-          </div>
-          <div id="adminMessage" class="mt-3 text-sm text-center font-medium"></div>
+          
         </div>
 
         <!-- STATS -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <div class="p-5 rounded-xl bg-white border border-gray-100 shadow-sm flex items-center gap-4">
-            <div class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xl flex-shrink-0"><i class="fa-solid fa-box"></i></div>
+            <div class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xl flex-shrink-0"></div>
             <div><div class="text-gray-400 text-xs font-medium mb-0.5">Tổng đơn hàng</div><div id="stat-totalOrders" class="text-2xl font-bold text-gray-800">…</div></div>
           </div>
           <div class="p-5 rounded-xl bg-white border border-gray-100 shadow-sm flex items-center gap-4">
-            <div class="w-12 h-12 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-xl flex-shrink-0"><i class="fa-solid fa-credit-card"></i></div>
+            <div class="w-12 h-12 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-xl flex-shrink-0"></div>
             <div><div class="text-gray-400 text-xs font-medium mb-0.5">Đã thanh toán</div><div id="stat-paidOrders" class="text-2xl font-bold text-gray-800">…</div></div>
           </div>
           <div class="p-5 rounded-xl bg-white border border-gray-100 shadow-sm flex items-center gap-4">
-            <div class="w-12 h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-xl flex-shrink-0"><i class="fa-solid fa-users"></i></div>
+            <div class="w-12 h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-xl flex-shrink-0"></div>
             <div><div class="text-gray-400 text-xs font-medium mb-0.5">Tổng khách hàng</div><div id="stat-totalUsers" class="text-2xl font-bold text-gray-800">…</div></div>
           </div>
           <div class="p-5 rounded-xl bg-white border border-gray-100 shadow-sm flex items-center gap-4">
-            <div class="w-12 h-12 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center text-xl flex-shrink-0"><i class="fa-solid fa-sack-dollar"></i></div>
+            <div class="w-12 h-12 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center text-xl flex-shrink-0"></div>
             <div><div class="text-gray-400 text-xs font-medium mb-0.5">Doanh thu</div><div id="stat-totalRevenue" class="text-xl font-bold text-gray-800">…</div></div>
           </div>
         </div>
@@ -123,7 +109,7 @@
         <!-- RECENT ORDERS -->
         <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
           <div class="flex justify-between items-center mb-5">
-            <h2 class="text-base font-bold text-gray-800"><i class="fa-solid fa-receipt text-blue-500 mr-2"></i>Đơn hàng mới nhất</h2>
+            <h2 class="text-base font-bold text-gray-800">Đơn hàng mới nhất</h2>
             <button onclick="switchTab('orders')" class="text-sm text-blue-600 font-medium hover:text-blue-800">Xem tất cả →</button>
           </div>
           <div class="overflow-x-auto">
@@ -144,7 +130,81 @@
       </div>
 
       <!-- ══════════════════════════════════ -->
-      <!-- TAB: PRODUCTS                       -->
+      
+      <!-- ══════════════════════════════════ -->
+      <!-- TAB: FLASHSALE                     -->
+      <!-- ══════════════════════════════════ -->
+      <div id="tab-flashsale" class="tab-content hidden space-y-4">
+        <!-- FLASH SALE WARM-UP -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+          <h2 class="text-base font-bold mb-4 text-gray-800 flex items-center">
+            Trình điều khiển Hệ thống
+          </h2>
+          <div class="flex flex-col md:flex-row items-center justify-between bg-red-50 p-5 rounded-xl border border-red-100 gap-4">
+            <div>
+              <h3 class="font-bold text-red-700 flex items-center gap-2">Kích hoạt Flash Sale (Cache Warm-up)</h3>
+              <p class="text-red-600/80 mt-1 text-sm max-w-xl">Tải toàn bộ dữ liệu sản phẩm Flash Sale từ Database lên Redis. Phải chạy trước khi bắt đầu sự kiện!</p>
+            </div>
+            <button id="warmupBtn" onclick="triggerWarmup()"
+              class="flex-shrink-0 bg-red-600 hover:bg-red-700 text-white px-7 py-3 rounded-xl font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-2 whitespace-nowrap">
+               Bắt đầu Warm-up
+            </button>
+          </div>
+          <div id="adminMessage" class="mt-3 text-sm text-center font-medium"></div>
+        </div>
+
+        
+        <!-- FLASH SALE MANAGEMENT -->
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+          <h2 class="text-base font-bold text-gray-800 mb-4">Thêm sản phẩm vào Flash Sale</h2>
+          <div class="flex flex-col md:flex-row gap-4 items-end">
+            <div class="flex-1">
+              <label class="block text-xs font-semibold text-gray-600 mb-1">ID Sản phẩm</label>
+              <input id="fsProductId" type="number" placeholder="Nhập ID sản phẩm..." class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm">
+            </div>
+            <div class="flex-1">
+              <label class="block text-xs font-semibold text-gray-600 mb-1">% Giảm giá</label>
+              <input id="fsDiscount" type="number" min="0" max="100" value="0" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm">
+            </div>
+            <div class="flex-1">
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Bắt đầu</label>
+              <input id="fsStart" type="datetime-local" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm">
+            </div>
+            <div class="flex-1">
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Kết thúc</label>
+              <input id="fsEnd" type="datetime-local" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm">
+            </div>
+            <button onclick="addFlashSale()" class="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-lg text-sm font-bold shadow-sm whitespace-nowrap">
+              Thêm
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div class="p-5 border-b border-gray-100 flex justify-between items-center">
+             <h2 class="text-base font-bold text-gray-800">Sản phẩm đang trong Flash Sale</h2>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead>
+                <tr class="bg-gray-50 text-gray-400 text-xs border-b border-gray-100">
+                  <th class="p-3 font-medium w-12">ID</th>
+                  <th class="p-3 font-medium w-16">Ảnh</th>
+                  <th class="p-3 font-medium">Tên</th>
+                  <th class="p-3 font-medium text-center">Giảm</th>
+                  <th class="p-3 font-medium">Thời gian</th>
+                  <th class="p-3 font-medium text-center w-32">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody id="flashsaleTable">
+                <tr><td colspan="6" class="py-8 text-center text-gray-400">Đang tải...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+<!-- TAB: PRODUCTS                       -->
       <!-- ══════════════════════════════════ -->
       <div id="tab-products" class="tab-content hidden space-y-4">
 
@@ -156,10 +216,7 @@
                 class="px-4 py-1.5 rounded-lg text-sm font-semibold bg-red-600 text-white transition-colors">
                 Tất cả
               </button>
-              <button id="filter-flashsale" onclick="loadProducts('flashsale')"
-                class="px-4 py-1.5 rounded-lg text-sm font-semibold bg-gray-100 text-gray-600 hover:bg-red-50 transition-colors">
-                ⚡ Flash Sale
-              </button>
+              
               <button id="filter-normal" onclick="loadProducts('normal')"
                 class="px-4 py-1.5 rounded-lg text-sm font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">
                 Sản phẩm thường
@@ -167,13 +224,13 @@
             </div>
             <div class="flex gap-3 w-full md:w-auto">
               <div class="relative flex-1 md:w-64">
-                <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                
                 <input id="productSearch" type="text" placeholder="Tìm tên sản phẩm…"
                   class="pl-8 pr-4 py-2 w-full border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-300">
               </div>
               <button onclick="openAddModal()"
                 class="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition-colors whitespace-nowrap">
-                <i class="fa-solid fa-plus"></i> Thêm mới
+                 Thêm mới
               </button>
             </div>
           </div>
@@ -190,13 +247,14 @@
                   <th class="p-3 font-medium">Tên / Danh mục</th>
                   <th class="p-3 font-medium">Giá</th>
                   <th class="p-3 font-medium text-center w-20">Kho</th>
-                  <th class="p-3 font-medium">Loại</th>
+                  <th class="p-3 font-medium">Trạng thái</th>
                   <th class="p-3 font-medium w-16">Giảm</th>
+
                   <th class="p-3 font-medium text-center w-32">Thao tác</th>
                 </tr>
               </thead>
               <tbody id="productsTable">
-                <tr><td colspan="8" class="py-8 text-center text-gray-400">Đang tải…</td></tr>
+                <tr><td colspan="7" class="py-8 text-center text-gray-400">Đang tải…</td></tr>
               </tbody>
             </table>
           </div>
@@ -209,7 +267,7 @@
       <div id="tab-orders" class="tab-content hidden">
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
           <div class="p-5 border-b border-gray-100">
-            <h2 class="text-base font-bold text-gray-800"><i class="fa-solid fa-receipt text-blue-500 mr-2"></i>Quản lý Đơn hàng</h2>
+            <h2 class="text-base font-bold text-gray-800">Quản lý Đơn hàng</h2>
           </div>
           <div class="overflow-x-auto">
             <table class="w-full text-left text-sm">
@@ -237,7 +295,7 @@
       <div id="tab-customers" class="tab-content hidden">
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
           <div class="p-5 border-b border-gray-100">
-            <h2 class="text-base font-bold text-gray-800"><i class="fa-solid fa-users text-green-500 mr-2"></i>Quản lý Khách hàng</h2>
+            <h2 class="text-base font-bold text-gray-800">Quản lý Khách hàng</h2>
           </div>
           <div class="overflow-x-auto">
             <table class="w-full text-left text-sm">
@@ -270,7 +328,7 @@
       <div class="flex items-center justify-between p-6 border-b border-gray-100 sticky top-0 bg-white rounded-t-2xl">
         <h3 id="productFormTitle" class="text-lg font-bold text-gray-800">Thêm sản phẩm mới</h3>
         <button onclick="closeProductModal()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-400">
-          <i class="fa-solid fa-xmark"></i>
+          
         </button>
       </div>
 
@@ -335,34 +393,6 @@
           </div>
         </div>
 
-        <!-- FLASH SALE TOGGLE -->
-        <div class="border border-red-100 rounded-xl p-4 bg-red-50">
-          <label class="flex items-center gap-3 cursor-pointer">
-            <div class="relative">
-              <input id="isFlashSale" type="checkbox" class="sr-only peer">
-              <div class="w-10 h-5 bg-gray-300 peer-checked:bg-red-500 rounded-full transition-colors"></div>
-              <div class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-all peer-checked:translate-x-5"></div>
-            </div>
-            <div>
-              <span class="text-sm font-bold text-red-700">⚡ Đưa vào Flash Sale</span>
-              <p class="text-xs text-red-500 mt-0.5">Sản phẩm sẽ xuất hiện trong danh sách Flash Sale</p>
-            </div>
-          </label>
-
-          <div id="flashSaleFields" class="hidden mt-4 grid grid-cols-2 gap-4">
-            <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">Thời gian bắt đầu</label>
-              <input id="flashSaleStart" type="datetime-local"
-                class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-300 bg-white">
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-gray-600 mb-1">Thời gian kết thúc</label>
-              <input id="flashSaleEnd" type="datetime-local"
-                class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-300 bg-white">
-            </div>
-          </div>
-        </div>
-
         <div class="flex justify-end gap-3 pt-2">
           <button type="button" onclick="closeProductModal()"
             class="px-5 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">
@@ -370,7 +400,7 @@
           </button>
           <button id="submitProductBtn" type="submit"
             class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-bold shadow-sm transition-colors">
-            <i class="fa-solid fa-floppy-disk mr-1.5"></i> Lưu sản phẩm
+             Lưu sản phẩm
           </button>
         </div>
       </form>
