@@ -21,8 +21,12 @@ class PaymentService {
         const cancelUrl = cancelUrlClient || `${domain}/payment/cancel`;
         const returnUrl = returnUrlClient || `${domain}/payment/result`;
         
+        // Format: [order.id][5 digits of timestamp] -> e.g. 612345
+        const timestampPart = String(Math.floor(Date.now() / 1000)).slice(-5);
+        const uniqueOrderCode = Number(String(order.id) + timestampPart);
+
         const paymentData = {
-            orderCode: order.id,
+            orderCode: uniqueOrderCode,
             amount: Math.round(order.finalPrice),
             description: `Thanh toan don hang #${order.id}`,
             cancelUrl: cancelUrl,
@@ -52,13 +56,16 @@ class PaymentService {
             // 1. Xác thực dữ liệu Webhook (Tránh giả mạo)
             const data = payos.webhooks.verify(webhookBody);
 
-            const orderId = data.orderCode;
+            // Giải mã orderId từ uniqueOrderCode (bỏ 5 chữ số cuối là timestamp)
+            const payosOrderCode = data.orderCode;
+            const orderIdStr = String(payosOrderCode).slice(0, -5);
+            const orderId = parseInt(orderIdStr, 10);
 
             // Trong PayOS Webhook, data.code === '00' hoặc 'SUCCESS' thường là thành công
             // Tuy nhiên verifyPaymentWebhookData đã trả về data sạch sau khi kiểm tra signature
             
             const order = await prisma.order.findUnique({
-                where: { id: parseInt(orderId) }
+                where: { id: orderId }
             });
 
             if (order && order.paymentStatus !== 'paid') {
@@ -85,19 +92,23 @@ class PaymentService {
     /**
      * Xác minh trạng thái thanh toán trực tiếp từ PayOS (Dùng khi frontend bị redirect về)
      */
-    async verifyPaymentReturn(orderId) {
+    async verifyPaymentReturn(orderCode) {
         try {
             // Lấy thông tin thanh toán từ PayOS
-            const paymentInfo = await payos.paymentRequests.get(orderId);
+            const paymentInfo = await payos.paymentRequests.get(orderCode);
             
+            // Giải mã orderId (bỏ 5 chữ số cuối)
+            const orderIdStr = String(orderCode).slice(0, -5);
+            const orderId = parseInt(orderIdStr, 10);
+
             if (paymentInfo.status === 'PAID') {
                 const order = await prisma.order.findUnique({
-                    where: { id: parseInt(orderId) }
+                    where: { id: orderId }
                 });
 
                 if (order && order.paymentStatus !== 'paid') {
                     await prisma.order.update({
-                        where: { id: parseInt(orderId) },
+                        where: { id: orderId },
                         data: {
                             paymentStatus: 'paid',
                             status: 'confirmed'
