@@ -110,7 +110,6 @@
   </main>
 
   <script src="../assets/js/auth-cart-orders-common.js"></script>
-  <script src="../assets/js/home/cart.js"></script>
   <script>
     const BF = window.ECommerce;
     if (!BF.requireAuth()) {
@@ -127,12 +126,9 @@
       appMessage: document.getElementById("appMessage"),
       productGrid: document.getElementById("productGrid"),
       cartList: document.getElementById("cartList"),
-      productCount: document.getElementById("productCount"),
       cartCount: document.getElementById("cartCount"),
       cartItemCount: document.getElementById("cartItemCount"),
-      cartItemCountShort: document.getElementById("cartItemCountShort"),
       cartSubtotal: document.getElementById("cartSubtotal"),
-      cartTotalShort: document.getElementById("cartTotalShort"),
       cartStatus: document.getElementById("cartStatus"),
       checkoutBtn: document.getElementById("checkoutBtn"),
       warmupBtn: document.getElementById("warmupBtn")
@@ -144,12 +140,9 @@
 
     function renderStats() {
       const total = state.cart.reduce((sum, item) => sum + Number(item.price || 0), 0);
-      els.productCount.textContent = state.products.length;
       els.cartCount.textContent = state.cart.length;
       els.cartItemCount.textContent = state.cart.length;
-      els.cartItemCountShort.textContent = state.cart.length;
       els.cartSubtotal.textContent = BF.formatCurrency(total);
-      els.cartTotalShort.textContent = BF.formatCurrency(total);
       els.cartStatus.textContent = state.cart.length ? "Có thể chốt đơn" : "Đang trống";
     }
 
