@@ -24,6 +24,7 @@ router.post('/products', adminController.createProduct);
 router.put('/products/:id', adminController.updateProduct);
 router.delete('/products/:id', adminController.deleteProduct);
 router.patch('/products/:id/flashsale', adminController.toggleFlashSale);
+router.post('/products/bulk-flashsale', adminController.bulkAddFlashSale);
 
 // Orders
 router.get('/orders', adminController.getOrders);

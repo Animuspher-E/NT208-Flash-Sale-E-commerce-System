@@ -212,6 +212,53 @@ async function toggleFlashSale(req, res, next) {
   }
 }
 
+async function bulkAddFlashSale(req, res, next) {
+  try {
+    const { productIds, isFlashSale, flashSaleStart, flashSaleEnd, discount } = req.body;
+
+    if (!Array.isArray(productIds) || productIds.length === 0) {
+      return res.status(400).json({ success: false, message: 'Danh sách ID không hợp lệ.' });
+    }
+
+    const updateData = {
+      isFlashSale: Boolean(isFlashSale),
+      discount: discount !== undefined ? parseFloat(discount) : undefined,
+      flashSaleStart: isFlashSale && flashSaleStart ? new Date(flashSaleStart) : null,
+      flashSaleEnd: isFlashSale && flashSaleEnd ? new Date(flashSaleEnd) : null,
+    };
+
+    // 1. Cập nhật bảng Product
+    const updateResult = await prisma.product.updateMany({
+      where: { id: { in: productIds.map(id => parseInt(id)) } },
+      data: updateData
+    });
+
+    // 2. Nếu là bật Flash Sale, cần cập nhật Inventory cho từng sản phẩm
+    if (isFlashSale) {
+      const products = await prisma.product.findMany({
+        where: { id: { in: productIds.map(id => parseInt(id)) } },
+        select: { id: true, stock: true }
+      });
+
+      const inventoryTasks = products.map(p =>
+        prisma.inventory.upsert({
+          where: { productId: p.id },
+          update: { availableStock: p.stock },
+          create: { productId: p.id, availableStock: p.stock }
+        })
+      );
+      await Promise.all(inventoryTasks);
+    }
+
+    return res.json({
+      success: true,
+      message: `Đã cập nhật Flash Sale cho ${updateResult.count} sản phẩm thành công!`,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
 // ─────────────────────────────────────────────
 // ORDERS
 // ─────────────────────────────────────────────
@@ -267,5 +314,5 @@ async function getCategories(req, res, next) {
 
 module.exports = {
   getStats, getProducts, createProduct, updateProduct,
-  deleteProduct, toggleFlashSale, getOrders, getCustomers, getCategories
+  deleteProduct, toggleFlashSale, bulkAddFlashSale, getOrders, getCustomers, getCategories
 };
