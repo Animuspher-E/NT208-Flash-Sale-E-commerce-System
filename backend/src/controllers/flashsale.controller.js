@@ -41,7 +41,8 @@ async function buy(req, res, next) {
     }
     redisDecrSuccess = true;
     const remainingStock = buyResult.remainingStock;
-    const order = await orderService.createOrder({ userId, productId, quantity });
+    const orderResponse = await orderService.buyProduct(userId, productId, quantity);
+    const order = orderResponse.order;
     return res.status(201).json({
       success: true,
       message: 'Mua hàng thành công!',
