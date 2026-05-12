@@ -216,14 +216,22 @@
                 <p>${BF.formatDate(order.createdAt)} · <strong>${BF.formatCurrency(order.finalPrice || order.totalPrice)}</strong></p>
               </div>
               <div class="order-actions">
+                ${status === 'pending' ? `
+                  <button class="danger-button ghost-button" type="button" data-order-cancel="${order.id}">
+                    <i class="fa-solid fa-xmark"></i>
+                    Hủy đơn
+                  </button>
+                ` : ""}
                 <button class="ghost-button" type="button" data-order-detail="${order.id}">
                   <i class="fa-solid fa-eye"></i>
                   Chi tiết
                 </button>
-                <button class="primary-button" type="button" data-order-pay="${order.id}" ${paymentStatus === "paid" ? "disabled" : ""}>
-                  <i class="fa-solid fa-qrcode"></i>
-                  PayOS
-                </button>
+                ${(status !== 'cancelled' && paymentStatus !== 'paid') ? `
+                  <button class="primary-button" type="button" data-order-pay="${order.id}">
+                    <i class="fa-solid fa-qrcode"></i>
+                    PayOS
+                  </button>
+                ` : ""}
               </div>
             </article>
           `;
@@ -333,11 +341,31 @@
       if (state.page < state.totalPages) loadOrders(state.page + 1);
     });
 
+    async function cancelOrder(orderId, button) {
+      if (!confirm("Bạn có chắc chắn muốn hủy đơn hàng này không?")) return;
+      
+      BF.setButtonLoading(button, true, "Đang hủy...");
+      try {
+        await BF.apiRequest(`/api/users/orders/${orderId}/cancel`, {
+          method: "POST"
+        });
+        setAppMessage("Đã hủy đơn hàng thành công.", "success");
+        loadOrders(state.page); // Refresh list
+      } catch (error) {
+        setAppMessage(error.message || "Không thể hủy đơn hàng.", "error");
+      } finally {
+        BF.setButtonLoading(button, false);
+      }
+    }
+
     els.orderList.addEventListener("click", function (event) {
       const detailButton = event.target.closest("[data-order-detail]");
       const payButton = event.target.closest("[data-order-pay]");
+      const cancelButton = event.target.closest("[data-order-cancel]");
+      
       if (detailButton) showOrderDetail(detailButton.dataset.orderDetail);
       if (payButton) createPayment(payButton.dataset.orderPay, payButton);
+      if (cancelButton) cancelOrder(cancelButton.dataset.orderCancel, cancelButton);
     });
 
     document.getElementById("closeOrderModal").addEventListener("click", function () {

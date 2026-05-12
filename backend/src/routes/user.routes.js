@@ -121,6 +121,8 @@ router.get(
   userController.getOrders
 );
 
+const orderController = require('../controllers/order.controller');
+
 /**
  * GET /api/users/orders/:orderId
  * Lấy chi tiết 1 đơn hàng
@@ -150,6 +152,16 @@ router.get(
   '/orders/:orderId',
   authMiddleware,
   userController.getOrderDetail
+);
+
+/**
+ * POST /api/users/orders/:orderId/cancel
+ * Hủy đơn hàng (chỉ dành cho đơn hàng có trạng thái pending)
+ */
+router.post(
+  '/orders/:orderId/cancel',
+  authMiddleware,
+  orderController.cancelOrder
 );
 
 /**
