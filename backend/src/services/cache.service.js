@@ -50,6 +50,18 @@ async function warmUpCache() {
     });
     console.log(`[Cache] Tìm thấy ${products.length} sản phẩm cần warm-up`);
     const uploadTasks = products.map(async (product) => {
+      // Kiểm tra xem Flash Sale đã hết hạn chưa
+      let isActuallyFlashSale = product.isFlashSale;
+      if (isActuallyFlashSale && product.flashSaleEnd && new Date(product.flashSaleEnd) < new Date()) {
+        console.log(`[Cache] Sản phẩm ${product.id} đã hết hạn Flash Sale. Đang cập nhật Database...`);
+        isActuallyFlashSale = false;
+        // Cập nhật Database ngầm (không đợi để tránh làm chậm warm-up)
+        prisma.product.update({
+          where: { id: product.id },
+          data: { isFlashSale: false }
+        }).catch(err => console.error(`[Cache] Lỗi cập nhật hết hạn cho SP ${product.id}:`, err.message));
+      }
+
       const productInfo = {
         name: product.name,
         price: product.price,
@@ -59,7 +71,7 @@ async function warmUpCache() {
         location: product.location,
         rating: product.rating,
         flashSaleEnd: product.flashSaleEnd,
-        isFlashSale: product.isFlashSale,
+        isFlashSale: isActuallyFlashSale,
         category: product.category?.name // Lưu tên category để frontend filter
       };
       await redis.set(
@@ -103,7 +115,7 @@ async function getProductFromCache(productId) {
     location: info.location,
     rating: info.rating,
     flashSaleEnd: info.flashSaleEnd,
-    isFlashSale: info.isFlashSale,
+    isFlashSale: info.isFlashSale && (!info.flashSaleEnd || new Date(info.flashSaleEnd) > new Date()),
     category: info.category
   };
 }
@@ -130,7 +142,7 @@ async function getAllProductsFromCache() {
         location: info.location,
         rating: info.rating,
         flashSaleEnd: info.flashSaleEnd,
-        isFlashSale: info.isFlashSale,
+        isFlashSale: info.isFlashSale && (!info.flashSaleEnd || new Date(info.flashSaleEnd) > new Date()),
         category: info.category
       };
     })
