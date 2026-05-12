@@ -140,7 +140,10 @@ async function main() {
     
     // Sách
     { name: 'Sách: Đắc Nhân Tâm', price: 85000, categoryId: catBook.id, stock: 300, location: 'Hà Nội', image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=600&auto=format&fit=crop' },
-    { name: 'Sách: Nhà Giả Kim', price: 79000, categoryId: catBook.id, stock: 250, location: 'TP. HCM', image: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=600&auto=format&fit=crop' }
+    { name: 'Sách: Nhà Giả Kim', price: 79000, categoryId: catBook.id, stock: 250, location: 'TP. HCM', image: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=600&auto=format&fit=crop' },
+    
+    // Test Product
+    { name: 'Sản phẩm Test 1K', price: 1000, categoryId: catElec.id, stock: 100000, location: 'Toàn quốc', image: 'https://placehold.co/600x600?text=Test+1K' }
   ];
 
   await prisma.product.createMany({ data: normalProductsData });
