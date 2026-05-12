@@ -59,6 +59,7 @@
 
       <div class="menu">
         <div class="menu-item active" onclick="showTab(event, 'profile')">Hồ sơ</div>
+        <div class="menu-item" onclick="showTab(event, 'address')">Địa chỉ</div>
         <div class="menu-item" onclick="showTab(event, 'password')">Đổi mật khẩu</div>
         <div class="menu-item" onclick="showTab(event, 'delete')">Xóa tài khoản</div>
       </div>
@@ -112,6 +113,52 @@
         <div id="profileMessage" class="form-message"></div>
       </div>
 
+      <!-- ĐỊA CHỈ -->
+      <div id="addressTab" class="hidden">
+        <h2>Địa chỉ</h2>
+
+        <div class="form-group">
+          <label>Họ tên</label>
+          <input id="fullName">
+        </div>
+
+        <div class="form-group">
+          <label>Số điện thoại</label>
+          <input id="phoneAddress">
+        </div>
+
+        <div class="form-group">
+          <label>Tỉnh/Thành phố</label>
+          <select id="province">
+            <option value="">Chọn tỉnh</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Quận/Huyện</label>
+          <select id="district">
+            <option value="">Chọn quận</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Xã/Phường</label>
+          <select id="ward">
+            <option value="">Chọn phường</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Địa chỉ cụ thể</label>
+          <input id="detailAddress" placeholder="Số nhà, tên đường">
+        </div>
+
+        <button class="btn" onclick="addAddress()">+ Thêm địa chỉ</button>
+
+        <div id="addressList"></div>
+        <div id="addressMessage" class="form-message"></div>
+      </div>
+
 
 
       <!-- PASSWORD -->
@@ -160,6 +207,7 @@
   <script src="../assets/js/profile/data.js"></script>
   <script src="../assets/js/home/cart.js"></script>
   <script src="../assets/js/profile/main.js"></script>
+  <script src="../assets/js/profile/address.js"></script>
   <script src="../assets/js/profile/user.js"></script>
   <script src="../assets/js/home/data.js"></script>
   <script src="../assets/js/home/render.js"></script>
