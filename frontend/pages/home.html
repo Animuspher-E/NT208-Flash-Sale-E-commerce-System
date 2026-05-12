@@ -75,7 +75,7 @@
 
     <div class="category" onclick="filterCategory('Electronics', event)">
       <div class="category-img"> <img src="../assets/img/category/electronics.jpg"> </div>
-      <span>Thiết bị điện tử</span>
+      <span>Điện tử</span>
     </div>
 
     <div class="category" onclick="filterCategory('Fashion', event)">
@@ -85,17 +85,17 @@
 
     <div class="category" onclick="filterCategory('Beauty', event)">
       <div class="category-img"> <img src="../assets/img/category/beauty.png"> </div>
-      <span>Sắc đẹp</span>
+      <span>Sức khỏe & Làm đẹp</span>
     </div>
 
     <div class="category" onclick="filterCategory('Home', event)">
       <div class="category-img"> <img src="../assets/img/category/home.png"> </div>
-      <span>Nhà cửa</span>
+      <span>Gia dụng</span>
     </div>
 
     <div class="category" onclick="filterCategory('Sports', event)">
       <div class="category-img"> <img src="../assets/img/category/sports.png"> </div>
-      <span>Thể thao</span>
+      <span>Thể thao & Du lịch</span>
     </div>
 
     <div class="category" onclick="filterCategory('Gaming', event)">
@@ -105,7 +105,7 @@
 
     <div class="category" onclick="filterCategory('Books', event)">
       <div class="category-img"> <img src="../assets/img/category/books.png"> </div>
-      <span>Sách</span>
+      <span>Sách & Văn phòng phẩm</span>
     </div>
 
     <div class="category" onclick="filterCategory('Accessories', event)">
@@ -163,16 +163,18 @@
 
   <!-- BEST SELLER -->
   <div class="section" id="best-section">
-    <h2>🔥 BÁN CHẠY</h2>
+    <h2>BÁN CHẠY</h2>
     <div class="grid" id="best"></div>
-    <button onclick="loadMore('best')" class="load-more">Xem thêm</button>
+    <div id="pagination-best" class="pagination-container"></div>
+    <button id="btn-best" onclick="loadMore('best')" class="load-more">Xem thêm</button>
   </div>
 
   <!-- RECOMMENDED -->
   <div class="section" id="recommend-section">
-    <h2>⭐ DÀNH CHO BẠN</h2>
+    <h2>DÀNH CHO BẠN</h2>
     <div class="grid" id="recommend"></div>
-    <button onclick="loadMore('recommend')" class="load-more">Xem thêm</button>
+    <div id="pagination-recommend" class="pagination-container"></div>
+    <button id="btn-recommend" onclick="loadMore('recommend')" class="load-more">Xem thêm</button>
   </div>
 
   <!-- FOOTER -->

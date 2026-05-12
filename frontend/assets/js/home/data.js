@@ -20,13 +20,13 @@ async function fetchFlashSaleProducts() {
 }
 
 const categoryName = {
-  Electronics: "Thiết bị điện tử",
+  Electronics: "Điện tử",
   Fashion: "Thời trang",
-  Beauty: "Sắc đẹp",
-  Home: "Nhà cửa",
-  Sports: "Thể thao",
+  Beauty: "Sức khỏe & Làm đẹp",
+  Home: "Gia dụng",
+  Sports: "Thể thao & Du lịch",
   Gaming: "Gaming",
-  Books: "Sách",
+  Books: "Sách & Văn phòng phẩm",
   Accessories: "Phụ kiện",
   Health: "Sức khỏe",
   Camera: "Máy ảnh",
@@ -37,9 +37,22 @@ const categoryName = {
 };
 
 let limit = {
-  flash: 25,
-  best: 25,
-  recommend: 25
+  flash: 15,
+  best: 15,
+  recommend: 15
 };
+
+let currentPage = {
+  best: 1,
+  recommend: 1
+};
+
+let isPaginationActive = {
+  best: false,
+  recommend: false,
+  flash: false
+};
+
+let itemsPerPage = 10; // 2 dòng * 5 cột (để dễ thấy phân trang với 17 SP hiện tại)
 
 let currentCategory = null;

@@ -58,10 +58,61 @@ function renderList(list, id){
     document.getElementById(id).innerHTML = "<p>Không có sản phẩm nào</p>";
     return;
   }
-  list.slice(0, limit[id]).forEach(p=>{
+
+  let displayList = [];
+  if (isPaginationActive[id]) {
+    // Chế độ phân trang (sau khi nhấn Xem thêm)
+    const start = (currentPage[id] - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    displayList = list.slice(start, end);
+    
+    // Ẩn nút Xem thêm
+    const btn = document.getElementById(`btn-${id}`);
+    if (btn) btn.style.display = "none";
+    
+    // Hiện phân trang (luôn hiện khi ở chế độ phân trang để người dùng thấy thanh số trang)
+    renderPagination(list.length, itemsPerPage, currentPage[id], id);
+  } else {
+    // Chế độ ban đầu (3 dòng)
+    displayList = list.slice(0, 15);
+    
+    // Hiện nút Xem thêm nếu còn sản phẩm
+    const btn = document.getElementById(`btn-${id}`);
+    if (btn) btn.style.display = list.length > 15 ? "block" : "none";
+    
+    // Ẩn phân trang
+    const pag = document.getElementById(`pagination-${id}`);
+    if (pag) pag.innerHTML = "";
+  }
+
+  displayList.forEach(p=>{
     html += renderCard(p);
   });
   document.getElementById(id).innerHTML = html;
+}
+
+function renderPagination(totalItems, itemsPerPage, curPage, id) {
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const container = document.getElementById(`pagination-${id}`);
+  if (!container) return;
+
+  let html = `<div class="pagination">`;
+  for (let i = 1; i <= totalPages; i++) {
+    html += `<button class="page-btn ${i === curPage ? 'active' : ''}" 
+              onclick="changePage('${id}', ${i})">${i}</button>`;
+  }
+  html += `</div>`;
+  container.innerHTML = html;
+}
+
+function changePage(id, page) {
+  currentPage[id] = page;
+  initRender();
+  // Cuộn lên đầu section
+  const section = document.getElementById(`${id}-section`);
+  if (section) {
+    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 }
 
 function renderSearchResult(list, id){
@@ -92,7 +143,7 @@ async function goFlash(){
   `;
 
   // lọc từ mảng products toàn cục đã fetch
-  let flash = products.filter(p => p.discount >= 25);
+  let flash = products.filter(p => p.isFlashSale);
 
   let html = "";
   flash.forEach(p=>{
@@ -109,7 +160,7 @@ async function goFlash(){
 
 async function initFlashSale() {
   // flashSale đã được fetch và gán vào products ở initRender
-  let flash = products.filter(p => p.discount >= 25);
+  let flash = products.filter(p => p.isFlashSale);
 
   if (!flash.length) return;
 
@@ -121,7 +172,7 @@ async function initFlashSale() {
 
 function renderFlashSale(list){
   let html = "";
-  list.slice(0, 6).forEach(p=>{
+  list.slice(0, 15).forEach(p=>{
     html += renderCard(p);
   });
   document.getElementById("flash").innerHTML = html;
@@ -130,11 +181,11 @@ function renderFlashSale(list){
 function initRender(){
   if (!products || products.length === 0) return;
 
-  let flash = products.filter(p => p.discount >= 25);
+  let flash = products.filter(p => p.isFlashSale);
   let best = [...products].sort((a,b)=> (b.sold || 0) - (a.sold || 0));
   let recommend = [...products].sort((a,b)=> (b.rating || 0) - (a.rating || 0));
 
-  renderList(flash.slice(0, 6), "flash");
+  renderList(flash, "flash");
   renderList(best, "best");
   renderList(recommend, "recommend");
 }

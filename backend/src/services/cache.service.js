@@ -29,8 +29,8 @@ async function warmUpCache() {
   const redis = getRedisClient();
   console.log('[Cache] Bắt đầu cache warm-up...');
   try {
+    // Lấy TẤT CẢ sản phẩm để hiển thị đầy đủ trên Home
     const products = await prisma.product.findMany({
-      where: { isFlashSale: true },
       select: {
         id: true,
         name: true,
@@ -41,10 +41,14 @@ async function warmUpCache() {
         sold: true,
         location: true,
         rating: true,
-        flashSaleEnd: true
+        flashSaleEnd: true,
+        isFlashSale: true,
+        category: {
+          select: { name: true }
+        }
       }
     });
-    console.log(`[Cache] Tìm thấy ${products.length} sản phẩm Flash Sale cần warm-up`);
+    console.log(`[Cache] Tìm thấy ${products.length} sản phẩm cần warm-up`);
     const uploadTasks = products.map(async (product) => {
       const productInfo = {
         name: product.name,
@@ -54,7 +58,9 @@ async function warmUpCache() {
         sold: product.sold,
         location: product.location,
         rating: product.rating,
-        flashSaleEnd: product.flashSaleEnd
+        flashSaleEnd: product.flashSaleEnd,
+        isFlashSale: product.isFlashSale,
+        category: product.category?.name // Lưu tên category để frontend filter
       };
       await redis.set(
         REDIS_KEY_INFO(product.id),
@@ -68,7 +74,7 @@ async function warmUpCache() {
         'EX',
         CACHE_TTL_SECONDS
       );
-      console.log(`[Cache] product_${product.id} (${product.name}): stock=${product.stock}`);
+      console.log(`[Cache] product_${product.id} (${product.name}): stock=${product.stock}, category=${productInfo.category}`);
     });
     await Promise.all(uploadTasks);
     console.log(`[Cache] Cache warm-up hoàn tất! ${products.length} sản phẩm đã được nạp lên redis.`);
@@ -96,7 +102,9 @@ async function getProductFromCache(productId) {
     sold: info.sold,
     location: info.location,
     rating: info.rating,
-    flashSaleEnd: info.flashSaleEnd
+    flashSaleEnd: info.flashSaleEnd,
+    isFlashSale: info.isFlashSale,
+    category: info.category
   };
 }
 async function getAllProductsFromCache() {
@@ -121,7 +129,9 @@ async function getAllProductsFromCache() {
         sold: info.sold,
         location: info.location,
         rating: info.rating,
-        flashSaleEnd: info.flashSaleEnd
+        flashSaleEnd: info.flashSaleEnd,
+        isFlashSale: info.isFlashSale,
+        category: info.category
       };
     })
   );

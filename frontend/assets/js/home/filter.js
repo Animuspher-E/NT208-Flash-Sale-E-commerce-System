@@ -30,7 +30,7 @@ function filterCategory(cat, event){
 }
 
 function loadMore(type){
-  limit[type] += 18;
+  isPaginationActive[type] = true; // Kích hoạt chế độ phân trang
 
   if(currentCategory === "FLASH"){
     goFlash();
@@ -48,9 +48,20 @@ function goHome(){
 
   // reset số lượng hiển thị
   limit = {
-    flash: 25,
-    best: 25,
-    recommend: 25
+    flash: 15,
+    best: 15,
+    recommend: 15
+  };
+
+  currentPage = {
+    best: 1,
+    recommend: 1
+  };
+
+  isPaginationActive = {
+    best: false,
+    recommend: false,
+    flash: false
   };
 
   // hiện lại category + banner + 3 section
