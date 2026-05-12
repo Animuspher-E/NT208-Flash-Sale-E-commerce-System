@@ -10,4 +10,7 @@ router.post('/create_url', verifyToken, paymentController.createPaymentUrl);
 // API để PayOS tự động gọi đến cập nhật DB (Webhook) (KHÔNG được chặn xác thực!)
 router.post('/payos_webhook', paymentController.payosWebhook);
 
+// API thủ công cho frontend khi redirect từ màn hình thanh toán
+router.post('/verify_return', verifyToken, paymentController.verifyReturnUrl);
+
 module.exports = router;

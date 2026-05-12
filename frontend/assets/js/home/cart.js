@@ -39,10 +39,13 @@ function add(id){
       return;
     }
     
+    const discount = Number(product.discount || 0);
+    const finalPrice = product.price - (product.price * discount / 100);
+
     cart.push({
       id: product.id,
       name: product.name,
-      price: product.price,
+      price: finalPrice,
       image: product.image,
       stock: product.stock
     });

@@ -8,13 +8,13 @@ class PaymentController {
      * Body: { orderId: 1 }
      */
     createPaymentUrl = catchAsync(async (req, res) => {
-        const { orderId } = req.body;
+        const { orderId, returnUrl, cancelUrl } = req.body;
         
         if (!orderId) {
             return res.status(400).json({ success: false, message: 'Tham số orderId là bắt buộc' });
         }
 
-        const url = await paymentService.createPaymentUrl(orderId, req);
+        const url = await paymentService.createPaymentUrl(orderId, req, returnUrl, cancelUrl);
 
         res.json({
             success: true,
@@ -31,6 +31,20 @@ class PaymentController {
         
         // Trả về kết quả xử lý webhook
         res.status(200).json(result);
+    });
+
+    /**
+     * POST /api/payment/verify_return
+     * Cập nhật trạng thái thủ công khi frontend redirect về
+     */
+    verifyReturnUrl = catchAsync(async (req, res) => {
+        const { orderCode } = req.body;
+        if (!orderCode) {
+            return res.status(400).json({ success: false, message: 'Tham số orderCode là bắt buộc' });
+        }
+        
+        const result = await paymentService.verifyPaymentReturn(orderCode);
+        res.json(result);
     });
 }
 

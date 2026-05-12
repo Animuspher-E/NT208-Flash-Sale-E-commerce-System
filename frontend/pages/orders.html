@@ -287,7 +287,11 @@
       try {
         const data = await BF.apiRequest("/api/payment/create_url", {
           method: "POST",
-          body: { orderId: Number(orderId) }
+          body: { 
+            orderId: Number(orderId),
+            returnUrl: window.location.href,
+            cancelUrl: window.location.href
+          }
         });
         const url = data && data.data ? data.data.url : null;
         if (!url) {
@@ -346,9 +350,38 @@
       }
     });
 
+    async function checkPaymentReturn() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get("code");
+      const orderCode = urlParams.get("orderCode");
+
+      if (code && orderCode) {
+        try {
+          const data = await BF.apiRequest("/api/payment/verify_return", {
+            method: "POST",
+            body: { orderCode: Number(orderCode) }
+          });
+          
+          if (data && data.isPaid) {
+            setAppMessage("Thanh toán thành công! Trạng thái đơn hàng đã được cập nhật.", "success");
+          } else if (code !== "00") {
+            setAppMessage("Thanh toán đã bị hủy hoặc không thành công.", "info");
+          }
+        } catch (err) {
+          console.error("Lỗi verify payment", err);
+        } finally {
+          // Xóa tham số trên URL để tránh gọi lại khi F5
+          window.history.replaceState({}, document.title, window.location.pathname);
+          loadOrders(state.page); // Tải lại danh sách đơn hàng
+        }
+      } else {
+        loadOrders(1);
+      }
+    }
+
     BF.renderUserHeader();
     renderStats();
-    loadOrders(1);
+    checkPaymentReturn();
   </script>
 </body>
 
