@@ -28,7 +28,6 @@ class UserService {
                     username: true,
                     usernameChanged: true,
                     phone: true,
-                    address: true,
                     createdAt: true,
                     updatedAt: true,
                 },
@@ -83,7 +82,6 @@ class UserService {
                     username: true,
                     usernameChanged: true,
                     phone: true,
-                    address: true,
                     updatedAt: true,
                 },
             });

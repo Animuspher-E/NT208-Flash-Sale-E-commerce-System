@@ -32,7 +32,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   renderAddresses();
 });
 
-let usernameInput, nameInput, emailInput, phoneInput, genderInput, dobInput, addressInput;
+let usernameInput, nameInput, emailInput, phoneInput, genderInput, dobInput;
 
 function bindInputs() {
   usernameInput = document.getElementById("username");
@@ -41,7 +41,6 @@ function bindInputs() {
   phoneInput    = document.getElementById("phone");
   genderInput   = document.getElementById("gender");
   dobInput      = document.getElementById("dob");
-  addressInput  = document.getElementById("address");
 }
 
 function initProfileUI() {
@@ -72,7 +71,6 @@ function initProfileUI() {
   if (phoneInput)    phoneInput.value    = user.phone    || '';
   if (genderInput)   genderInput.value   = user.gender   || '';
   if (dobInput)      dobInput.value      = user.dob ? user.dob.split('T')[0] : '';
-  if (addressInput)  addressInput.value  = user.address  || '';
 }
 
 async function loadProfile() {
@@ -171,7 +169,6 @@ async function saveProfile() {
 
   const gender = genderInput?.value;
   const dob = dobInput?.value;
-  const address = addressInput?.value.trim();
 
   const payload = { name };
   if (username && !usernameInput.readOnly) payload.username = username;
@@ -179,7 +176,6 @@ async function saveProfile() {
   if (phone)   payload.phone   = phone;
   if (gender)  payload.gender  = gender;
   if (dob)     payload.dob     = dob;
-  if (address) payload.address = address;
 
   try {
     const res = await fetch(`${API_URL}/api/users/profile`, {

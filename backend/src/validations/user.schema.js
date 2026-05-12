@@ -44,11 +44,6 @@ const updateProfileSchema = z.object({
         .regex(/^\d{4}-\d{2}-\d{2}$/, 'Ngày sinh phải có định dạng YYYY-MM-DD')
         .optional()
         .nullable(),
-    address: z
-        .string()
-        .max(500, 'Địa chỉ không được quá 500 ký tự')
-        .optional()
-        .nullable(),
 });
 
 /**

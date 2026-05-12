@@ -6,50 +6,28 @@ function renderCard(p){
     currency: 'VND'
   }).format(price);
 
-  let oldPrice = new Intl.NumberFormat('vi-VN', {
-    style: 'currency',
-    currency: 'VND'
-  }).format(p.price);
-
   return `
-  <div class="card">
+  <a href="#" class="card" onclick="handleAddToCart(${p.id}); return false;">
     <div class="img">
       <img src="${p.image || '../assets/img/placeholder.png'}" alt="${p.name}">
-      <div class="discount-badge">-${p.discount}%</div>
+      ${p.discount > 0 ? `<div class="discount-badge">-${p.discount}%</div>` : ''}
     </div>
 
-    <h4>${p.name}</h4>
-    <div class="old">${oldPrice}</div>
-    <div class="new">${formatPrice}</div>
+    <div class="card-content">
+      <div class="card-title">
+        <span class="badge-yt">Yêu thích</span>${p.name}
+      </div>
 
-    <div class="meta">
-      <small class="location">
-        <i class="fa-solid fa-location-dot"></i> ${p.location || 'Toàn quốc'}
-      </small>
-      <small class="sold">
-        Đã bán ${p.sold >= 1000 ? (p.sold/1000).toFixed(1)+'k' : (p.sold || 0)}+
-      </small>
+      <div class="card-tags">
+        <span class="tag-item">Rẻ Vô Địch</span>
+      </div>
+
+      <div class="card-bottom">
+        <div class="card-price">${formatPrice}</div>
+        <div class="card-sold">${p.sold >= 1000 ? (p.sold/1000).toFixed(1)+'k' : (p.sold || 0)} đã bán</div>
+      </div>
     </div>
-
-    <div class="stock-bar">
-      <div class="stock-fill" style="width:${Math.min(((p.stock || 0) / 100) * 100, 100)}%"></div>
-    </div>
-
-    ${(p.stock || 0) <= 15 ? `<div class="danger">⚡ Sắp cháy hàng!</div>` : ``}
-
-    <small class="stock-text">Còn ${p.stock || 0} sản phẩm</small>
-
-    <button class="btn ${(p.stock || 0)==0?'out':''}"
-      onclick="handleAddToCart(${p.id})"
-      ${(p.stock || 0)==0?'disabled':''}>
-      ${(p.stock || 0)==0?'Hết hàng':'Thêm vào giỏ'}
-    </button>
-
-    <div class="rating-box">
-      <i class="fa-solid fa-star"></i>
-      ${p.rating || 5.0}
-    </div>
-  </div>`;
+  </a>`;
 }
 
 function renderList(list, id){
