@@ -60,7 +60,8 @@ class OrderService {
                     // 4️⃣ CREATE ORDER - Tạo đơn hàng
                     const orderNumber = `ORD-${Date.now()}-${userId}`;
                     const subtotal = product.price * quantity;
-                    const discountAmount = 0; // TODO: Tính discount nếu có
+                    const discountPercent = product.discount || 0;
+                    const discountAmount = subtotal * (discountPercent / 100);
                     const finalPrice = subtotal - discountAmount;
 
                     const newOrder = await tx.order.create({

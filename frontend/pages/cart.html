@@ -150,7 +150,28 @@
       try {
         const data = await BF.apiRequest("/api/flashsale/products", { auth: false });
         state.products = Array.isArray(data.data) ? data.data : [];
+        
+        // Cập nhật lại giá trong giỏ hàng để đồng bộ với Flash Sale mới nhất
+        let cartUpdated = false;
+        state.cart = state.cart.map(item => {
+          const product = findProduct(item.id);
+          if (product) {
+            const discount = Number(product.discount || 0);
+            const finalPrice = product.price - (product.price * discount / 100);
+            if (item.price !== finalPrice) {
+              item.price = finalPrice;
+              cartUpdated = true;
+            }
+          }
+          return item;
+        });
+        
+        if (cartUpdated) {
+          BF.saveCart(state.cart);
+        }
+
         renderProducts();
+        renderCart(); // Gọi renderCart để giao diện giỏ hàng cập nhật giá mới nếu có
         renderStats();
         setAppMessage("");
       } catch (error) {
@@ -174,8 +195,9 @@
         const stock = Number(product.stock || 0);
         const discount = Number(product.discount || 0);
         const image = product.image || "https://images.unsplash.com/photo-1607082349566-187342175e2f?q=80&w=900&auto=format&fit=crop";
-        const oldPrice = product.originalPrice
-          ? `<span class="old-price">${BF.formatCurrency(product.originalPrice)}</span>`
+        const finalPrice = product.price - (product.price * discount / 100);
+        const oldPrice = discount > 0
+          ? `<span class="old-price">${BF.formatCurrency(product.price)}</span>`
           : "";
 
         return `
@@ -193,7 +215,7 @@
                 <span><i class="fa-solid fa-star"></i> ${Number(product.rating || 0).toFixed(1)}</span>
               </div>
               <div class="price-row">
-                <span class="price">${BF.formatCurrency(product.price)}</span>
+                <span class="price">${BF.formatCurrency(finalPrice)}</span>
                 ${oldPrice}
               </div>
               <div class="product-actions">
@@ -233,10 +255,13 @@
         return;
       }
 
+      const discount = Number(product.discount || 0);
+      const finalPrice = product.price - (product.price * discount / 100);
+
       state.cart.push({
         id: product.id,
         name: product.name,
-        price: product.price,
+        price: finalPrice,
         image: product.image,
         stock: product.stock
       });
