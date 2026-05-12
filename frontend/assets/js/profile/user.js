@@ -15,7 +15,7 @@ function setUser(userObj) {
   const storage = localStorage.getItem("token") ? localStorage : sessionStorage;
   storage.setItem("user", JSON.stringify(userObj));
 }
-let usernameInput, nameInput, emailInput, phoneInput, genderInput, dobInput;
+let usernameInput, nameInput, emailInput, phoneInput, addressInput;
 
 window.addEventListener("DOMContentLoaded", async () => {
   if (!requireLogin()) return;
@@ -32,34 +32,47 @@ window.addEventListener("DOMContentLoaded", async () => {
   renderAddresses();
 });
 
+let usernameInput, nameInput, emailInput, phoneInput, genderInput, dobInput, addressInput;
+
 function bindInputs() {
   usernameInput = document.getElementById("username");
-  nameInput = document.getElementById("name");
-  emailInput = document.getElementById("email");
-  phoneInput = document.getElementById("phone");
-  genderInput = document.getElementById("gender");
-  dobInput = document.getElementById("dob");
+  nameInput     = document.getElementById("name");
+  emailInput    = document.getElementById("email");
+  phoneInput    = document.getElementById("phone");
+  genderInput   = document.getElementById("gender");
+  dobInput      = document.getElementById("dob");
+  addressInput  = document.getElementById("address");
 }
 
 function initProfileUI() {
   const user = getUser();
-
-  const defaultAvatar = "./img/default-avatar.png";
-
-  const avatarPreview = document.getElementById("avatarPreview");
-  const headerAvatar = document.getElementById("headerAvatar");
-
+  const defaultAvatar = './img/default-avatar.png';
+  const avatarPreview = document.getElementById('avatarPreview');
+  const headerAvatar  = document.getElementById('headerAvatar');
   const avatar = user.avatar || defaultAvatar;
-
   if (avatarPreview) avatarPreview.src = avatar;
-  if (headerAvatar) headerAvatar.src = avatar;
+  if (headerAvatar)  headerAvatar.src  = avatar;
 
-  if (usernameInput) usernameInput.value = user.username || "";
-  if (nameInput) nameInput.value = user.name || "";
-  if (emailInput) emailInput.value = user.email || "";
-  if (phoneInput) phoneInput.value = user.phone || "";
-  if (genderInput) genderInput.value = user.gender || "";
-  if (dobInput) dobInput.value = user.dob ? user.dob.split("T")[0] : "";
+  if (usernameInput) {
+    usernameInput.value = user.username || '';
+    if (user.usernameChanged) {
+      usernameInput.readOnly = true;
+      usernameInput.style.background = '#f0f0f0';
+      usernameInput.style.cursor = 'not-allowed';
+      usernameInput.style.color = '#888';
+    } else {
+      usernameInput.readOnly = false;
+      usernameInput.style.background = '';
+      usernameInput.style.cursor = '';
+      usernameInput.style.color = '';
+    }
+  }
+  if (nameInput)     nameInput.value     = user.name     || '';
+  if (emailInput)    emailInput.value    = user.email    || '';
+  if (phoneInput)    phoneInput.value    = user.phone    || '';
+  if (genderInput)   genderInput.value   = user.gender   || '';
+  if (dobInput)      dobInput.value      = user.dob ? user.dob.split('T')[0] : '';
+  if (addressInput)  addressInput.value  = user.address  || '';
 }
 
 async function loadProfile() {
@@ -74,19 +87,25 @@ async function loadProfile() {
 
     const data = await res.json();
 
+    if (!res.ok) {
+      console.warn('[loadProfile] server:', data?.message || data);
+      throw new Error(data?.message || 'Lỗi tải hồ sơ');
+    }
+
+    const profile = data.data || data;
+
     const oldUser = getUser();
 
     const mergedUser = {
       ...oldUser,
-      ...data,
-      avatar: oldUser.avatar || data.avatar
+      ...profile,
+      avatar: oldUser.avatar || profile.avatar
     };
 
     setUser(mergedUser);
-
     initProfileUI();
-  } catch {
-    console.warn("API lỗi → dùng localStorage");
+  } catch (err) {
+    console.warn('API lỗi → dùng localStorage:', err.message);
     initProfileUI();
   }
 }
@@ -120,85 +139,78 @@ function initAvatar() {
 
 async function saveProfile() {
   const token = getToken();
-  if (!token) return window.location.href = "auth.html";
+  if (!token) return window.location.href = 'auth.html';
 
-  if (!usernameInput.value.trim()) {
-    return showMessage("profileMessage", "Vui lòng nhập username!");
+  const username = usernameInput?.value.trim();
+  if (username && !usernameInput.readOnly) {
+    if (username.length < 4) {
+      return showMessage('profileMessage', 'Tên đăng nhập phải ít nhất 4 ký tự!', 'error');
+    }
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+      return showMessage('profileMessage', 'Tên đăng nhập chỉ gồm chữ, số hoặc _', 'error');
+    }
   }
 
-  if (usernameInput.value.length < 4) {
-    return showMessage("profileMessage", "Username phải >= 4 ký tự!");
+  const name = nameInput?.value.trim();
+  if (!name || name.length < 2) {
+    return showMessage('profileMessage', 'Tên phải ít nhất 2 ký tự!', 'error');
   }
 
-  if (!/^[a-zA-Z0-9_]+$/.test(usernameInput.value.trim())) {
-    return showMessage("profileMessage", "Username chỉ gồm chữ, số, hoặc _");
+  const email = emailInput?.value.trim();
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return showMessage('profileMessage', 'Email không hợp lệ!', 'error');
   }
 
-  if (!nameInput.value.trim()) {
-    return showMessage("profileMessage", "Vui lòng nhập tên!");
+  const phone = phoneInput?.value.trim();
+  if (phone && !/^[\d\s\-\+\(\)]+$/.test(phone)) {
+    return showMessage('profileMessage', 'Số điện thoại không hợp lệ!', 'error');
+  }
+  if (phone && phone.length > 20) {
+    return showMessage('profileMessage', 'Số điện thoại không quá 20 ký tự!', 'error');
   }
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailInput.value.trim()) {
-    return showMessage("profileMessage", "Vui lòng nhập email!");
-  }
+  const gender = genderInput?.value;
+  const dob = dobInput?.value;
+  const address = addressInput?.value.trim();
 
-  if (!emailRegex.test(emailInput.value)) {
-    return showMessage("profileMessage", "Email không hợp lệ!");
-  }
-
-  const phoneRegex = /^[0-9]{9,11}$/;
-  if (phoneInput.value && !phoneRegex.test(phoneInput.value)) {
-    return showMessage("profileMessage", "Số điện thoại không hợp lệ!");
-  }
-
-  if (!genderInput.value) {
-    return showMessage("profileMessage", "Vui lòng chọn giới tính!");
-  }
-
-  if (!dobInput.value) {
-    return showMessage("profileMessage", "Vui lòng chọn ngày sinh!");
-  }
-
-  const data = {
-    username: usernameInput.value.trim(),
-    name: nameInput.value.trim(),
-    email: emailInput.value.trim(),
-    phone: phoneInput.value.trim(),
-    gender: genderInput.value,
-    dob: dobInput.value
-  };
+  const payload = { name };
+  if (username && !usernameInput.readOnly) payload.username = username;
+  if (email)   payload.email   = email;
+  if (phone)   payload.phone   = phone;
+  if (gender)  payload.gender  = gender;
+  if (dob)     payload.dob     = dob;
+  if (address) payload.address = address;
 
   try {
     const res = await fetch(`${API_URL}/api/users/profile`, {
-      method: "PUT",
+      method: 'PUT',
       headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + token
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + token
       },
-      body: JSON.stringify(data)
+      body: JSON.stringify(payload)
     });
 
-    if (!res.ok) throw new Error();
+    const result = await res.json();
 
-    const updated = await res.json();
+    if (!res.ok) {
+      // Đọc message từ backend (Zod trả về details array hoặc message)
+      const errMsg = result?.details?.[0]?.message
+        || result?.errors?.[0]?.message
+        || result?.message
+        || 'Cập nhật thất bại!';
+      throw new Error(errMsg);
+    }
 
+    const updated = result.data || result;
     const oldUser = getUser();
-
-    const mergedUser = {
-      ...oldUser,
-      ...updated,
-      avatar: oldUser.avatar
-    };
-
-    setUser(mergedUser);
-
+    setUser({ ...oldUser, ...updated, avatar: oldUser.avatar });
     initProfileUI();
 
-    showMessage("profileMessage", "Cập nhật thành công!", "success");
+    showMessage('profileMessage', 'Cập nhật thành công!', 'success');
 
   } catch (err) {
-    showMessage("profileMessage", "Lỗi cập nhật!", "error");
+    showMessage('profileMessage', err.message || 'Lỗi cập nhật!', 'error');
   }
 }
 

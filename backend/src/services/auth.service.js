@@ -108,18 +108,24 @@ class AuthService {
             // 2. Mã hóa mật khẩu
             const hashedPassword = await this.hashPassword(password);
 
+            // Sinh random username
+            const crypto = require('crypto');
+            const randomUsername = 'uif_' + crypto.randomBytes(3).toString('hex');
+
             // 3. Tạo user mới
             const user = await prisma.user.create({
                 data: {
                     email,
                     password: hashedPassword,
                     name,
+                    username: randomUsername,
                     role: 'user', // Mặc định là user khi đăng ký
                 },
                 select: {
                     id: true,
                     email: true,
                     name: true,
+                    username: true,
                     role: true,
                     createdAt: true,
                 },

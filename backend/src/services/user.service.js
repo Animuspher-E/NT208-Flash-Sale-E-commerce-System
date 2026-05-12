@@ -25,6 +25,8 @@ class UserService {
                     id: true,
                     email: true,
                     name: true,
+                    username: true,
+                    usernameChanged: true,
                     phone: true,
                     address: true,
                     createdAt: true,
@@ -51,6 +53,26 @@ class UserService {
      */
     async updateUserProfile(userId, updateData) {
         try {
+            // Xử lý đổi tên đăng nhập (chỉ 1 lần)
+            if (updateData.username !== undefined) {
+                const currentUser = await prisma.user.findUnique({ where: { id: userId } });
+                
+                if (currentUser.usernameChanged && currentUser.username !== updateData.username) {
+                    throw new Error('Tên đăng nhập chỉ có thể thay đổi một lần');
+                }
+
+                if (currentUser.username !== updateData.username) {
+                    // Kiểm tra username đã tồn tại chưa
+                    const existing = await prisma.user.findUnique({ where: { username: updateData.username } });
+                    if (existing) {
+                        throw new Error('Tên đăng nhập đã tồn tại');
+                    }
+                    updateData.usernameChanged = true;
+                } else {
+                    delete updateData.username;
+                }
+            }
+
             const user = await prisma.user.update({
                 where: { id: userId },
                 data: updateData,
@@ -58,6 +80,8 @@ class UserService {
                     id: true,
                     email: true,
                     name: true,
+                    username: true,
+                    usernameChanged: true,
                     phone: true,
                     address: true,
                     updatedAt: true,
