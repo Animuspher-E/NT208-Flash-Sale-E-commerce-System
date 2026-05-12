@@ -67,9 +67,7 @@ img {
 .app-page {
   min-height: 100vh;
   padding: 24px;
-  background:
-    radial-gradient(circle at 18% 18%, rgba(255, 61, 87, 0.16), transparent 28%),
-    linear-gradient(135deg, var(--bg-950), var(--bg-700), #0d3b7a);
+  background: #f5f5f5;
 }
 
 .auth-page {
@@ -84,10 +82,7 @@ img {
   min-height: 650px;
   display: flex;
   overflow: hidden;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.08);
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(12px);
+  background: #ffffff;
 }
 
 .auth-left {
@@ -110,7 +105,6 @@ img {
   align-items: center;
   gap: 8px;
   padding: 8px 14px;
-  border-radius: 999px;
   margin-bottom: 20px;
   background: rgba(255, 255, 255, 0.12);
   color: #d8e8ff;
@@ -150,7 +144,6 @@ img {
 .stat,
 .hero-stat {
   border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 8px;
   background: rgba(255, 255, 255, 0.1);
 }
 
@@ -198,7 +191,6 @@ img {
   gap: 6px;
   padding: 5px;
   border: 1px solid #d9e6f8;
-  border-radius: 12px;
   background: #eaf1f8;
 }
 
@@ -216,7 +208,6 @@ img {
   justify-content: center;
   gap: 8px;
   border: none;
-  border-radius: 8px;
   background: transparent;
   color: #183b6b;
   font-size: 14px;
@@ -273,7 +264,6 @@ img {
   height: 48px;
   padding: 0 14px;
   border: 1px solid var(--line);
-  border-radius: 8px;
   outline: none;
   background: var(--white);
   color: var(--text);
@@ -292,7 +282,6 @@ img {
   align-items: center;
   overflow: hidden;
   border: 1px solid var(--line);
-  border-radius: 8px;
   background: var(--white);
   transition: 0.2s ease;
 }
@@ -316,7 +305,6 @@ img {
   align-items: center;
   justify-content: center;
   border: none;
-  border-radius: 8px;
   background: transparent;
   color: var(--primary-600);
   font-size: 16px;
@@ -367,7 +355,6 @@ img {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  border-radius: 8px;
   padding: 0 18px;
   font-size: 15px;
   font-weight: 700;
@@ -402,8 +389,7 @@ img {
 .primary-button:hover,
 .danger-button:hover,
 .ghost-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 10px 24px rgba(27, 103, 210, 0.2);
+  opacity: 0.9;
 }
 
 .helper-text {
@@ -491,7 +477,6 @@ img {
   gap: 8px;
   padding: 6px 10px;
   border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 999px;
   margin-top: 12px;
   background: rgba(255, 255, 255, 0.1);
   color: #dbe7ff;
@@ -513,14 +498,12 @@ img {
   align-items: end;
   margin-top: 20px;
   padding: 28px;
-  border-radius: 12px;
   color: var(--white);
   background:
     linear-gradient(125deg, rgba(4, 16, 31, 0.95), rgba(14, 66, 158, 0.92)),
     url("https://images.unsplash.com/photo-1607082349566-187342175e2f?q=80&w=1600&auto=format&fit=crop");
   background-size: cover;
   background-position: center;
-  box-shadow: var(--shadow);
 }
 
 .hero-band h1 {
@@ -563,9 +546,7 @@ img {
 .app-panel {
   margin-top: 20px;
   padding: 22px;
-  border-radius: 12px;
-  background: rgba(247, 251, 255, 0.98);
-  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.16);
+  background: #ffffff;
 }
 
 .section-toolbar {
@@ -604,7 +585,6 @@ img {
 .summary-card,
 .empty-state {
   border: 1px solid var(--line-soft);
-  border-radius: 8px;
   background: var(--white);
 }
 
@@ -632,8 +612,7 @@ img {
 .sale-badge,
 .stock-badge {
   position: absolute;
-  top: 10px;
-  border-radius: 999px;
+  top: 0;
   padding: 6px 10px;
   color: var(--white);
   font-size: 12px;
@@ -641,12 +620,12 @@ img {
 }
 
 .sale-badge {
-  left: 10px;
+  left: 0;
   background: var(--accent);
 }
 
 .stock-badge {
-  right: 10px;
+  right: 0;
   background: rgba(4, 16, 31, 0.82);
 }
 
@@ -738,7 +717,6 @@ img {
   width: 88px;
   height: 72px;
   overflow: hidden;
-  border-radius: 8px;
   background: var(--surface-strong);
 }
 
@@ -807,7 +785,6 @@ img {
   display: inline-flex;
   align-items: center;
   min-height: 26px;
-  border-radius: 999px;
   padding: 0 10px;
   background: #eaf1f8;
   color: var(--primary-700);
@@ -892,9 +869,7 @@ img {
   width: min(760px, 100%);
   max-height: 88vh;
   overflow: auto;
-  border-radius: 12px;
   background: var(--surface);
-  box-shadow: var(--shadow);
 }
 
 .modal-header {
@@ -1066,11 +1041,9 @@ img {
   align-items: center;
   justify-content:space-between;
   padding: 16px;
-  border-radius: 12px;
-  background: rgba(247, 251, 255, 0.96);
-  border: 1px solid rgba(255,255,255,0.12);
-  box-shadow: 0 18px 42px rgba(0,0,0,0.18);
+  background: #ffffff;
   color: #0c2b5d;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .logo {
@@ -1157,7 +1130,6 @@ img {
   min-height: 32px;           /* nhỏ lại */
   padding: 4px 12px;          /* giảm padding */
   font-size: 13px;            /* chữ nhỏ hơn */
-  border-radius: 6px;
 }
 
 /* icon nhỏ lại */
@@ -1167,5 +1139,5 @@ img {
 
 /* active cũng gọn */
 .nav-tab.active {
-  box-shadow: 0 4px 10px rgba(27, 103, 210, 0.2);
+  box-shadow: none;
 }

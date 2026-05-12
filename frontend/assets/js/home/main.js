@@ -50,29 +50,21 @@ function initUserUI() {
   const user = getStoredUser();
 
   const loginBtn = document.getElementById("loginBtn");
-  const wrapper = document.getElementById("userDropdownWrapper");
+  const wrapper = document.getElementById("userActionsWrapper");
   const avatar = document.getElementById("userAvatar");
-  const nameEl = document.getElementById("dropdownUserName");
-  const emailEl = document.getElementById("dropdownUserEmail");
 
   if (token && user && user.name) {
-    // Đã đăng nhập: ẩn nút "Đăng nhập", hiện avatar
-    if (loginBtn) loginBtn.style.display = "none";
-    if (wrapper) wrapper.style.display = "inline-block";
+    // Đã đăng nhập: ẩn nút "Đăng nhập", hiện nhóm hành động
+    if (loginBtn) loginBtn.classList.add("hidden");
+    if (wrapper) wrapper.classList.remove("hidden");
+    if (wrapper) wrapper.style.display = "flex";
     if (avatar) avatar.src = user.avatar || "./img/default-avatar.png";
-    if (nameEl) nameEl.textContent = user.name;
-    if (emailEl) emailEl.textContent = user.email || "";
   } else {
-    // Chưa đăng nhập: hiện nút "Đăng nhập", ẩn avatar
-    if (loginBtn) loginBtn.style.display = "";
+    // Chưa đăng nhập: hiện nút "Đăng nhập", ẩn nhóm hành động
+    if (loginBtn) loginBtn.classList.remove("hidden");
+    if (wrapper) wrapper.classList.add("hidden");
     if (wrapper) wrapper.style.display = "none";
   }
-}
-
-function toggleUserDropdown(e) {
-  e.stopPropagation();
-  const dropdown = document.getElementById("userDropdown");
-  if (dropdown) dropdown.classList.toggle("hidden");
 }
 
 window.addEventListener("DOMContentLoaded", async () => {
@@ -85,22 +77,9 @@ window.addEventListener("DOMContentLoaded", async () => {
   initUserUI();
   initSocket();
 
-  // Avatar click → toggle dropdown
-  const avatarBtn = document.getElementById("avatarBtn");
-  if (avatarBtn) avatarBtn.addEventListener("click", toggleUserDropdown);
-
   // Logout
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) logoutBtn.addEventListener("click", logout);
-
-  // Click ngoài dropdown → đóng
-  document.addEventListener("click", function (e) {
-    const dropdown = document.getElementById("userDropdown");
-    const wrapper = document.getElementById("userDropdownWrapper");
-    if (dropdown && wrapper && !wrapper.contains(e.target)) {
-      dropdown.classList.add("hidden");
-    }
-  });
 });
 
 function isLoggedIn() {

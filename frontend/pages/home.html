@@ -38,34 +38,14 @@
         <span id="loginText">Đăng nhập</span>
       </button>
 
-      <!-- Đã đăng nhập: Avatar + Dropdown -->
-      <div class="user-dropdown-wrapper hidden" id="userDropdownWrapper">
-        <button class="avatar-btn" id="avatarBtn" type="button">
+      <!-- Đã đăng nhập: Avatar + Đăng xuất -->
+      <div class="user-actions hidden" id="userActionsWrapper" style="display: none; align-items: center; gap: 20px;">
+        <button class="avatar-btn" type="button" onclick="window.location.href='profile.html'" title="Trang cá nhân">
           <img id="userAvatar" class="avatar-mini" src="./img/default-avatar.png" alt="Avatar">
         </button>
-        <div class="user-dropdown hidden" id="userDropdown">
-          <div class="dropdown-header">
-            <i class="fa-solid fa-user-circle"></i>
-            <div>
-              <strong id="dropdownUserName">Người dùng</strong>
-              <small id="dropdownUserEmail"></small>
-            </div>
-          </div>
-          <hr class="dropdown-divider">
-          <button class="dropdown-item" onclick="window.location.href='profile.html'">
-            <i class="fa-solid fa-id-card"></i>
-            Trang cá nhân
-          </button>
-          <button class="dropdown-item" onclick="window.location.href='orders.html'">
-            <i class="fa-solid fa-clock-rotate-left"></i>
-            Lịch sử đơn hàng
-          </button>
-          <hr class="dropdown-divider">
-          <button class="dropdown-item dropdown-logout" id="logoutBtn" type="button">
-            <i class="fa-solid fa-arrow-right-from-bracket"></i>
-            Đăng xuất
-          </button>
-        </div>
+        <button class="icon-btn" id="logoutBtn" type="button" title="Đăng xuất">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        </button>
       </div>
     </div>
   </div>
