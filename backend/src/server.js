@@ -33,6 +33,11 @@ async function startServer() {
     const prisma = require('./config/database');
     await prisma.$connect();
     console.log('[Server] Kết nối Database thành công (Prisma)...');
+    
+    // Tự động Warm-up Cache khi khởi động server
+    const { warmUpCache } = require('./services/cache.service');
+    await warmUpCache();
+
     const httpServer = http.createServer(app);
     connectSocket(httpServer);
     httpServer.listen(PORT, () => {

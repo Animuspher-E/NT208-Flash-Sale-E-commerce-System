@@ -113,17 +113,20 @@ class OrderService {
                     });
 
                     // 6️⃣ UPDATE INVENTORY - Cập nhật bảng Inventory (nếu có)
-                    await tx.inventory.update({
-                        where: { productId },
-                        data: {
-                            availableStock: {
-                                decrement: quantity,
+                    const inv = await tx.inventory.findFirst({ where: { productId } });
+                    if (inv) {
+                        await tx.inventory.update({
+                            where: { productId },
+                            data: {
+                                availableStock: {
+                                    decrement: quantity,
+                                },
+                                reservedStock: {
+                                    increment: quantity,
+                                },
                             },
-                            reservedStock: {
-                                increment: quantity,
-                            },
-                        },
-                    });
+                        });
+                    }
 
                     logger.info(
                         `Order created: ${orderNumber} | User: ${userId} | Product: ${productId} | Qty: ${quantity}`
