@@ -234,7 +234,7 @@ window.renderQuickAddList = function() {
       <td class="p-2"><input type="checkbox" class="qa-checkbox" value="${p.id}" onclick="updateQuickSelectedCount()"></td>
       <td class="p-2">
         <div class="flex items-center gap-3">
-          <img src="${p.image || 'https://placehold.co/40x40'}" class="w-8 h-8 rounded object-cover">
+          <img src="${p.image || 'https://placehold.co/40x40'}" style="width:24px;height:24px" class="rounded object-cover">
           <div>
             <div class="font-medium text-gray-800">${BF.escapeHtml(p.name)}</div>
             <div class="text-[10px] text-gray-400">${p.category?.name || ''}</div>

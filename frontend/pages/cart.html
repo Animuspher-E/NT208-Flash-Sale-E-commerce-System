@@ -47,28 +47,7 @@
       </header>
 
 
-      <section class="app-panel">
-        <div id="appMessage" class="app-message" role="status" aria-live="polite"></div>
-
-        <div class="section-toolbar">
-          <div class="section-title">
-            <h2>Sản phẩm Flash Sale</h2>
-            <p>Cập nhật các sản phẩm Flash Sale đang mở bán.</p>
-          </div>
-          <div class="toolbar-actions">
-            <button class="ghost-button" id="refreshProductsBtn" type="button">
-              <i class="fa-solid fa-rotate"></i>
-              Tải lại
-            </button>
-            <button class="danger-button hidden" id="warmupBtn" type="button">
-              <i class="fa-solid fa-fire"></i>
-              Nạp Redis
-            </button>
-          </div>
-        </div>
-
-        <div id="productGrid" class="product-grid"></div>
-      </section>
+      <div id="appMessage" class="app-message" style="margin-top: 1rem;" role="status" aria-live="polite"></div>
 
       <section class="app-panel">
         <div class="section-toolbar">
@@ -124,14 +103,12 @@
 
     const els = {
       appMessage: document.getElementById("appMessage"),
-      productGrid: document.getElementById("productGrid"),
       cartList: document.getElementById("cartList"),
       cartCount: document.getElementById("cartCount"),
       cartItemCount: document.getElementById("cartItemCount"),
       cartSubtotal: document.getElementById("cartSubtotal"),
       cartStatus: document.getElementById("cartStatus"),
-      checkoutBtn: document.getElementById("checkoutBtn"),
-      warmupBtn: document.getElementById("warmupBtn")
+      checkoutBtn: document.getElementById("checkoutBtn")
     };
 
     function setAppMessage(text, type = "info") {
@@ -170,69 +147,16 @@
           BF.saveCart(state.cart);
         }
 
-        renderProducts();
         renderCart(); // Gọi renderCart để giao diện giỏ hàng cập nhật giá mới nếu có
         renderStats();
         setAppMessage("");
       } catch (error) {
         state.products = [];
-        els.productGrid.innerHTML = BF.emptyState("fa-triangle-exclamation", "Không tải được sản phẩm", error.message);
         setAppMessage(error.message || "Không tải được sản phẩm.", "error");
       }
     }
 
-    function renderProducts() {
-      if (!state.products.length) {
-        els.productGrid.innerHTML = BF.emptyState(
-          "fa-box-open",
-          "Chưa có sản phẩm Flash Sale",
-          "Hiện chưa có sản phẩm Flash Sale. Vui lòng quay lại sau."
-        );
-        return;
-      }
 
-      els.productGrid.innerHTML = state.products.map(function (product) {
-        const stock = Number(product.stock || 0);
-        const discount = Number(product.discount || 0);
-        const image = product.image || "https://images.unsplash.com/photo-1607082349566-187342175e2f?q=80&w=900&auto=format&fit=crop";
-        const finalPrice = product.price - (product.price * discount / 100);
-        const oldPrice = discount > 0
-          ? `<span class="old-price">${BF.formatCurrency(product.price)}</span>`
-          : "";
-
-        return `
-          <article class="product-card">
-            <div class="product-image">
-              <img src="${BF.escapeHtml(image)}" alt="${BF.escapeHtml(product.name || "Sản phẩm")}">
-              <span class="sale-badge">${discount ? `-${discount}%` : "FLASH"}</span>
-              <span class="stock-badge">${stock} còn lại</span>
-            </div>
-            <div class="product-body">
-              <h3>${BF.escapeHtml(product.name || "Sản phẩm")}</h3>
-              <p class="product-desc">${BF.escapeHtml(product.description || "Sản phẩm Flash Sale trong hệ thống E-Commerce.")}</p>
-              <div class="product-meta">
-                <span><i class="fa-solid fa-location-dot"></i> ${BF.escapeHtml(product.location || "Online")}</span>
-                <span><i class="fa-solid fa-star"></i> ${Number(product.rating || 0).toFixed(1)}</span>
-              </div>
-              <div class="price-row">
-                <span class="price">${BF.formatCurrency(finalPrice)}</span>
-                ${oldPrice}
-              </div>
-              <div class="product-actions">
-                <button class="ghost-button" type="button" data-product-action="add" data-product-id="${product.id}" ${stock <= 0 ? "disabled" : ""}>
-                  <i class="fa-solid fa-cart-plus"></i>
-                  Thêm
-                </button>
-                <button class="danger-button" type="button" data-product-action="buy" data-product-id="${product.id}" ${stock <= 0 ? "disabled" : ""}>
-                  <i class="fa-solid fa-bolt"></i>
-                  Mua ngay
-                </button>
-              </div>
-            </div>
-          </article>
-        `;
-      }).join("");
-    }
 
     function findProduct(productId) {
       return state.products.find(product => Number(product.id) === Number(productId));
@@ -378,36 +302,9 @@
       BF.setButtonLoading(els.checkoutBtn, false);
     }
 
-    async function warmupCache() {
-      BF.setButtonLoading(els.warmupBtn, true, "Đang nạp");
-      try {
-        const data = await BF.apiRequest("/api/flashsale/warmup", {
-          method: "POST",
-          body: {}
-        });
-        setAppMessage(data.message || "Đã nạp dữ liệu Flash Sale vào Redis.", "success");
-        await loadProducts();
-      } catch (error) {
-        setAppMessage(error.message || "Không thể nạp Redis.", "error");
-      } finally {
-        BF.setButtonLoading(els.warmupBtn, false);
-      }
-    }
-
     document.getElementById("logoutBtn").addEventListener("click", BF.logout);
-    document.getElementById("refreshProductsBtn").addEventListener("click", loadProducts);
     document.getElementById("clearCartBtn").addEventListener("click", clearCart);
     document.getElementById("checkoutBtn").addEventListener("click", checkoutCart);
-    document.getElementById("warmupBtn").addEventListener("click", warmupCache);
-
-    els.productGrid.addEventListener("click", function (event) {
-      const button = event.target.closest("[data-product-action]");
-      if (!button) return;
-
-      const product = findProduct(button.dataset.productId);
-      if (button.dataset.productAction === "add") addToCart(product);
-      if (button.dataset.productAction === "buy") buyNow(product);
-    });
 
     els.cartList.addEventListener("click", function (event) {
       const button = event.target.closest("[data-cart-remove]");
@@ -415,8 +312,6 @@
       removeFromCart(button.dataset.cartRemove);
     });
 
-    const currentUser = BF.getUser() || {};
-    els.warmupBtn.classList.toggle("hidden", currentUser.role !== "admin");
     BF.renderUserHeader();
     renderCart();
     renderStats();
