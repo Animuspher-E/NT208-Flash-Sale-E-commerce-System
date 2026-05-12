@@ -346,18 +346,23 @@ class OrderService {
                         },
                     });
 
-                    // Update inventory
-                    await tx.inventory.update({
-                        where: { productId: item.productId },
-                        data: {
-                            availableStock: {
-                                increment: item.quantity,
-                            },
-                            reservedStock: {
-                                decrement: item.quantity,
-                            },
-                        },
+                    // Update inventory if it exists
+                    const inventoryExists = await tx.inventory.findFirst({
+                        where: { productId: item.productId }
                     });
+                    if (inventoryExists) {
+                        await tx.inventory.update({
+                            where: { productId: item.productId },
+                            data: {
+                                availableStock: {
+                                    increment: item.quantity,
+                                },
+                                reservedStock: {
+                                    decrement: item.quantity,
+                                },
+                            },
+                        });
+                    }
                 }
 
                 // Update order status
@@ -365,13 +370,18 @@ class OrderService {
                     where: { id: orderId },
                     data: {
                         status: 'cancelled',
-                        cancelledAt: new Date(),
                     },
                     include: {
                         items: true,
                     },
                 });
             });
+
+            // 3. Rollback stock in Redis (Flash sale only allows 1 item per product per user normally, but we loop to be safe)
+            const flashsaleService = require('./flashsale.service');
+            for (const item of updatedOrder.items) {
+                await flashsaleService.rollbackStock(item.productId, userId);
+            }
 
             logger.info(`Order cancelled: ${orderId}`);
 
