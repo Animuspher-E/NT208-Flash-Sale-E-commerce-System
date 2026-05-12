@@ -1,24 +1,22 @@
 body{
   margin: 0;
   font-family: Arial;
-  background: linear-gradient(135deg, #04101f, #0a2550, #0e429e);
+  background: #f5f5f5;
   min-height: 95vh;
 }
 
 /* PHẦN HEADER GIỐNG HOME */
 .header {
   width: min(1240px, 100%);
-  margin: 20px auto;
+  margin: 0 auto;
   display: flex;
   gap: 18px;
   align-items: center;
   justify-content:space-between;
   padding: 16px;
-  border-radius: 12px;
-  background: rgba(247, 251, 255, 0.96);
-  border: 1px solid rgba(255,255,255,0.12);
-  box-shadow: 0 18px 42px rgba(0,0,0,0.18);
+  background: #ffffff;
   color: #0c2b5d;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .search {
@@ -138,9 +136,8 @@ body{
 .sidebar{
   width:260px;
   background:white;
-  border-radius:16px;
   padding:20px;
-  box-shadow:0 10px 30px rgba(0,0,0,0.1);
+  border: 1px solid #e0e0e0;
 }
 
 .menu{
@@ -165,9 +162,8 @@ body{
 .content{
   flex:1;
   background:white;
-  border-radius:16px;
   padding:30px;
-  box-shadow:0 10px 30px rgba(0,0,0,0.1);
+  border: 1px solid #e0e0e0;
 }
 
 h2{
@@ -188,7 +184,6 @@ h2{
 .form-group input, select{
   width:100%;
   padding:10px;
-  border-radius:10px;
   border:1px solid #ccc;
   margin-top:5px;
   transition:0.2s;
@@ -217,7 +212,6 @@ select:focus{
   background:linear-gradient(90deg, #003366, #0051a2);
   color:white;
   border:none;
-  border-radius:10px;
   cursor:pointer;
   transition:0.2s;
 }
@@ -232,7 +226,6 @@ select:focus{
   padding:0.5px 1px;
   background:linear-gradient(90deg, #003366, #0051a2);
   color:#fff;
-  border-radius:6px;
   cursor:pointer;
 }
 
@@ -244,7 +237,6 @@ select:focus{
 .address-box{
   border:1px solid #eee;
   padding:12px;
-  border-radius:10px;
   margin-bottom:10px;
   background:#fafafa;
   display:flex;
