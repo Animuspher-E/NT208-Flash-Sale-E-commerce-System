@@ -16,19 +16,19 @@ const BF = window.ECommerce;
 function fmt(v) { return Number(v || 0).toLocaleString('vi-VN') + ' đ'; }
 function fmtDate(d) { if (!d) return '—'; return new Date(d).toLocaleString('vi-VN'); }
 function statusBadge(status) {
-  const map = {
-    pending: 'bg-yellow-100 text-yellow-800',
-    confirmed: 'bg-blue-100 text-blue-800',
-    processing: 'bg-blue-100 text-blue-800',
-    delivered: 'bg-green-100 text-green-800',
-    completed: 'bg-green-100 text-green-800',
-    cancelled: 'bg-red-100 text-red-800',
+  const colors = {
+    pending:    'badge-normal',
+    confirmed:  'badge-upcoming',
+    processing: 'badge-upcoming',
+    delivered:  'badge-active',
+    completed:  'badge-active',
+    cancelled:  'badge-flash',
   };
   const labels = {
     pending: 'Chờ xử lý', confirmed: 'Đã xác nhận', processing: 'Đang xử lý',
     delivered: 'Đã giao', completed: 'Hoàn tất', cancelled: 'Đã hủy'
   };
-  return `<span class="px-2 py-0.5 rounded-full text-xs font-semibold ${map[status] || 'bg-gray-100 text-gray-700'}">${labels[status] || status}</span>`;
+  return `<span class="badge ${colors[status] || 'badge-normal'}">${labels[status] || status}</span>`;
 }
 
 // ─────────────────────────────────────────────
@@ -50,12 +50,9 @@ function checkAdmin() {
 // ─────────────────────────────────────────────
 window.switchTab = function (tabId) {
   document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-  document.querySelectorAll('.nav-btn').forEach(el => {
-    el.className = 'nav-btn flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-red-600 rounded-lg font-medium transition-colors';
-  });
+  document.querySelectorAll('.admin-nav-link').forEach(el => el.classList.remove('active'));
   document.getElementById(`tab-${tabId}`)?.classList.remove('hidden');
-  const activeNav = document.getElementById(`nav-${tabId}`);
-  if (activeNav) activeNav.className = 'nav-btn flex items-center gap-3 px-3 py-2.5 bg-red-50 text-red-600 rounded-lg font-semibold';
+  document.getElementById(`nav-${tabId}`)?.classList.add('active');
 
   const titles = { dashboard: 'Tổng quan', flashsale: 'Quản lý Flash Sale', products: 'Quản lý Sản phẩm', orders: 'Quản lý Đơn hàng', customers: 'Quản lý Khách hàng' };
   const titleEl = document.getElementById('pageTitle');
@@ -162,35 +159,32 @@ async function loadProducts(filter) {
 
     prodRes.data.forEach(p => {
       tbody.innerHTML += `
-        <tr class="border-b border-gray-50 hover:bg-red-50/30 transition-colors" id="product-row-${p.id}">
-          <td class="p-3 text-xs text-gray-400 font-medium">${p.id}</td>
-          <td class="p-3"><img src="${p.image || 'https://placehold.co/100x100?text=No+Image'}" class="w-12 h-12 object-cover rounded-lg shadow-sm" onerror="this.onerror=null; this.src='https://placehold.co/100x100?text=No+Image'"></td>
-          <td class="p-3">
-            <div class="font-semibold text-gray-800 text-sm truncate max-w-[180px]">${BF.escapeHtml(p.name)}</div>
-            <div class="text-xs text-gray-400 mt-0.5">${p.category?.name || '—'}</div>
+        <tr id="product-row-${p.id}">
+          <td style="color:#aaa;font-size:12px">${p.id}</td>
+          <td><img src="${p.image || 'https://placehold.co/100x100?text=No+Image'}" style="width:44px;height:44px;object-fit:cover;border-radius:6px" onerror="this.onerror=null; this.src='https://placehold.co/100x100?text=No+Image'"></td>
+          <td>
+            <div style="font-weight:700;font-size:13px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${BF.escapeHtml(p.name)}</div>
+            <div style="font-size:11px;color:#888">${p.category?.name || '—'}</div>
           </td>
-          <td class="p-3 text-sm font-bold text-red-600">${fmt(p.price)}</td>
-          <td class="p-3 text-center">
-            <span class="font-bold text-sm ${p.stock > 10 ? 'text-green-600' : 'text-red-500'}">${p.stock}</span>
+          <td style="color:#cc0000;font-weight:700">${fmt(p.price)}</td>
+          <td class="text-center">
+            <span style="font-weight:700;color:${p.stock > 10 ? '#1a7a3a' : '#cc0000'}">${p.stock}</span>
           </td>
-          <td class="p-3">
+          <td>
             ${p.isFlashSale
-              ? '<span class="bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded-full">⚡ Flash Sale</span>'
-              : '<span class="bg-gray-100 text-gray-500 text-xs px-2 py-0.5 rounded-full">Thường</span>'}
+              ? '<span class="badge badge-flash"><i class="fa-solid fa-bolt" style="font-size:10px"></i> Flash Sale</span>'
+              : '<span class="badge badge-normal">Thường</span>'}
           </td>
-          <td class="p-3 text-xs text-gray-400">${p.discount > 0 ? '-' + p.discount + '%' : '—'}</td>
-          <td class="p-3">
+          <td style="font-size:12px;color:#888">${p.discount > 0 ? '-' + p.discount + '%' : '—'}</td>
+          <td>
             <div class="flex items-center gap-1.5 justify-center">
-              <button onclick="openEditModal(${p.id})" title="Chỉnh sửa"
-                class="w-8 h-8 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors text-xs font-bold">
+              <button onclick="openEditModal(${p.id})" title="Chỉnh sửa" class="icon-btn-sm edit">
                 <i class="fa-solid fa-pen-to-square"></i>
               </button>
-              <button onclick="toggleFlashSale(${p.id}, ${!p.isFlashSale})" title="${p.isFlashSale ? 'Tắt Flash Sale' : 'Bật Flash Sale'}"
-                class="w-8 h-8 flex items-center justify-center rounded-lg text-xs font-bold transition-colors ${p.isFlashSale ? 'bg-orange-50 text-orange-500 hover:bg-orange-100' : 'bg-yellow-50 text-yellow-600 hover:bg-yellow-100'}">
+              <button onclick="toggleFlashSale(${p.id}, ${!p.isFlashSale})" title="${p.isFlashSale ? 'Tắt Flash Sale' : 'Bật Flash Sale'}" class="icon-btn-sm ${p.isFlashSale ? 'flash-off' : 'flash-on'}">
                 <i class="fa-solid ${p.isFlashSale ? 'fa-bolt-slash' : 'fa-bolt'}"></i>
               </button>
-              <button onclick="deleteProduct(${p.id}, '${BF.escapeHtml(p.name)}')" title="Xóa"
-                class="w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition-colors text-xs font-bold">
+              <button onclick="deleteProduct(${p.id}, '${BF.escapeHtml(p.name)}')" title="Xóa" class="icon-btn-sm delete">
                 <i class="fa-solid fa-trash-can"></i>
               </button>
             </div>
@@ -536,27 +530,26 @@ async function loadFlashSale() {
       
       let statusHtml = '';
       if (now < start) {
-        statusHtml = '<span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full">Sắp diễn ra</span>';
+        statusHtml = '<span class="badge badge-upcoming">Sắp diễn ra</span>';
       } else if (now > end) {
-        statusHtml = '<span class="bg-gray-100 text-gray-500 text-[10px] font-bold px-2 py-0.5 rounded-full">Đã kết thúc</span>';
+        statusHtml = '<span class="badge badge-ended">Đã kết thúc</span>';
       } else {
-        statusHtml = '<span class="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse">Đang diễn ra</span>';
+        statusHtml = '<span class="badge badge-active animate-pulse">Đang diễn ra</span>';
       }
 
       tbody.innerHTML += `
-        <tr class="border-b border-gray-50 hover:bg-red-50/30 transition-colors">
-          <td class="p-3 text-xs text-gray-400 font-medium">${p.id}</td>
-          <td class="p-3"><img src="${p.image || 'https://placehold.co/100x100?text=No+Image'}" class="w-12 h-12 object-cover rounded-lg shadow-sm" onerror="this.onerror=null; this.src='https://placehold.co/100x100?text=No+Image'"></td>
-          <td class="p-3 font-semibold text-gray-800 text-sm truncate max-w-[180px]">${BF.escapeHtml(p.name)}</td>
-          <td class="p-3 text-center text-xs text-red-500 font-bold">-${p.discount}%</td>
-          <td class="p-3 text-center">${statusHtml}</td>
-          <td class="p-3 text-xs text-gray-500">
-            <span class="text-gray-400">BĐ:</span> ${p.flashSaleStart ? new Date(p.flashSaleStart).toLocaleString('vi-VN') : '—'}<br>
-            <span class="text-gray-400">KT:</span> ${p.flashSaleEnd ? new Date(p.flashSaleEnd).toLocaleString('vi-VN') : '—'}
+        <tr id="fs-row-${p.id}">
+          <td style="color:#aaa;font-size:12px">${p.id}</td>
+          <td><img src="${p.image || 'https://placehold.co/100x100'}" style="width:44px;height:44px;object-fit:cover;border-radius:6px" onerror="this.onerror=null; this.src='https://placehold.co/100x100'"></td>
+          <td style="font-weight:700;font-size:13px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${BF.escapeHtml(p.name)}</td>
+          <td class="text-center"><span style="color:#cc0000;font-weight:700">-${p.discount}%</span></td>
+          <td class="text-center">${statusHtml}</td>
+          <td style="font-size:12px;color:#555">
+            <span style="color:#aaa">BĐ:</span> ${p.flashSaleStart ? new Date(p.flashSaleStart).toLocaleString('vi-VN') : '—'}<br>
+            <span style="color:#aaa">KT:</span> ${p.flashSaleEnd ? new Date(p.flashSaleEnd).toLocaleString('vi-VN') : '—'}
           </td>
-          <td class="p-3 text-center">
-            <button onclick="removeFlashSale(${p.id})" title="Xóa khỏi Flash Sale"
-              class="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-red-50 text-red-500 hover:bg-red-100 rounded-lg text-xs font-bold transition-colors mx-auto">
+          <td class="text-center">
+            <button onclick="removeFlashSale(${p.id})" class="btn-ghost" style="padding:5px 12px;font-size:12px;color:#cc0000;border-color:#ffcccc">
               <i class="fa-solid fa-trash-can"></i> Xóa khỏi FS
             </button>
           </td>
@@ -719,12 +712,11 @@ window.triggerWarmup = async function () {
 // TOAST NOTIFICATION
 // ─────────────────────────────────────────────
 function showToast(msg, type = 'success') {
-  const toast = document.getElementById('toast');
-  if (!toast) return;
-  toast.textContent = msg;
-  toast.className = `fixed bottom-5 right-5 z-50 px-5 py-3 rounded-xl shadow-lg text-sm font-medium transition-all duration-300 ${type === 'success' ? 'bg-green-600 text-white' : 'bg-red-500 text-white'}`;
-  toast.classList.remove('opacity-0', 'translate-y-4');
-  setTimeout(() => { toast.classList.add('opacity-0', 'translate-y-4'); }, 3000);
+  const t = document.getElementById('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.className = 'show ' + type;
+  setTimeout(() => { t.className = ''; }, 3000);
 }
 
 // ─────────────────────────────────────────────

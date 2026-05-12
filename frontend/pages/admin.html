@@ -6,123 +6,147 @@
   <title>Admin Dashboard | Flash Sale E-Commerce</title>
   <meta name="description" content="Bảng quản trị hệ thống Flash Sale - Quản lý sản phẩm, đơn hàng và khách hàng.">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="../assets/css/admin.css">
   <style>
-    [x-cloak] { display: none; }
     .tab-content { display: block; }
     .tab-content.hidden { display: none; }
-    #toast { opacity: 0; transform: translateY(1rem); transition: all 0.3s ease; }
-    #toast:not(.opacity-0) { opacity: 1; transform: translateY(0); }
-    .modal-overlay { backdrop-filter: blur(4px); }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
+    @media(max-width:900px){ .grid-4 { grid-template-columns: repeat(2,1fr); } }
+    @media(max-width:500px){ .grid-2,.grid-4 { grid-template-columns: 1fr; } }
+    .flex { display: flex; }
+    .flex-wrap { flex-wrap: wrap; }
+    .items-center { align-items: center; }
+    .items-end { align-items: flex-end; }
+    .justify-between { justify-content: space-between; }
+    .justify-end { justify-content: flex-end; }
+    .gap-2 { gap: 8px; }
+    .gap-3 { gap: 12px; }
+    .gap-4 { gap: 16px; }
+    .flex-1 { flex: 1; }
+    .w-full { width: 100%; }
+    .hidden { display: none !important; }
+    .animate-pulse { animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+    .text-center { text-align: center; }
+    .space-y-4 > * + * { margin-top: 16px; }
+    .overflow-hidden { overflow: hidden; }
+    .overflow-x-auto { overflow-x: auto; }
+    .overflow-y-auto { overflow-y: auto; }
+    .min-h-0 { min-height: 0; }
   </style>
 </head>
-<body class="bg-gray-100 min-h-screen text-gray-800 font-sans flex">
+<body>
 
   <!-- ─── SIDEBAR ─── -->
-  <aside class="w-64 bg-white shadow-xl hidden md:flex flex-col min-h-screen fixed z-20">
-    <div class="h-16 flex items-center px-6 border-b border-gray-100">
-      
-      <span class="font-bold text-xl text-gray-800">Admin<span class="text-red-600">Panel</span></span>
+  <aside class="admin-sidebar">
+    <div class="admin-sidebar-logo">
+      <i class="fa-solid fa-bolt"></i>
+      E-<span>Commerce</span>
     </div>
 
-    <div class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
-      <a href="#" onclick="switchTab('dashboard')" id="nav-dashboard"
-        class="nav-btn flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-red-600 rounded-lg font-medium transition-colors">
-         Tổng quan
+    <nav class="admin-nav">
+      <a href="#" onclick="switchTab('dashboard')" id="nav-dashboard" class="admin-nav-link active">
+        <i class="fa-solid fa-chart-pie"></i> Tổng quan
       </a>
-      <a href="#" onclick="switchTab('products')" id="nav-products"
-        class="nav-btn flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-red-600 rounded-lg font-medium transition-colors">
-         Sản phẩm
+      <a href="#" onclick="switchTab('products')" id="nav-products" class="admin-nav-link">
+        <i class="fa-solid fa-box"></i> Sản phẩm
       </a>
-      <a href="#" onclick="switchTab('flashsale')" id="nav-flashsale"
-        class="nav-btn flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-red-600 rounded-lg font-medium transition-colors">
-         Flash Sale
+      <a href="#" onclick="switchTab('flashsale')" id="nav-flashsale" class="admin-nav-link">
+        <i class="fa-solid fa-bolt"></i> Flash Sale
       </a>
-      <a href="#" onclick="switchTab('orders')" id="nav-orders"
-        class="nav-btn flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-red-600 rounded-lg font-medium transition-colors">
-         Đơn hàng
+      <a href="#" onclick="switchTab('orders')" id="nav-orders" class="admin-nav-link">
+        <i class="fa-solid fa-receipt"></i> Đơn hàng
       </a>
-      <a href="#" onclick="switchTab('customers')" id="nav-customers"
-        class="nav-btn flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-red-600 rounded-lg font-medium transition-colors">
-         Khách hàng
+      <a href="#" onclick="switchTab('customers')" id="nav-customers" class="admin-nav-link">
+        <i class="fa-solid fa-users"></i> Khách hàng
       </a>
-    </div>
+    </nav>
 
-    <div class="p-4 border-t border-gray-100">
-      <a href="home.html"
-        class="flex items-center justify-center w-full px-4 py-2 text-sm text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
-         Về trang cửa hàng
+    <div class="admin-sidebar-footer">
+      <a href="home.html">
+        <i class="fa-solid fa-store"></i> Về trang cửa hàng
       </a>
     </div>
   </aside>
 
   <!-- ─── MAIN ─── -->
-  <div class="flex-1 md:ml-64 flex flex-col min-h-screen">
+  <div class="admin-main">
 
     <!-- TOP HEADER -->
-    <header class="h-16 bg-white shadow-sm flex items-center justify-between px-6 lg:px-8 z-10 sticky top-0">
-      <h2 id="pageTitle" class="text-xl font-semibold text-gray-800">Tổng quan</h2>
-      <div class="flex items-center gap-3 cursor-pointer group" onclick="ECommerce.logout()">
-        <div class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center">
-          
-        </div>
-        <span class="text-sm font-medium text-gray-600 group-hover:text-red-600 hidden sm:block transition-colors">Đăng xuất</span>
+    <header class="admin-topbar">
+      <h2 id="pageTitle" class="admin-topbar-title">Tổng quan</h2>
+      <div class="admin-topbar-actions">
+        <button class="admin-logout-btn" onclick="ECommerce.logout()">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất
+        </button>
       </div>
     </header>
 
-    <main class="flex-1 p-5 lg:p-8 overflow-x-hidden space-y-6">
+    <main class="admin-content">
 
       <!-- ══════════════════════════════════ -->
-      <!-- TAB: DASHBOARD                      -->
+      <!-- TAB: DASHBOARD                     -->
       <!-- ══════════════════════════════════ -->
-      <div id="tab-dashboard" class="tab-content space-y-6">
+      <div id="tab-dashboard" class="tab-content space-y-4">
 
-        <!-- WELCOME BANNER -->
-        <div class="bg-gradient-to-r from-red-500 to-red-700 text-white p-6 md:p-8 rounded-2xl shadow-lg relative overflow-hidden">
-          <div class="relative z-10">
-            <h1 class="text-3xl md:text-4xl font-bold mb-1">👋 Xin chào, Admin!</h1>
-            <p class="text-red-100 text-sm">Chào mừng trở lại bảng điều khiển Flash Sale.</p>
-          </div>
-          
+        <!-- BANNER -->
+        <div class="admin-banner">
+          <h1>👋 Xin chào, Admin!</h1>
+          <p>Chào mừng trở lại bảng điều khiển Flash Sale E-Commerce.</p>
         </div>
 
         <!-- STATS -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="p-5 rounded-xl bg-white border border-gray-100 shadow-sm flex items-center gap-4">
-            <div class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xl flex-shrink-0"></div>
-            <div><div class="text-gray-400 text-xs font-medium mb-0.5">Tổng đơn hàng</div><div id="stat-totalOrders" class="text-2xl font-bold text-gray-800">…</div></div>
+        <div class="admin-stats-grid">
+          <div class="stat-card">
+            <div class="stat-card-icon blue"><i class="fa-solid fa-receipt"></i></div>
+            <div>
+              <div class="stat-card-label">Tổng đơn hàng</div>
+              <div id="stat-totalOrders" class="stat-card-value">…</div>
+            </div>
           </div>
-          <div class="p-5 rounded-xl bg-white border border-gray-100 shadow-sm flex items-center gap-4">
-            <div class="w-12 h-12 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-xl flex-shrink-0"></div>
-            <div><div class="text-gray-400 text-xs font-medium mb-0.5">Đã thanh toán</div><div id="stat-paidOrders" class="text-2xl font-bold text-gray-800">…</div></div>
+          <div class="stat-card">
+            <div class="stat-card-icon purple"><i class="fa-solid fa-circle-check"></i></div>
+            <div>
+              <div class="stat-card-label">Đã thanh toán</div>
+              <div id="stat-paidOrders" class="stat-card-value">…</div>
+            </div>
           </div>
-          <div class="p-5 rounded-xl bg-white border border-gray-100 shadow-sm flex items-center gap-4">
-            <div class="w-12 h-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-xl flex-shrink-0"></div>
-            <div><div class="text-gray-400 text-xs font-medium mb-0.5">Tổng khách hàng</div><div id="stat-totalUsers" class="text-2xl font-bold text-gray-800">…</div></div>
+          <div class="stat-card">
+            <div class="stat-card-icon green"><i class="fa-solid fa-users"></i></div>
+            <div>
+              <div class="stat-card-label">Tổng khách hàng</div>
+              <div id="stat-totalUsers" class="stat-card-value">…</div>
+            </div>
           </div>
-          <div class="p-5 rounded-xl bg-white border border-gray-100 shadow-sm flex items-center gap-4">
-            <div class="w-12 h-12 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center text-xl flex-shrink-0"></div>
-            <div><div class="text-gray-400 text-xs font-medium mb-0.5">Doanh thu</div><div id="stat-totalRevenue" class="text-xl font-bold text-gray-800">…</div></div>
+          <div class="stat-card">
+            <div class="stat-card-icon red"><i class="fa-solid fa-sack-dollar"></i></div>
+            <div>
+              <div class="stat-card-label">Doanh thu</div>
+              <div id="stat-totalRevenue" class="stat-card-value" style="font-size:18px">…</div>
+            </div>
           </div>
         </div>
 
         <!-- RECENT ORDERS -->
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-          <div class="flex justify-between items-center mb-5">
-            <h2 class="text-base font-bold text-gray-800">Đơn hàng mới nhất</h2>
-            <button onclick="switchTab('orders')" class="text-sm text-blue-600 font-medium hover:text-blue-800">Xem tất cả →</button>
+        <div class="admin-card">
+          <div class="flex justify-between items-center" style="margin-bottom:16px">
+            <div class="admin-card-title" style="margin-bottom:0">Đơn hàng mới nhất</div>
+            <button onclick="switchTab('orders')" style="background:none;border:none;color:#003366;font-weight:700;cursor:pointer;font-size:13px;">Xem tất cả →</button>
           </div>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
-              <thead><tr class="text-gray-400 text-xs border-b border-gray-100">
-                <th class="pb-3 font-medium">Mã Đơn</th>
-                <th class="pb-3 font-medium">Khách hàng</th>
-                <th class="pb-3 font-medium">Ngày đặt</th>
-                <th class="pb-3 font-medium">Tổng tiền</th>
-                <th class="pb-3 font-medium">Trạng thái</th>
-              </tr></thead>
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Mã Đơn</th>
+                  <th>Khách hàng</th>
+                  <th>Ngày đặt</th>
+                  <th>Tổng tiền</th>
+                  <th>Trạng thái</th>
+                </tr>
+              </thead>
               <tbody id="recentOrdersTable">
-                <tr><td colspan="5" class="py-6 text-center text-gray-400">Đang tải…</td></tr>
+                <tr><td colspan="5" class="text-center" style="padding:24px;color:#aaa">Đang tải…</td></tr>
               </tbody>
             </table>
           </div>
@@ -130,140 +154,125 @@
       </div>
 
       <!-- ══════════════════════════════════ -->
-      
-      <!-- ══════════════════════════════════ -->
       <!-- TAB: FLASHSALE                     -->
       <!-- ══════════════════════════════════ -->
       <div id="tab-flashsale" class="tab-content hidden space-y-4">
-        <!-- FLASH SALE WARM-UP -->
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-          <h2 class="text-base font-bold mb-4 text-gray-800 flex items-center">
-            Trình điều khiển Hệ thống
-          </h2>
-          <div class="flex flex-col md:flex-row items-center justify-between bg-red-50 p-5 rounded-xl border border-red-100 gap-4">
+
+        <!-- WARM-UP -->
+        <div class="admin-card">
+          <div class="admin-card-title">Trình điều khiển Hệ thống</div>
+          <div class="warmup-box">
             <div>
-              <h3 class="font-bold text-red-700 flex items-center gap-2">Kích hoạt Flash Sale (Cache Warm-up)</h3>
-              <p class="text-red-600/80 mt-1 text-sm max-w-xl">Tải toàn bộ dữ liệu sản phẩm Flash Sale từ Database lên Redis. Phải chạy trước khi bắt đầu sự kiện!</p>
+              <h3><i class="fa-solid fa-fire" style="color:#cc0000;margin-right:6px"></i>Kích hoạt Flash Sale (Cache Warm-up)</h3>
+              <p>Tải toàn bộ dữ liệu sản phẩm Flash Sale từ Database lên Redis. Phải chạy trước khi bắt đầu sự kiện!</p>
             </div>
-            <button id="warmupBtn" onclick="triggerWarmup()"
-              class="flex-shrink-0 bg-red-600 hover:bg-red-700 text-white px-7 py-3 rounded-xl font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-2 whitespace-nowrap">
-               <i class="fa-solid fa-fire"></i> Bắt đầu Warm-up
+            <button id="warmupBtn" onclick="triggerWarmup()" class="btn-primary">
+              <i class="fa-solid fa-fire"></i> Bắt đầu Warm-up
             </button>
           </div>
-          <div id="adminMessage" class="mt-3 text-sm text-center font-medium"></div>
+          <div id="adminMessage" style="margin-top:12px;text-align:center;font-size:13px;font-weight:600"></div>
         </div>
 
-        
-        <!-- FLASH SALE MANAGEMENT -->
-        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
-          <h2 class="text-base font-bold text-gray-800 mb-4">Thêm sản phẩm vào Flash Sale</h2>
-          <div class="flex flex-col md:flex-row gap-4 items-end">
-            <div class="flex-1">
-              <label class="block text-xs font-semibold text-gray-600 mb-1">ID Sản phẩm (có thể nhập nhiều ID cách nhau bằng dấu phẩy)</label>
-              <input id="fsProductId" type="text" placeholder="VD: 1, 2, 3..." class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm">
+        <!-- ADD TO FLASH SALE -->
+        <div class="admin-card">
+          <div class="admin-card-title">Thêm sản phẩm vào Flash Sale</div>
+          <div class="flex flex-wrap gap-3 items-end">
+            <div class="flex-1" style="min-width:160px">
+              <label class="admin-label">ID Sản phẩm (nhiều ID cách nhau bằng dấu phẩy)</label>
+              <input id="fsProductId" type="text" placeholder="VD: 1, 2, 3..." class="admin-input">
             </div>
-            <div class="flex-1">
-              <label class="block text-xs font-semibold text-gray-600 mb-1">% Giảm giá</label>
-              <input id="fsDiscount" type="number" min="0" max="100" value="0" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm">
+            <div style="width:120px">
+              <label class="admin-label">% Giảm giá</label>
+              <input id="fsDiscount" type="number" min="0" max="100" value="0" class="admin-input">
             </div>
-            <div class="flex-1">
-              <label class="block text-xs font-semibold text-gray-600 mb-1">Bắt đầu</label>
-              <input id="fsStart" type="datetime-local" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm">
+            <div style="width:170px">
+              <label class="admin-label">Bắt đầu</label>
+              <input id="fsStart" type="datetime-local" class="admin-input">
             </div>
-            <div class="flex-1">
-              <label class="block text-xs font-semibold text-gray-600 mb-1">Kết thúc</label>
-              <input id="fsEnd" type="datetime-local" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm">
+            <div style="width:170px">
+              <label class="admin-label">Kết thúc</label>
+              <input id="fsEnd" type="datetime-local" class="admin-input">
             </div>
-            <button onclick="addFlashSale()" class="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-lg text-sm font-bold shadow-sm transition-all flex items-center gap-2 whitespace-nowrap">
+            <button onclick="addFlashSale()" class="btn-danger">
               <i class="fa-solid fa-plus"></i> Thêm theo ID
             </button>
-            <button onclick="openQuickAddFS()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-sm font-bold shadow-sm transition-all flex items-center gap-2 whitespace-nowrap">
+            <button onclick="openQuickAddFS()" class="btn-blue">
               <i class="fa-solid fa-list-check"></i> Chọn từ danh sách
             </button>
           </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div class="p-5 border-b border-gray-100 flex justify-between items-center">
-             <h2 class="text-base font-bold text-gray-800">Sản phẩm đang trong Flash Sale</h2>
+        <!-- FLASH SALE TABLE -->
+        <div class="admin-card overflow-hidden" style="padding:0">
+          <div class="flex justify-between items-center" style="padding:16px 20px;border-bottom:1px solid #e0e0e0">
+            <div class="admin-card-title" style="margin-bottom:0">Sản phẩm đang trong Flash Sale</div>
           </div>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
+          <div class="admin-table-wrap">
+            <table class="admin-table">
               <thead>
-                <tr class="bg-gray-50 text-gray-400 text-xs border-b border-gray-100">
-                  <th class="p-3 font-medium w-12">ID</th>
-                  <th class="p-3 font-medium w-16">Ảnh</th>
-                  <th class="p-3 font-medium">Tên</th>
-                  <th class="p-3 font-medium text-center">Giảm</th>
-                  <th class="p-3 font-medium text-center">Trạng thái</th>
-                  <th class="p-3 font-medium">Thời gian</th>
-                  <th class="p-3 font-medium text-center w-32">Thao tác</th>
+                <tr>
+                  <th>ID</th>
+                  <th>Ảnh</th>
+                  <th>Tên</th>
+                  <th class="text-center">Giảm</th>
+                  <th class="text-center">Trạng thái</th>
+                  <th>Thời gian</th>
+                  <th class="text-center">Thao tác</th>
                 </tr>
               </thead>
               <tbody id="flashsaleTable">
-                <tr><td colspan="6" class="py-8 text-center text-gray-400">Đang tải...</td></tr>
+                <tr><td colspan="7" class="text-center" style="padding:32px;color:#aaa">Đang tải...</td></tr>
               </tbody>
             </table>
           </div>
         </div>
       </div>
 
-<!-- TAB: PRODUCTS                       -->
+      <!-- ══════════════════════════════════ -->
+      <!-- TAB: PRODUCTS                      -->
       <!-- ══════════════════════════════════ -->
       <div id="tab-products" class="tab-content hidden space-y-4">
 
         <!-- TOOLBAR -->
-        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
-          <div class="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-            <div class="flex gap-2 flex-wrap">
-              <button id="filter-all" onclick="loadProducts('all')"
-                class="px-4 py-1.5 rounded-lg text-sm font-semibold bg-red-600 text-white transition-colors">
-                Tất cả
-              </button>
-              
-              <button id="filter-normal" onclick="loadProducts('normal')"
-                class="px-4 py-1.5 rounded-lg text-sm font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">
-                Sản phẩm thường
-              </button>
-              
-              <select id="filter-category" onchange="loadProducts()"
-                class="border border-gray-200 rounded-lg px-3 py-1.5 text-sm bg-white outline-none focus:ring-2 focus:ring-red-200">
+        <div class="admin-card">
+          <div class="flex flex-wrap gap-3 items-center justify-between">
+            <div class="admin-filter-bar">
+              <button id="filter-all" onclick="loadProducts('all')" class="filter-btn active">Tất cả</button>
+              <button id="filter-normal" onclick="loadProducts('normal')" class="filter-btn">Sản phẩm thường</button>
+              <select id="filter-category" onchange="loadProducts()" class="admin-select">
                 <option value="">Tất cả danh mục</option>
               </select>
             </div>
-            <div class="flex gap-3 w-full md:w-auto">
-              <div class="relative flex-1 md:w-64">
-                
-                <input id="productSearch" type="text" placeholder="Tìm tên sản phẩm…"
-                  class="pl-8 pr-4 py-2 w-full border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-300">
+            <div class="flex gap-3 items-center">
+              <div class="admin-search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input id="productSearch" type="text" placeholder="Tìm tên sản phẩm…">
               </div>
-              <button onclick="openAddModal()"
-                class="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition-colors whitespace-nowrap">
-                 <i class="fa-solid fa-plus"></i> Thêm mới
+              <button onclick="openAddModal()" class="btn-primary">
+                <i class="fa-solid fa-plus"></i> Thêm mới
               </button>
             </div>
           </div>
         </div>
 
         <!-- PRODUCTS TABLE -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
+        <div class="admin-card overflow-hidden" style="padding:0">
+          <div class="admin-table-wrap">
+            <table class="admin-table">
               <thead>
-                <tr class="bg-gray-50 text-gray-400 text-xs border-b border-gray-100">
-                  <th class="p-3 font-medium w-12">ID</th>
-                  <th class="p-3 font-medium w-16">Ảnh</th>
-                  <th class="p-3 font-medium">Tên / Danh mục</th>
-                  <th class="p-3 font-medium">Giá</th>
-                  <th class="p-3 font-medium text-center w-20">Kho</th>
-                  <th class="p-3 font-medium">Trạng thái</th>
-                  <th class="p-3 font-medium w-16">Giảm</th>
-
-                  <th class="p-3 font-medium text-center w-32">Thao tác</th>
+                <tr>
+                  <th>ID</th>
+                  <th>Ảnh</th>
+                  <th>Tên / Danh mục</th>
+                  <th>Giá</th>
+                  <th class="text-center">Kho</th>
+                  <th>Trạng thái</th>
+                  <th>Giảm</th>
+                  <th class="text-center">Thao tác</th>
                 </tr>
               </thead>
               <tbody id="productsTable">
-                <tr><td colspan="7" class="py-8 text-center text-gray-400">Đang tải…</td></tr>
+                <tr><td colspan="8" class="text-center" style="padding:32px;color:#aaa">Đang tải…</td></tr>
               </tbody>
             </table>
           </div>
@@ -271,27 +280,27 @@
       </div>
 
       <!-- ══════════════════════════════════ -->
-      <!-- TAB: ORDERS                         -->
+      <!-- TAB: ORDERS                        -->
       <!-- ══════════════════════════════════ -->
       <div id="tab-orders" class="tab-content hidden">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div class="p-5 border-b border-gray-100">
-            <h2 class="text-base font-bold text-gray-800">Quản lý Đơn hàng</h2>
+        <div class="admin-card overflow-hidden" style="padding:0">
+          <div style="padding:16px 20px;border-bottom:1px solid #e0e0e0">
+            <div class="admin-card-title" style="margin-bottom:0">Quản lý Đơn hàng</div>
           </div>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
+          <div class="admin-table-wrap">
+            <table class="admin-table">
               <thead>
-                <tr class="bg-gray-50 text-gray-400 text-xs border-b border-gray-100">
-                  <th class="p-3 font-medium">Mã Đơn</th>
-                  <th class="p-3 font-medium">Khách hàng</th>
-                  <th class="p-3 font-medium">Ngày đặt</th>
-                  <th class="p-3 font-medium">Tổng tiền</th>
-                  <th class="p-3 font-medium">Trạng thái</th>
-                  <th class="p-3 font-medium">Sản phẩm</th>
+                <tr>
+                  <th>Mã Đơn</th>
+                  <th>Khách hàng</th>
+                  <th>Ngày đặt</th>
+                  <th>Tổng tiền</th>
+                  <th>Trạng thái</th>
+                  <th>Sản phẩm</th>
                 </tr>
               </thead>
               <tbody id="fullOrdersTable">
-                <tr><td colspan="6" class="py-8 text-center text-gray-400">Đang tải…</td></tr>
+                <tr><td colspan="6" class="text-center" style="padding:32px;color:#aaa">Đang tải…</td></tr>
               </tbody>
             </table>
           </div>
@@ -299,27 +308,27 @@
       </div>
 
       <!-- ══════════════════════════════════ -->
-      <!-- TAB: CUSTOMERS                      -->
+      <!-- TAB: CUSTOMERS                     -->
       <!-- ══════════════════════════════════ -->
       <div id="tab-customers" class="tab-content hidden">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div class="p-5 border-b border-gray-100">
-            <h2 class="text-base font-bold text-gray-800">Quản lý Khách hàng</h2>
+        <div class="admin-card overflow-hidden" style="padding:0">
+          <div style="padding:16px 20px;border-bottom:1px solid #e0e0e0">
+            <div class="admin-card-title" style="margin-bottom:0">Quản lý Khách hàng</div>
           </div>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
+          <div class="admin-table-wrap">
+            <table class="admin-table">
               <thead>
-                <tr class="bg-gray-50 text-gray-400 text-xs border-b border-gray-100">
-                  <th class="p-3 font-medium w-12">ID</th>
-                  <th class="p-3 font-medium">Họ tên</th>
-                  <th class="p-3 font-medium">Email</th>
-                  <th class="p-3 font-medium">Điện thoại</th>
-                  <th class="p-3 font-medium text-center">Đơn hàng</th>
-                  <th class="p-3 font-medium">Ngày tham gia</th>
+                <tr>
+                  <th>ID</th>
+                  <th>Họ tên</th>
+                  <th>Email</th>
+                  <th>Điện thoại</th>
+                  <th class="text-center">Đơn hàng</th>
+                  <th>Ngày tham gia</th>
                 </tr>
               </thead>
               <tbody id="customersTable">
-                <tr><td colspan="6" class="py-8 text-center text-gray-400">Đang tải…</td></tr>
+                <tr><td colspan="6" class="text-center" style="padding:32px;color:#aaa">Đang tải…</td></tr>
               </tbody>
             </table>
           </div>
@@ -332,84 +341,69 @@
   <!-- ══════════════════════════════════════════ -->
   <!-- MODAL: ADD / EDIT PRODUCT                   -->
   <!-- ══════════════════════════════════════════ -->
-  <div id="productModal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay bg-black/40 p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-      <div class="flex items-center justify-between p-6 border-b border-gray-100 sticky top-0 bg-white rounded-t-2xl">
-        <h3 id="productFormTitle" class="text-lg font-bold text-gray-800">Thêm sản phẩm mới</h3>
-        <button onclick="closeProductModal()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-400">
-          
-        </button>
+  <div id="productModal" class="hidden admin-modal-overlay">
+    <div class="admin-modal" style="max-width:640px;max-height:90vh;overflow-y:auto">
+      <div class="admin-modal-header" style="position:sticky;top:0;background:#fff;z-index:1">
+        <div id="productFormTitle" class="admin-modal-title">Thêm sản phẩm mới</div>
+        <button onclick="closeProductModal()" class="admin-modal-close"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
-      <form id="productForm" onsubmit="submitProductForm(event)" class="p-6 space-y-4">
+      <form id="productForm" onsubmit="submitProductForm(event)" class="admin-modal-body">
         <input type="hidden" id="productId">
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="md:col-span-2">
-            <label class="block text-xs font-semibold text-gray-600 mb-1">Tên sản phẩm <span class="text-red-500">*</span></label>
-            <input id="productName" type="text" required placeholder="VD: iPhone 15 Pro Max"
-              class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-300">
+        <div class="grid-2">
+          <div style="grid-column:1/-1">
+            <label class="admin-label">Tên sản phẩm <span style="color:#cc0000">*</span></label>
+            <input id="productName" type="text" required placeholder="VD: iPhone 15 Pro Max" class="admin-input">
           </div>
 
-          <div class="md:col-span-2">
-            <label class="block text-xs font-semibold text-gray-600 mb-1">Mô tả</label>
-            <textarea id="productDescription" rows="2" placeholder="Mô tả ngắn về sản phẩm…"
-              class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-300 resize-none"></textarea>
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">Giá bán (VND) <span class="text-red-500">*</span></label>
-            <input id="productPrice" type="number" min="0" required placeholder="VD: 28990000"
-              class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-300">
+          <div style="grid-column:1/-1">
+            <label class="admin-label">Mô tả</label>
+            <textarea id="productDescription" rows="2" placeholder="Mô tả ngắn về sản phẩm…" class="admin-input" style="resize:none"></textarea>
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">Giá gốc (VND)</label>
-            <input id="productOriginalPrice" type="number" min="0" placeholder="VD: 34990000"
-              class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-300">
+            <label class="admin-label">Giá bán (VND) <span style="color:#cc0000">*</span></label>
+            <input id="productPrice" type="number" min="0" required placeholder="VD: 28990000" class="admin-input">
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">% Giảm giá</label>
-            <input id="productDiscount" type="number" min="0" max="100" value="0"
-              class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-300">
+            <label class="admin-label">Giá gốc (VND)</label>
+            <input id="productOriginalPrice" type="number" min="0" placeholder="VD: 34990000" class="admin-input">
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">Tồn kho <span class="text-red-500">*</span></label>
-            <input id="productStock" type="number" min="0" required value="0"
-              class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-300">
+            <label class="admin-label">% Giảm giá</label>
+            <input id="productDiscount" type="number" min="0" max="100" value="0" class="admin-input">
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">Danh mục <span class="text-red-500">*</span></label>
-            <select id="productCategory" required
-              class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-300 bg-white">
+            <label class="admin-label">Tồn kho <span style="color:#cc0000">*</span></label>
+            <input id="productStock" type="number" min="0" required value="0" class="admin-input">
+          </div>
+
+          <div>
+            <label class="admin-label">Danh mục <span style="color:#cc0000">*</span></label>
+            <select id="productCategory" required class="admin-input admin-select" style="padding:9px 12px">
               <option value="">-- Chọn danh mục --</option>
             </select>
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1">Địa điểm</label>
-            <input id="productLocation" type="text" placeholder="VD: TP. Hồ Chí Minh"
-              class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-300">
+            <label class="admin-label">Địa điểm</label>
+            <input id="productLocation" type="text" placeholder="VD: TP. Hồ Chí Minh" class="admin-input">
           </div>
 
-          <div class="md:col-span-2">
-            <label class="block text-xs font-semibold text-gray-600 mb-1">URL Hình ảnh</label>
-            <input id="productImage" type="url" placeholder="https://images.unsplash.com/…"
-              class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-300">
+          <div style="grid-column:1/-1">
+            <label class="admin-label">URL Hình ảnh</label>
+            <input id="productImage" type="url" placeholder="https://images.unsplash.com/…" class="admin-input">
           </div>
         </div>
 
-        <div class="flex justify-end gap-3 pt-2">
-          <button type="button" onclick="closeProductModal()"
-            class="px-5 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">
-            Hủy
-          </button>
-          <button id="submitProductBtn" type="submit"
-            class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-bold shadow-sm transition-colors">
-             Lưu sản phẩm
+        <div class="admin-modal-footer" style="margin-top:8px;border-radius:0 0 12px 12px">
+          <button type="button" onclick="closeProductModal()" class="btn-ghost">Hủy</button>
+          <button id="submitProductBtn" type="submit" class="btn-primary">
+            <i class="fa-solid fa-floppy-disk"></i> Lưu sản phẩm
           </button>
         </div>
       </form>
@@ -417,107 +411,111 @@
   </div>
 
   <!-- ══════════════════════════════════════════ -->
-  <!-- MODAL: BULK FLASH SALE                      -->
+  <!-- MODAL: FLASH SALE SETUP                    -->
   <!-- ══════════════════════════════════════════ -->
-  <div id="bulkFSModal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay bg-black/40 p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
-      <div class="flex items-center justify-between p-6 border-b border-gray-100">
-        <h3 id="fsModalTitle" class="text-lg font-bold text-gray-800">Thiết lập Flash Sale</h3>
-        <button onclick="closeBulkFSModal()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-400">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
+  <div id="bulkFSModal" class="hidden admin-modal-overlay">
+    <div class="admin-modal">
+      <div class="admin-modal-header">
+        <div id="fsModalTitle" class="admin-modal-title">Thiết lập Flash Sale</div>
+        <button onclick="closeBulkFSModal()" class="admin-modal-close"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
-      <div class="p-6 space-y-4">
-        <p class="text-sm text-gray-500" id="fsModalSubtitle">Đã chọn <span id="selectedCount" class="font-bold text-red-600">0</span> sản phẩm.</p>
-        
+      <div class="admin-modal-body">
+        <p id="fsModalSubtitle" style="font-size:13px;color:#666;margin:0">
+          Đã chọn <span id="selectedCount" style="font-weight:700;color:#cc0000">0</span> sản phẩm.
+        </p>
+
         <input type="hidden" id="singleProductId">
-        
+
         <div>
-          <label class="block text-xs font-semibold text-gray-600 mb-1">% Giảm giá</label>
-          <div class="flex gap-2 mb-2">
-            <button onclick="setQuickDiscount(10)" class="px-3 py-1 bg-gray-100 hover:bg-red-50 hover:text-red-600 rounded-md text-xs font-medium transition-colors border border-gray-200">10%</button>
-            <button onclick="setQuickDiscount(25)" class="px-3 py-1 bg-gray-100 hover:bg-red-50 hover:text-red-600 rounded-md text-xs font-medium transition-colors border border-gray-200">25%</button>
-            <button onclick="setQuickDiscount(50)" class="px-3 py-1 bg-gray-100 hover:bg-red-50 hover:text-red-600 rounded-md text-xs font-medium transition-colors border border-gray-200">50%</button>
-            <button onclick="setQuickDiscount(75)" class="px-3 py-1 bg-gray-100 hover:bg-red-50 hover:text-red-600 rounded-md text-xs font-medium transition-colors border border-gray-200">75%</button>
+          <label class="admin-label">% Giảm giá</label>
+          <div class="quick-pills">
+            <button onclick="setQuickDiscount(10)" class="quick-pill">10%</button>
+            <button onclick="setQuickDiscount(25)" class="quick-pill">25%</button>
+            <button onclick="setQuickDiscount(50)" class="quick-pill">50%</button>
+            <button onclick="setQuickDiscount(75)" class="quick-pill">75%</button>
           </div>
-          <input id="bulkFsDiscount" type="number" min="0" max="100" value="10" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-red-200 outline-none">
-        </div>
-        
-        <div class="space-y-3">
-          <label class="block text-xs font-semibold text-gray-600 mb-1">Thời gian diễn ra</label>
-          <div class="flex flex-wrap gap-2 mb-2">
-            <button onclick="setQuickTime('now')" class="px-3 py-1 bg-gray-100 hover:bg-blue-50 hover:text-blue-600 rounded-md text-xs font-medium transition-colors border border-gray-200">Bây giờ (24h)</button>
-            <button onclick="setQuickTime('tonight')" class="px-3 py-1 bg-gray-100 hover:bg-blue-50 hover:text-blue-600 rounded-md text-xs font-medium transition-colors border border-gray-200">Tối nay (18h-24h)</button>
-            <button onclick="setQuickTime('tomorrow')" class="px-3 py-1 bg-gray-100 hover:bg-blue-50 hover:text-blue-600 rounded-md text-xs font-medium transition-colors border border-gray-200">Ngày mai</button>
-          </div>
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="block text-[10px] text-gray-400 uppercase mb-1">Bắt đầu</label>
-              <input id="bulkFsStart" type="datetime-local" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm">
-            </div>
-            <div>
-              <label class="block text-[10px] text-gray-400 uppercase mb-1">Kết thúc</label>
-              <input id="bulkFsEnd" type="datetime-local" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm">
-            </div>
-          </div>
+          <input id="bulkFsDiscount" type="number" min="0" max="100" value="10" class="admin-input">
         </div>
 
-        <div class="flex justify-end gap-3 pt-4">
-          <button onclick="closeBulkFSModal()" class="px-5 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">Hủy</button>
-          <button onclick="submitBulkFlashSale()" class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-bold shadow-sm transition-colors">Xác nhận</button>
+        <div>
+          <label class="admin-label">Thời gian diễn ra</label>
+          <div class="quick-pills">
+            <button onclick="setQuickTime('now')" class="quick-pill">Bây giờ (24h)</button>
+            <button onclick="setQuickTime('tonight')" class="quick-pill">Tối nay (18h-24h)</button>
+            <button onclick="setQuickTime('tomorrow')" class="quick-pill">Ngày mai</button>
+          </div>
+          <div class="grid-2">
+            <div>
+              <label class="admin-label">Bắt đầu</label>
+              <input id="bulkFsStart" type="datetime-local" class="admin-input">
+            </div>
+            <div>
+              <label class="admin-label">Kết thúc</label>
+              <input id="bulkFsEnd" type="datetime-local" class="admin-input">
+            </div>
+          </div>
         </div>
+      </div>
+
+      <div class="admin-modal-footer">
+        <button onclick="closeBulkFSModal()" class="btn-ghost">Hủy</button>
+        <button onclick="submitBulkFlashSale()" class="btn-danger">
+          <i class="fa-solid fa-bolt"></i> Xác nhận
+        </button>
       </div>
     </div>
   </div>
 
   <!-- ══════════════════════════════════════════ -->
-  <!-- MODAL: QUICK ADD FLASH SALE (LIST)          -->
+  <!-- MODAL: QUICK ADD FROM LIST                 -->
   <!-- ══════════════════════════════════════════ -->
-  <div id="quickAddFSModal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay bg-black/40 p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
-      <div class="flex items-center justify-between p-6 border-b border-gray-100">
-        <h3 class="text-lg font-bold text-gray-800">Chọn sản phẩm thêm vào Flash Sale</h3>
-        <button onclick="closeQuickAddFS()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-400">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
+  <div id="quickAddFSModal" class="hidden admin-modal-overlay">
+    <div class="admin-modal admin-modal-lg">
+      <div class="admin-modal-header">
+        <div class="admin-modal-title">Chọn sản phẩm thêm vào Flash Sale</div>
+        <button onclick="closeQuickAddFS()" class="admin-modal-close"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
-      <div class="p-4 border-b border-gray-50 flex gap-4">
-        <input type="text" id="quickAddSearch" placeholder="Tìm tên sản phẩm..." 
-          class="flex-1 border border-gray-200 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-red-200 outline-none"
+      <div style="padding:12px 22px;border-bottom:1px solid #e0e0e0;display:flex;gap:12px;flex-wrap:wrap">
+        <input type="text" id="quickAddSearch" placeholder="Tìm tên sản phẩm..."
+          class="admin-input" style="flex:1;min-width:160px"
           oninput="renderQuickAddList()">
-        <select id="quickAddCat" class="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white outline-none" onchange="renderQuickAddList()">
+        <select id="quickAddCat" class="admin-select" onchange="renderQuickAddList()">
           <option value="">Tất cả danh mục</option>
         </select>
       </div>
 
-      <div class="flex-1 overflow-y-auto p-4">
-        <table class="w-full text-left text-sm">
+      <div style="flex:1;overflow-y:auto;padding:16px;min-height:200px;max-height:400px">
+        <table class="admin-table">
           <thead>
-            <tr class="text-gray-400 text-xs border-b border-gray-50">
-              <th class="p-2 w-10"><input type="checkbox" id="selectAllQuickAdd" onclick="toggleSelectAllQuickAdd(this)"></th>
-              <th class="p-2">Sản phẩm</th>
-              <th class="p-2">Giá</th>
-              <th class="p-2">Kho</th>
+            <tr>
+              <th style="width:40px"><input type="checkbox" id="selectAllQuickAdd" onclick="toggleSelectAllQuickAdd(this)"></th>
+              <th>Sản phẩm</th>
+              <th>Giá</th>
+              <th>Kho</th>
             </tr>
           </thead>
           <tbody id="quickAddTable"></tbody>
         </table>
       </div>
 
-      <div class="p-6 border-t border-gray-100 bg-gray-50 flex justify-between items-center">
-        <span class="text-sm text-gray-500">Đã chọn <span id="quickSelectedCount" class="font-bold text-red-600">0</span> sản phẩm</span>
+      <div class="admin-modal-footer" style="justify-content:space-between">
+        <span style="font-size:13px;color:#555">
+          Đã chọn <span id="quickSelectedCount" style="font-weight:700;color:#cc0000">0</span> sản phẩm
+        </span>
         <div class="flex gap-3">
-          <button onclick="closeQuickAddFS()" class="px-5 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">Hủy</button>
-          <button onclick="proceedToSetupFS()" class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-bold shadow-sm transition-colors">Tiếp theo</button>
+          <button onclick="closeQuickAddFS()" class="btn-ghost">Hủy</button>
+          <button onclick="proceedToSetupFS()" class="btn-danger">
+            Tiếp theo <i class="fa-solid fa-arrow-right"></i>
+          </button>
         </div>
       </div>
     </div>
   </div>
 
   <!-- TOAST -->
-  <div id="toast" class="fixed bottom-5 right-5 z-50 px-5 py-3 rounded-xl shadow-lg text-sm font-medium opacity-0 translate-y-4 bg-green-600 text-white"></div>
+  <div id="toast"></div>
 
   <script src="../assets/js/ecommerce-common.js"></script>
   <script src="../assets/js/admin/dashboard.js"></script>
