@@ -13,7 +13,7 @@
   <main class="app-page">
     <div class="app-shell">
       <header class="app-header">
-        <a class="logo" href="home.html" aria-label="E-Commerce">
+        <a class="logo" href="../home.html" aria-label="E-Commerce">
           <i class="fa-solid fa-bolt"></i>
           E-<span>Commerce</span>
         </a>
@@ -78,7 +78,13 @@
               <span>Trạng thái</span>
               <strong id="cartStatus">Đang trống</strong>
             </div>
-            <button class="primary-button" id="checkoutBtn" type="button">
+            
+            <div id="shippingInfo" class="shipping-info-box hidden" style="margin-top: 15px; padding: 12px; background: #f8f9fa; border-radius: 6px; border: 1px dashed #ddd; font-size: 13px;">
+              <p style="font-weight: 700; margin-bottom: 5px; color: #333;"><i class="fa-solid fa-location-dot"></i> Địa chỉ nhận hàng</p>
+              <div id="shippingAddressContent" style="color: #666; line-height: 1.4;"></div>
+            </div>
+
+            <button class="primary-button" id="checkoutBtn" type="button" style="margin-top: 15px;">
               <i class="fa-solid fa-bolt"></i>
               Chốt đơn
             </button>
@@ -116,11 +122,28 @@
     }
 
     function renderStats() {
-      const total = state.cart.reduce((sum, item) => sum + Number(item.price || 0), 0);
+      const total = state.cart.reduce((sum, item) => sum + (Number(item.price || 0) * (Number(item.quantity) || 1)), 0);
       els.cartCount.textContent = state.cart.length;
       els.cartItemCount.textContent = state.cart.length;
       els.cartSubtotal.textContent = BF.formatCurrency(total);
       els.cartStatus.textContent = state.cart.length ? "Có thể chốt đơn" : "Đang trống";
+
+      // Cập nhật thông tin địa chỉ
+      const addresses = JSON.parse(localStorage.getItem("userAddresses") || "[]");
+      const user = BF.getUser() || {};
+      const shippingInfo = document.getElementById("shippingInfo");
+      const addressContent = document.getElementById("shippingAddressContent");
+
+      if (addresses.length > 0 && user.phone) {
+        const addr = addresses[0]; // Lấy địa chỉ đầu tiên
+        shippingInfo.classList.remove("hidden");
+        addressContent.innerHTML = `
+          <strong>${BF.escapeHtml(addr.fullName)}</strong> · ${BF.escapeHtml(user.phone)}<br>
+          ${BF.escapeHtml(addr.detail)}, ${BF.escapeHtml(addr.ward)}, ${BF.escapeHtml(addr.district)}, ${BF.escapeHtml(addr.province)}
+        `;
+      } else {
+        shippingInfo.classList.add("hidden");
+      }
     }
 
     async function loadProducts() {
@@ -174,8 +197,11 @@
         setAppMessage("Sản phẩm đã hết hàng.", "error");
         return;
       }
-      if (state.cart.some(item => Number(item.id) === Number(product.id))) {
-        setAppMessage("Sản phẩm đã có trong giỏ hàng. Mỗi tài khoản chỉ mua tối đa 1 sản phẩm Flash Sale.", "info");
+      const existingItem = state.cart.find(item => Number(item.id) === Number(product.id));
+      if (existingItem) {
+        existingItem.quantity = (Number(existingItem.quantity) || 1) + 1;
+        saveAndRenderCart();
+        setAppMessage(`Đã tăng số lượng ${product.name} trong giỏ hàng.`, "success");
         return;
       }
 
@@ -212,6 +238,7 @@
 
       els.cartList.innerHTML = state.cart.map(function (item) {
         const image = item.image || "https://images.unsplash.com/photo-1607082349566-187342175e2f?q=80&w=900&auto=format&fit=crop";
+        const qty = Number(item.quantity) || 1;
         return `
           <article class="cart-item">
             <div class="cart-thumb">
@@ -219,8 +246,12 @@
             </div>
             <div class="item-main">
               <h3>${BF.escapeHtml(item.name || "Sản phẩm")}</h3>
-              <p>Số lượng: 1 sản phẩm Flash Sale</p>
-              <p><strong>${BF.formatCurrency(item.price)}</strong></p>
+              <div class="qty-control" style="display: flex; align-items: center; gap: 10px; margin: 8px 0;">
+                <button class="qty-btn" onclick="changeQuantity(${item.id}, -1)" style="width: 28px; height: 28px; border-radius: 4px; border: 1px solid #ddd; background: #fff; cursor: pointer;">-</button>
+                <span style="font-weight: 600; min-width: 20px; text-align: center;">${qty}</span>
+                <button class="qty-btn" onclick="changeQuantity(${item.id}, 1)" style="width: 28px; height: 28px; border-radius: 4px; border: 1px solid #ddd; background: #fff; cursor: pointer;">+</button>
+              </div>
+              <p><strong>${BF.formatCurrency(item.price * qty)}</strong> <small class="text-muted">(Đơn giá: ${BF.formatCurrency(item.price)})</small></p>
             </div>
             <button class="ghost-button" type="button" data-cart-remove="${item.id}">
               <i class="fa-solid fa-trash"></i>
@@ -231,12 +262,29 @@
       }).join("");
     }
 
+    function changeQuantity(id, delta) {
+      const item = state.cart.find(x => Number(x.id) === Number(id));
+      if (!item) return;
+
+      const newQty = (Number(item.quantity) || 1) + delta;
+      if (newQty < 1) return; // Không cho xuống dưới 1, nếu muốn xóa phải nhấn nút Xóa
+      
+      // Kiểm tra tồn kho nếu cần (tùy chọn)
+      if (delta > 0 && item.stock && newQty > item.stock) {
+        setAppMessage(`Chỉ còn ${item.stock} sản phẩm trong kho.`, "error");
+        return;
+      }
+
+      item.quantity = newQty;
+      saveAndRenderCart();
+    }
+
     async function buyProduct(product, options = {}) {
       const data = await BF.apiRequest("/api/flashsale/buy", {
         method: "POST",
         body: {
           productId: Number(product.id),
-          quantity: 1
+          quantity: Number(product.quantity) || 1
         }
       });
       const orderId = data && data.data ? data.data.orderId : null;
@@ -271,6 +319,23 @@
 
     async function checkoutCart() {
       if (!state.cart.length || state.isCheckingOut) return;
+
+      // Kiểm tra thông tin giao hàng
+      const addresses = JSON.parse(localStorage.getItem("userAddresses") || "[]");
+      const user = BF.getUser() || {};
+      
+      if (addresses.length === 0 || !user.phone) {
+        let msg = "Vui lòng cập nhật đầy đủ thông tin để chốt đơn: ";
+        if (addresses.length === 0 && !user.phone) msg += "Địa chỉ và Số điện thoại.";
+        else if (addresses.length === 0) msg += "Địa chỉ giao hàng.";
+        else msg += "Số điện thoại.";
+
+        setAppMessage(msg, "error");
+        setTimeout(() => {
+          window.location.href = "profile.html";
+        }, 2500);
+        return;
+      }
 
       state.isCheckingOut = true;
       BF.setButtonLoading(els.checkoutBtn, true, "Đang chốt đơn");

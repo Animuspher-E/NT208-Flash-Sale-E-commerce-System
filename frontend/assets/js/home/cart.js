@@ -1,3 +1,9 @@
+function getPagePath(pageName) {
+  // Kiểm tra xem có đang ở trong thư mục pages không
+  const isInsidePages = window.location.pathname.includes('/pages/');
+  return isInsidePages ? pageName : `pages/${pageName}`;
+}
+
 function getCartKey(){
   return "cart"; // Đồng bộ với hệ thống giỏ hàng flash sale (auth-cart-orders-common.js)
 }
@@ -19,15 +25,18 @@ function add(id){
   const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 
   if(!token){
-    window.location.href = "auth.html";
+    window.location.href = getPagePath("auth.html");
     return;
   }
 
   let cart = loadCart(); 
+  const existingItem = cart.find(item => Number(item.id) === Number(id));
 
-  // Mỗi tài khoản chỉ mua tối đa 1 sản phẩm Flash Sale
-  if (cart.some(item => Number(item.id) === Number(id))) {
-    alert("Sản phẩm đã có trong giỏ hàng. Mỗi tài khoản chỉ mua tối đa 1 sản phẩm Flash Sale.");
+  if (existingItem) {
+    existingItem.quantity = (Number(existingItem.quantity) || 1) + 1;
+    saveCart(cart);
+    updateCartUI();
+    alert(`Đã tăng số lượng ${existingItem.name || "sản phẩm"} trong giỏ hàng.`);
     return;
   }
 
@@ -47,7 +56,8 @@ function add(id){
       name: product.name,
       price: finalPrice,
       image: product.image,
-      stock: product.stock
+      stock: product.stock,
+      quantity: 1
     });
   } else {
     // Dự phòng nếu không tìm thấy thông tin sản phẩm
@@ -76,7 +86,7 @@ function updateCartUI(){
   }
 
   const cart = loadCart();
-  // Giỏ hàng đồng bộ đếm theo số lượng item (1 loại = 1 item)
+  // Đếm theo số loại sản phẩm (mỗi loại tính là 1)
   let total = cart.length;
 
   ids.forEach(id => {
@@ -89,11 +99,11 @@ function viewCart(){
   const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 
   if(!token){
-    window.location.href = "auth.html";
+    window.location.href = getPagePath("auth.html");
     return;
   }
 
-  window.location.href = "cart.html";
+  window.location.href = getPagePath("cart.html");
 }
 
 window.addEventListener("storage", function(e){

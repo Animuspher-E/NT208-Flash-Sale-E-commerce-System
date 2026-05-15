@@ -1,6 +1,4 @@
-function goHome() {
-  window.location.href = "home.html";
-}
+const BF = window.ECommerce;
 
 function showTab(event, tab) {
   document.querySelectorAll(".content > div").forEach(e => e.classList.add("hidden"));
@@ -38,30 +36,21 @@ document.addEventListener("DOMContentLoaded", function () {
       if (event.key === "Enter") {
         const keyword = input.value.trim();
         if (keyword) {
-          window.location.href = `home.html?search=${encodeURIComponent(keyword)}`;
+          window.location.href = `../home.html?search=${encodeURIComponent(keyword)}`;
         }
       }
     });
   }
 });
 
-function logout() {
-  localStorage.clear();
-  sessionStorage.clear();
-  window.location.href = "auth.html";
-}
-
 window.addEventListener("DOMContentLoaded", () => {
-  const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-
-  if (!token) {
-    window.location.href = "auth.html";
+  if (!BF.requireAuth()) {
     return;
   }
 
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
-    logoutBtn.addEventListener("click", logout);
+    logoutBtn.addEventListener("click", BF.logout);
   }
 
   const savedTab =

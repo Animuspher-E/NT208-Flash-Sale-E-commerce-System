@@ -48,9 +48,9 @@ function goHome(){
 
   // reset số lượng hiển thị
   limit = {
-    flash: 15,
-    best: 15,
-    recommend: 15
+    flash: 10,
+    best: 10,
+    recommend: 10
   };
 
   currentPage = {
@@ -94,4 +94,8 @@ function goHome(){
     top: 0,
     behavior: "smooth"
   });
+}
+
+function closeCategory() {
+  goHome();
 }

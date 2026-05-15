@@ -1,5 +1,5 @@
 (function () {
-  const DEFAULT_API_BASE_URL = "http://localhost:3000";
+  const DEFAULT_API_BASE_URL = "http://localhost:3001";
   const API_STORAGE_KEY = "api_url";
   const TOKEN_KEY = "token";
   const USER_KEY = "user";
@@ -55,7 +55,8 @@
 
   function requireAuth() {
     if (!getToken()) {
-      window.location.href = "auth.html";
+      const isInsidePages = window.location.pathname.includes('/pages/');
+      window.location.href = isInsidePages ? "auth.html" : "pages/auth.html";
       return false;
     }
     return true;
@@ -211,7 +212,9 @@
 
     if (nameEl) nameEl.textContent = user.name || "Khách hàng";
     if (emailEl) emailEl.textContent = user.email || "user@example.com";
-    if (cartCountEl) cartCountEl.textContent = readCart().length;
+    if (cartCountEl) {
+      cartCountEl.textContent = readCart().length;
+    }
     if (apiBaseEl) apiBaseEl.textContent = getApiBaseUrl();
   }
 
@@ -224,7 +227,8 @@
       // Token may already be invalid; local cleanup is still required.
     } finally {
       clearSession();
-      window.location.href = "auth.html";
+      const isInsidePages = window.location.pathname.includes('/pages/');
+      window.location.href = isInsidePages ? "auth.html" : "pages/auth.html";
     }
   }
 
@@ -254,12 +258,13 @@
 })();
 
 function goHome() {
-  window.location.href = "home.html";
+  window.location.href = "../home.html";
 }
 
 function syncHeaderAvatar() {
   const user = JSON.parse(localStorage.getItem("user")) || {};
-  const defaultAvatar = "./img/default-avatar.png";
+  const isInsidePages = window.location.pathname.includes('/pages/');
+  const defaultAvatar = isInsidePages ? "./img/default-avatar.png" : "pages/img/default-avatar.png";
 
   const avatar = user.avatar || defaultAvatar;
 
@@ -286,7 +291,8 @@ function initAvatarClick() {
   if (headerAvatar) {
     headerAvatar.style.cursor = "pointer"; // cho UX đẹp hơn
     headerAvatar.addEventListener("click", function () {
-      window.location.href = "profile.html";
+      const isInsidePages = window.location.pathname.includes('/pages/');
+      window.location.href = isInsidePages ? "profile.html" : "pages/profile.html";
     });
   }
 }

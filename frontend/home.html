@@ -7,7 +7,7 @@
   <title>Flash Sale E-Commerce</title>
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="stylesheet" href="../assets/css/home.css">
+  <link rel="stylesheet" href="./assets/css/home.css">
 </head>
 
 <body>
@@ -34,14 +34,15 @@
       </button>
 
       <!-- Chưa đăng nhập -->
-      <button class="icon-btn" id="loginBtn" onclick="window.location.href='auth.html'">
+      <button class="icon-btn" id="loginBtn" onclick="window.location.href='pages/auth.html'">
         <span id="loginText">Đăng nhập</span>
       </button>
 
       <!-- Đã đăng nhập: Avatar + Đăng xuất -->
       <div class="user-actions hidden" id="userActionsWrapper" style="display: none; align-items: center; gap: 20px;">
-        <button class="avatar-btn" type="button" onclick="window.location.href='profile.html'" title="Trang cá nhân">
-          <img id="userAvatar" class="avatar-mini" src="./img/default-avatar.png" alt="Avatar">
+        <button class="avatar-btn" type="button" onclick="window.location.href='pages/profile.html'"
+          title="Trang cá nhân">
+          <img id="userAvatar" class="avatar-mini" src="pages/img/default-avatar.png" alt="Avatar">
         </button>
         <button class="icon-btn" id="logoutBtn" type="button" title="Đăng xuất">
           <i class="fa-solid fa-arrow-right-from-bracket"></i>
@@ -54,91 +55,101 @@
   <div class="category-row">
 
     <div class="category" onclick="filterCategory('Electronics', event)">
-      <div class="category-img"> <img src="../assets/img/category/electronics.jpg"> </div>
+      <div class="category-img"> <img src="./assets/img/category/electronics.jpg"> </div>
       <span>Điện tử</span>
     </div>
 
     <div class="category" onclick="filterCategory('Fashion', event)">
-      <div class="category-img"> <img src="../assets/img/category/fashion.png"> </div>
+      <div class="category-img"> <img src="./assets/img/category/fashion.png"> </div>
       <span>Thời trang</span>
     </div>
 
     <div class="category" onclick="filterCategory('Beauty', event)">
-      <div class="category-img"> <img src="../assets/img/category/beauty.png"> </div>
+      <div class="category-img"> <img src="./assets/img/category/beauty.png"> </div>
       <span>Sức khỏe & Làm đẹp</span>
     </div>
 
     <div class="category" onclick="filterCategory('Home', event)">
-      <div class="category-img"> <img src="../assets/img/category/home.png"> </div>
+      <div class="category-img"> <img src="./assets/img/category/home.png"> </div>
       <span>Gia dụng</span>
     </div>
 
     <div class="category" onclick="filterCategory('Sports', event)">
-      <div class="category-img"> <img src="../assets/img/category/sports.png"> </div>
+      <div class="category-img"> <img src="./assets/img/category/sports.png"> </div>
       <span>Thể thao & Du lịch</span>
     </div>
 
     <div class="category" onclick="filterCategory('Gaming', event)">
-      <div class="category-img"> <img src="../assets/img/category/gaming.png"> </div>
+      <div class="category-img"> <img src="./assets/img/category/gaming.png"> </div>
       <span>Gaming</span>
     </div>
 
     <div class="category" onclick="filterCategory('Books', event)">
-      <div class="category-img"> <img src="../assets/img/category/books.png"> </div>
+      <div class="category-img"> <img src="./assets/img/category/books.png"> </div>
       <span>Sách & Văn phòng phẩm</span>
     </div>
 
     <div class="category" onclick="filterCategory('Accessories', event)">
-      <div class="category-img"> <img src="../assets/img/category/accessories.png"> </div>
+      <div class="category-img"> <img src="./assets/img/category/accessories.png"> </div>
       <span>Phụ kiện</span>
     </div>
 
     <div class="category" onclick="filterCategory('Health', event)">
-      <div class="category-img"> <img src="../assets/img/category/health.png"> </div>
+      <div class="category-img"> <img src="./assets/img/category/health.png"> </div>
       <span>Sức khỏe</span>
     </div>
 
     <div class="category" onclick="filterCategory('Camera', event)">
-      <div class="category-img"> <img src="../assets/img/category/camera.png"> </div>
+      <div class="category-img"> <img src="./assets/img/category/camera.png"> </div>
       <span>Máy ảnh</span>
     </div>
 
     <div class="category" onclick="filterCategory('Shoes', event)">
-      <div class="category-img"> <img src="../assets/img/category/shoes.png"> </div>
+      <div class="category-img"> <img src="./assets/img/category/shoes.png"> </div>
       <span>Giày dép</span>
     </div>
 
     <div class="category" onclick="filterCategory('Kids', event)">
-      <div class="category-img"> <img src="../assets/img/category/kids.png"> </div>
+      <div class="category-img"> <img src="./assets/img/category/kids.png"> </div>
       <span>Mẹ & Bé</span>
     </div>
 
     <div class="category" onclick="filterCategory('Toys', event)">
-      <div class="category-img"> <img src="../assets/img/category/toys.png"> </div>
+      <div class="category-img"> <img src="./assets/img/category/toys.png"> </div>
       <span>Đồ chơi</span>
     </div>
 
     <div class="category" onclick="filterCategory('Pets', event)">
-      <div class="category-img"> <img src="../assets/img/category/pets.png"> </div>
+      <div class="category-img"> <img src="./assets/img/category/pets.png"> </div>
       <span>Thú cưng</span>
     </div>
   </div>
 
   <!-- BANNER -->
   <div class="banner" onclick="goFlash()">
-    <img src="../assets/img/banner sơn.k.png" alt="Flash Sale Banner">
+    <img src="./assets/img/banner sơn.k.png" alt="Flash Sale Banner">
   </div>
 
   <div class="section" id="category-section" style="display:none;">
-    <h2 id="category-title"></h2>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <h2 id="category-title"></h2>
+      <button class="btn-exit" onclick="closeCategory()">
+        <i class="fa-solid fa-xmark"></i> Thoát
+      </button>
+    </div>
     <div class="grid" id="category-list"></div>
   </div>
 
   <!-- FLASH SALE -->
-  <div class="section" id="flash-section">
-    <h2 style="color:red;">FLASH SALE (<span id="flash-timer"></span>)</h2>
-    <div class="grid" id="flash"></div>
-    <button onclick="goFlash()" class="load-more">Xem thêm</button>
+  <div class="section" id="flash-section" style="padding: 0; border-radius: 8px; overflow: hidden;">
+    <div class="flash-header-home">
+      <h2><i class="fa-solid fa-bolt"></i> FLASH SALE</h2>
+      <div class="flash-timer-box" id="flash-timer">00:00:00</div>
+    </div>
+    <div style="padding: 20px;">
+      <div class="grid" id="flash"></div>
+      <button onclick="goFlash()" class="load-more" style="background: #ff4d4d;">Xem tất cả</button>
+    </div>
   </div>
 
   <!-- BEST SELLER -->
@@ -162,12 +173,13 @@
     © 2026 E-Commerce | Flash Sale System
   </div>
 
-  <script src="http://localhost:3000/socket.io/socket.io.js"></script>
-  <script src="../assets/js/home/data.js"></script>
-  <script src="../assets/js/home/render.js"></script>
-  <script src="../assets/js/home/filter.js"></script>
-  <script src="../assets/js/home/search.js"></script>
-  <script src="../assets/js/home/cart.js"></script>
-  <script src="../assets/js/home/main.js"></script>
+  <script src="http://localhost:3001/socket.io/socket.io.js"></script>
+  <script src="./assets/js/home/data.js"></script>
+  <script src="./assets/js/home/render.js"></script>
+  <script src="./assets/js/home/filter.js"></script>
+  <script src="./assets/js/home/search.js"></script>
+  <script src="./assets/js/home/cart.js"></script>
+  <script src="./assets/js/home/main.js"></script>
 </body>
+
 </html>

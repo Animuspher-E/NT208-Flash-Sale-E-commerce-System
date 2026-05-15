@@ -1,6 +1,6 @@
 let countdownInterval;
 
-function startFlashSaleTimer(flashSaleEnd) {
+function startFlashSaleTimer(flashSaleEnd, elementId = "flash-timer") {
   clearInterval(countdownInterval);
 
   function updateTimer() {
@@ -9,11 +9,13 @@ function startFlashSaleTimer(flashSaleEnd) {
 
     let diff = Math.floor((end - now) / 1000);
 
-    const el = document.getElementById("flash-timer");
+    const el = document.getElementById(elementId);
+    const elHome = document.getElementById("flash-timer"); // Luôn cập nhật cả ở trang chủ nếu nó tồn tại
 
     if (diff <= 0) {
       clearInterval(countdownInterval);
-      if (el) el.innerText = "Đã kết thúc";
+      if (el) el.innerText = "Kết thúc";
+      if (elHome) elHome.innerText = "Kết thúc";
       return;
     }
 
@@ -21,9 +23,9 @@ function startFlashSaleTimer(flashSaleEnd) {
     const minutes = Math.floor((diff % 3600) / 60);
     const seconds = diff % 60;
 
-    if (el) {
-      el.innerText = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
-    }
+    const timeStr = `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+    if (el) el.innerText = timeStr;
+    if (elHome && elementId !== "flash-timer") elHome.innerText = timeStr;
   }
 
   updateTimer();
@@ -79,7 +81,18 @@ window.addEventListener("DOMContentLoaded", async () => {
 
   // Logout
   const logoutBtn = document.getElementById("logoutBtn");
-  if (logoutBtn) logoutBtn.addEventListener("click", logout);
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", function() {
+      if (typeof ECommerce !== 'undefined') {
+        ECommerce.logout();
+      } else {
+        // Dự phòng nếu chưa load kịp common
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.href = "pages/auth.html";
+      }
+    });
+  }
 });
 
 function isLoggedIn() {
@@ -87,8 +100,11 @@ function isLoggedIn() {
 }
 
 function requireLogin() {
-  if (!isLoggedIn()) {
-    window.location.href = "auth.html";
+  if (typeof ECommerce !== 'undefined') {
+    return ECommerce.requireAuth();
+  }
+  if (!localStorage.getItem("token") && !sessionStorage.getItem("token")) {
+    window.location.href = "pages/auth.html";
     return false;
   }
   return true;
@@ -97,7 +113,7 @@ function requireLogin() {
 let socket;
 function initSocket() {
   if (typeof io !== 'undefined') {
-    socket = io("http://localhost:3000");
+    socket = io("http://localhost:3001");
 
     socket.on("connect", () => {
       console.log("[Socket] Connected to server");
@@ -120,22 +136,11 @@ function initSocket() {
 }
 
 function handleAddToCart(id) {
-  if (!requireLogin()) return;
+  if (typeof ECommerce !== 'undefined' && !ECommerce.requireAuth()) return;
 
   add(id);
 }
 
-function logout() {
-  localStorage.removeItem("token");
-  localStorage.removeItem("user");
-  localStorage.removeItem("cart");
-  sessionStorage.removeItem("token");
-  sessionStorage.removeItem("user");
-
-  initUserUI();
-
-  window.location.href = "auth.html";
-}
 
 window.addEventListener("storage", () => {
   initUserUI();

@@ -1,24 +1,16 @@
-const API_URL = "http://localhost:3000";
+const BF = window.ECommerce;
+const API_URL = BF.getApiBaseUrl();
 
-function getToken() {
-  return localStorage.getItem("token") || sessionStorage.getItem("token");
-}
-
-function getUser() {
-  try {
-    const raw = localStorage.getItem("user") || sessionStorage.getItem("user");
-    return raw ? JSON.parse(raw) : {};
-  } catch { return {}; }
-}
-
+function getToken() { return BF.getToken(); }
+function getUser() { return BF.getUser() || {}; }
 function setUser(userObj) {
-  const storage = localStorage.getItem("token") ? localStorage : sessionStorage;
+  const storage = BF.getToken() ? localStorage : sessionStorage;
   storage.setItem("user", JSON.stringify(userObj));
 }
 let usernameInput, nameInput, emailInput, phoneInput, addressInput;
 
 window.addEventListener("DOMContentLoaded", async () => {
-  if (!requireLogin()) return;
+  if (!BF.requireAuth()) return;
 
   bindInputs();
 
@@ -252,7 +244,7 @@ async function changePassword() {
   try {
 
     const response = await fetch(
-      "http://localhost:3000/api/auth/change-password",
+      "http://localhost:3001/api/auth/change-password",
       {
 
         method: "PUT",
@@ -294,27 +286,6 @@ async function changePassword() {
   }
 }
 
-function initLogout() {
-  const logoutBtn = document.getElementById("logoutBtn");
-
-  if (logoutBtn) {
-    logoutBtn.addEventListener("click", logout);
-  }
-}
-
-function logout() {
-  localStorage.clear();
-  sessionStorage.clear();
-  window.location.href = "auth.html";
-}
-
-function requireLogin() {
-  if (!getToken()) {
-    window.location.href = "auth.html";
-    return false;
-  }
-  return true;
-}
 
 window.addEventListener("userUpdated", () => {
   initProfileUI();

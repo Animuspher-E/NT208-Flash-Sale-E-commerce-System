@@ -18,7 +18,9 @@
             <i class="fa-solid fa-bolt"></i>
             FLASH SALE ECOMMERCE
           </span>
-          <h1>E-<span>Commerce</span></h1>
+          <a href="../home.html" style="text-decoration: none;">
+            <h1>E-<span>Commerce</span></h1>
+          </a>
           <p>
             Trang xác thực dùng chung với backend NT208. Sau khi đăng nhập, token JWT
             được lưu để truy cập giỏ hàng và lịch sử đơn hàng.
@@ -231,7 +233,7 @@
       if (user && user.role === 'admin') {
         window.location.href = "admin.html";
       } else {
-        window.location.href = "home.html";
+        window.location.href = "../home.html";
       }
     }
 

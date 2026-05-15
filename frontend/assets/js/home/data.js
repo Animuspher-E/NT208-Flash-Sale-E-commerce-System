@@ -1,7 +1,7 @@
 let products = [];
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-const API_URL = "http://localhost:3000"; 
+const API_URL = "http://localhost:3001"; 
 
 async function fetchFlashSaleProducts() {
   try {
@@ -37,9 +37,9 @@ const categoryName = {
 };
 
 let limit = {
-  flash: 15,
-  best: 15,
-  recommend: 15
+  flash: 10,
+  best: 10,
+  recommend: 10
 };
 
 let currentPage = {
