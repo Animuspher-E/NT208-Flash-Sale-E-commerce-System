@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chi tiết sản phẩm | Flash Sale E-Commerce</title>
+    <title>Chi tiết sản phẩm | BuyMe</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
@@ -19,11 +19,11 @@
     <div class="header">
         <div class="logo" onclick="window.location.href='../home.html'">
             <i class="fa-solid fa-bolt"></i>
-            E-<span>Commerce</span>
+            Buy<span>Me</span>
         </div>
         <div class="search">
             <i class="fa-solid fa-magnifying-glass"></i>
-            <input placeholder="Tìm kiếm sản phẩm...">
+            <input id="searchInput" placeholder="Tìm kiếm sản phẩm...">
         </div>
         <div class="nav">
             <button class="icon-btn" onclick="window.location.href='../home.html'">
@@ -31,11 +31,26 @@
             </button>
             <button class="icon-btn" onclick="window.location.href='cart.html'">
                 <i class="fa-solid fa-cart-shopping"></i>
-                <span class="cart-badge">0</span>
+                <span class="cart-badge" id="cartCount">0</span>
             </button>
-            <button class="icon-btn" onclick="window.location.href='auth.html'">
+            
+            <!-- Chưa đăng nhập -->
+            <button class="icon-btn" id="loginBtn" onclick="window.location.href='auth.html'">
                 <i class="fa-solid fa-user"></i>
             </button>
+
+            <!-- Đã đăng nhập -->
+            <div class="user-actions hidden" id="userActionsWrapper" style="display: none; align-items: center; gap: 20px;">
+                <button class="icon-btn" onclick="window.location.href='orders.html'" title="Lịch sử đơn hàng">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                </button>
+                <button class="avatar-btn" type="button" onclick="window.location.href='profile.html'" title="Trang cá nhân" style="background:none; border:none; padding:0;">
+                    <img id="userAvatar" class="avatar-mini" src="img/default-avatar.png" alt="Avatar" style="width:32px; height:32px; border-radius:50%; object-fit:cover; border:1px solid #e0e0e0;">
+                </button>
+                <button class="icon-btn" id="logoutBtn" type="button" title="Đăng xuất">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -278,7 +293,7 @@
 
     <!-- Footer -->
     <div class="footer">
-        © 2026 E-Commerce. All rights reserved.
+        © 2026 BuyMe. All rights reserved.
     </div>
 
     <!-- Bootstrap JS Bundle -->
@@ -300,6 +315,16 @@
             if (val < 1) val = 1;
             input.value = val;
         }
+
+        // Search redirection
+        document.getElementById("searchInput").addEventListener("keydown", function(e) {
+            if (e.key === "Enter") {
+                const val = this.value.trim();
+                if (val) {
+                    window.location.href = `../home.html?search=${encodeURIComponent(val)}`;
+                }
+            }
+        });
 
         // Tích hợp zoom nhẹ
         const wrapper = document.getElementById('mainImgWrapper');

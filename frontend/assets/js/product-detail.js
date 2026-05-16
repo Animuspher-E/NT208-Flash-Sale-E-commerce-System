@@ -13,7 +13,40 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     await loadProductDetail(productId);
     BF.renderUserHeader();
+    initUserUI();
+    initLogout();
 });
+
+function initUserUI() {
+    const token = BF.getToken();
+    const user = BF.getUser();
+
+    const loginBtn = document.getElementById("loginBtn");
+    const wrapper = document.getElementById("userActionsWrapper");
+    const avatar = document.getElementById("userAvatar");
+
+    if (token && user && user.name) {
+        if (loginBtn) loginBtn.classList.add("hidden");
+        if (wrapper) {
+            wrapper.classList.remove("hidden");
+            wrapper.style.display = "flex";
+        }
+        if (avatar) avatar.src = user.avatar || "img/default-avatar.png";
+    } else {
+        if (loginBtn) loginBtn.classList.remove("hidden");
+        if (wrapper) {
+            wrapper.classList.add("hidden");
+            wrapper.style.display = "none";
+        }
+    }
+}
+
+function initLogout() {
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", () => BF.logout());
+    }
+}
 
 async function loadProductDetail(id) {
     try {
@@ -42,7 +75,9 @@ function renderProduct(p) {
 
     // Breadcrumb
     document.querySelector('.breadcrumb-item.active').textContent = p.name;
-    document.querySelector('.breadcrumb-item:nth-child(2) a').textContent = p.category || "Điện tử";
+    const catLink = document.querySelector('.breadcrumb-item:nth-child(2) a');
+    catLink.textContent = p.category || "Điện tử";
+    catLink.href = `../home.html?category=${encodeURIComponent(p.category || "Điện tử")}`;
 
     // Images
     const mainImg = document.getElementById('mainImg');

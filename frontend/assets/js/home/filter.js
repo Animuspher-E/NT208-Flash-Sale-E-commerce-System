@@ -9,16 +9,18 @@ function filterCategory(cat, event){
     event.currentTarget.classList.add('active');
   }
 
-  document.getElementById("searchInput").placeholder = "Tìm trong " + categoryName[cat];
+  const displayNameForPlaceholder = categoryName[cat] || cat;
+  document.getElementById("searchInput").placeholder = "Tìm trong " + displayNameForPlaceholder;
 
   document.getElementById("flash-section").style.display = "none";
   document.getElementById("best-section").style.display = "none";
   document.getElementById("recommend-section").style.display = "none";
 
   document.getElementById("category-section").style.display = "block";
-  document.getElementById("category-title").innerText = categoryName[cat];
+  const displayName = categoryName[cat] || cat;
+  document.getElementById("category-title").innerText = displayName;
 
-  let filtered = products.filter(p => p.category === categoryName[cat] || p.category === cat);
+  let filtered = products.filter(p => p.category === displayName || p.category === cat);
 
   let html = "";
 
