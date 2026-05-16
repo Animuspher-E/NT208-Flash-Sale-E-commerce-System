@@ -91,6 +91,44 @@ class UserController {
             data: stats,
         });
     });
+
+    /**
+     * GET /users/addresses
+     */
+    getAddresses = catchAsync(async (req, res) => {
+        const userId = req.userId;
+        const addresses = await userService.getAddresses(userId);
+        res.json({ success: true, data: addresses });
+    });
+
+    /**
+     * POST /users/addresses
+     */
+    addAddress = catchAsync(async (req, res) => {
+        const userId = req.userId;
+        const address = await userService.addAddress(userId, req.body);
+        res.json({ success: true, data: address });
+    });
+
+    /**
+     * DELETE /users/addresses/:id
+     */
+    deleteAddress = catchAsync(async (req, res) => {
+        const userId = req.userId;
+        const { id } = req.params;
+        await userService.deleteAddress(userId, parseInt(id));
+        res.json({ success: true, message: 'Address deleted' });
+    });
+
+    /**
+     * PUT /users/addresses/:id/default
+     */
+    setDefaultAddress = catchAsync(async (req, res) => {
+        const userId = req.userId;
+        const { id } = req.params;
+        const address = await userService.setDefaultAddress(userId, parseInt(id));
+        res.json({ success: true, data: address });
+    });
 }
 
 module.exports = new UserController();

@@ -40,6 +40,9 @@
 
       <!-- Đã đăng nhập: Avatar + Đăng xuất -->
       <div class="user-actions hidden" id="userActionsWrapper" style="display: none; align-items: center; gap: 20px;">
+        <button class="icon-btn" onclick="window.location.href='pages/orders.html'" title="Lịch sử đơn hàng">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+        </button>
         <button class="avatar-btn" type="button" onclick="window.location.href='pages/profile.html'"
           title="Trang cá nhân">
           <img id="userAvatar" class="avatar-mini" src="pages/img/default-avatar.png" alt="Avatar">
@@ -170,7 +173,7 @@
 
   <!-- FOOTER -->
   <div class="footer">
-    © 2026 E-Commerce | Flash Sale System
+    © 2026 E-Commerce. All rights reserved.
   </div>
 
   <script src="http://localhost:3001/socket.io/socket.io.js"></script>

@@ -14,11 +14,11 @@ class PaymentController {
             return res.status(400).json({ success: false, message: 'Tham số orderId là bắt buộc' });
         }
 
-        const url = await paymentService.createPaymentUrl(orderId, req, returnUrl, cancelUrl);
+        const paymentData = await paymentService.createPaymentUrl(orderId, req, returnUrl, cancelUrl);
 
         res.json({
             success: true,
-            data: { url }
+            data: paymentData
         });
     });
 

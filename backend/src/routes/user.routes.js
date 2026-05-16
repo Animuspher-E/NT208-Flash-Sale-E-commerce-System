@@ -202,6 +202,14 @@ router.get(
   userController.getStatistics
 );
 
+/**
+ * ADDRESSES
+ */
+router.get('/addresses', authMiddleware, userController.getAddresses);
+router.post('/addresses', authMiddleware, userController.addAddress);
+router.delete('/addresses/:id', authMiddleware, userController.deleteAddress);
+router.put('/addresses/:id/default', authMiddleware, userController.setDefaultAddress);
+
 module.exports = router;
 
 /*

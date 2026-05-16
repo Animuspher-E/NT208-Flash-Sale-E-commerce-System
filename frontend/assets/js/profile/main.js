@@ -1,4 +1,6 @@
-const BF = window.ECommerce;
+if (typeof BF === 'undefined') {
+  var BF = window.ECommerce;
+}
 
 function showTab(event, tab) {
   document.querySelectorAll(".content > div").forEach(e => e.classList.add("hidden"));

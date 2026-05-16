@@ -22,15 +22,15 @@
             <h1>E-<span>Commerce</span></h1>
           </a>
           <p>
-            Trang xác thực dùng chung với backend NT208. Sau khi đăng nhập, token JWT
-            được lưu để truy cập giỏ hàng và lịch sử đơn hàng.
+            Hệ thống xác thực bảo mật chuẩn quốc tế. Đăng nhập để bắt đầu trải nghiệm
+            mua sắm tuyệt vời và nhận nhiều ưu đãi hấp dẫn.
           </p>
 
           <div class="system-stats" aria-label="Điểm nhấn hệ thống">
             <div class="stat">
               <i class="fa-solid fa-shield-halved"></i>
-              <strong>JWT</strong>
-              <span>Lưu phiên đăng nhập an toàn</span>
+              <strong>Bảo mật</strong>
+              <span>Mã hóa dữ liệu người dùng 100%</span>
             </div>
             <div class="stat">
               <i class="fa-solid fa-cart-shopping"></i>
@@ -296,7 +296,7 @@
         BF.persistSession(data, remember);
         goToHomepage();
       } catch (error) {
-        setAuthMessage(error.message || "Không thể đăng nhập. Kiểm tra lại backend.", "error");
+        setAuthMessage(error.message || "Không thể đăng nhập. Vui lòng kiểm tra lại kết nối.", "error" );
       } finally {
         setLoading(els.loginForm, false);
       }
@@ -346,7 +346,7 @@
         BF.persistSession(data, true);
         goToHomepage();
       } catch (error) {
-        setAuthMessage(error.message || "Không thể đăng ký. Kiểm tra lại backend.", "error");
+        setAuthMessage(error.message || "Không thể đăng ký. Vui lòng kiểm tra lại kết nối.", "error" );
       } finally {
         setLoading(els.registerForm, false);
       }

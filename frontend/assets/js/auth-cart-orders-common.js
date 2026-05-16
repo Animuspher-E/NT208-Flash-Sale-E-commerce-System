@@ -268,11 +268,13 @@ function syncHeaderAvatar() {
 
   const avatar = user.avatar || defaultAvatar;
 
-  const headerAvatar = document.getElementById("headerAvatar");
-
-  if (headerAvatar) {
-    headerAvatar.src = avatar;
-  }
+  // Cập nhật tất cả các phần tử avatar có thể có
+  ["headerAvatar", "userAvatar", "avatarPreview"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.src = avatar;
+    }
+  });
 }
 
 window.addEventListener("DOMContentLoaded", function () {

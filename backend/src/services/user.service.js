@@ -29,6 +29,9 @@ class UserService {
                     usernameChanged: true,
                     phone: true,
                     address: true,
+                    avatar: true,
+                    gender: true,
+                    dob: true,
                     createdAt: true,
                     updatedAt: true,
                 },
@@ -73,6 +76,10 @@ class UserService {
                 }
             }
 
+            if (updateData.dob) {
+                updateData.dob = new Date(updateData.dob);
+            }
+
             const user = await prisma.user.update({
                 where: { id: userId },
                 data: updateData,
@@ -84,9 +91,20 @@ class UserService {
                     usernameChanged: true,
                     phone: true,
                     address: true,
+                    avatar: true,
+                    gender: true,
+                    dob: true,
                     updatedAt: true,
                 },
             });
+            
+            // Sync phone with addresses if phone was updated
+            if (updateData.phone) {
+                await prisma.address.updateMany({
+                    where: { userId: userId, isDefault: true },
+                    data: { phone: updateData.phone }
+                });
+            }
 
             return user;
         } catch (error) {
@@ -240,6 +258,88 @@ class UserService {
             logger.error('Get user statistics error:', error.message);
             throw error;
         }
+    }
+    /**
+     * Lấy danh sách địa chỉ của user
+     */
+    async getAddresses(userId) {
+        return prisma.address.findMany({
+            where: { userId },
+            orderBy: { isDefault: 'desc' }
+        });
+    }
+
+    /**
+     * Thêm địa chỉ mới
+     */
+    async addAddress(userId, addressData) {
+        // Nếu là địa chỉ đầu tiên, tự động đặt làm mặc định
+        const count = await prisma.address.count({ where: { userId } });
+        if (count === 0) addressData.isDefault = true;
+
+        // Nếu đặt làm mặc định, bỏ mặc định các địa chỉ khác
+        if (addressData.isDefault) {
+            await prisma.address.updateMany({
+                where: { userId },
+                data: { isDefault: false }
+            });
+
+            // Đồng bộ ngược lại SĐT user profile
+            await prisma.user.update({
+                where: { id: userId },
+                data: { phone: addressData.phone }
+            });
+        }
+
+        return prisma.address.create({
+            data: { ...addressData, userId }
+        });
+    }
+
+    /**
+     * Xóa địa chỉ
+     */
+    async deleteAddress(userId, addressId) {
+        const address = await prisma.address.findFirst({
+            where: { id: addressId, userId }
+        });
+
+        if (!address) throw new Error('ADDRESS_NOT_FOUND');
+
+        return prisma.address.delete({
+            where: { id: addressId }
+        });
+    }
+
+    /**
+     * Đặt địa chỉ làm mặc định
+     */
+    async setDefaultAddress(userId, addressId) {
+        const address = await prisma.address.findFirst({
+            where: { id: addressId, userId }
+        });
+
+        if (!address) throw new Error('ADDRESS_NOT_FOUND');
+
+        // Bỏ mặc định các địa chỉ khác
+        await prisma.address.updateMany({
+            where: { userId },
+            data: { isDefault: false }
+        });
+
+        // Đặt địa chỉ này làm mặc định
+        const updated = await prisma.address.update({
+            where: { id: addressId },
+            data: { isDefault: true }
+        });
+
+        // Đồng bộ phone sang profile
+        await prisma.user.update({
+            where: { id: userId },
+            data: { phone: updated.phone }
+        });
+
+        return updated;
     }
 }
 

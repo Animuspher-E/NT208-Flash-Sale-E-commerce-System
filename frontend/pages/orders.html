@@ -7,6 +7,97 @@
   <title>Flash Sale E-Commerce | Lịch sử đơn hàng</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="../assets/css/auth-cart-orders.css">
+  <style>
+    .payment-expand-area {
+      grid-column: 1 / -1;
+      margin-top: 15px;
+      padding: 0;
+      border-top: 1px solid #edf2f7;
+      animation: slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes slideDown {
+      from { opacity: 0; height: 0; transform: translateY(-10px); }
+      to { opacity: 1; height: auto; transform: translateY(0); }
+    }
+    .qr-expand-content {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 24px;
+      margin-top: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    }
+    .qr-flex-container {
+      display: flex;
+      gap: 32px;
+      align-items: flex-start;
+    }
+    .qr-left-side {
+      flex: 0 0 220px;
+      text-align: center;
+    }
+    .qr-image-wrapper {
+      background: #f8fafc;
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px solid #f1f5f9;
+      margin-bottom: 12px;
+    }
+    .qr-image-wrapper img {
+      width: 100%;
+      height: auto;
+      display: block;
+      mix-blend-mode: multiply;
+    }
+    .qr-hint-text {
+      font-size: 12px;
+      color: #94a3b8;
+      line-height: 1.5;
+    }
+    .qr-right-side {
+      flex: 1;
+    }
+    .qr-right-side h4 {
+      margin: 0 0 16px 0;
+      font-size: 15px;
+      color: #1e293b;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+    .payment-details-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label {
+      font-size: 13px;
+      color: #64748b;
+    }
+    .detail-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: #334155;
+      text-align: right;
+    }
+    .detail-value.highlight { color: #2563eb; }
+    .detail-value.warning { color: #d97706; }
+    
+    .qr-footer-actions {
+      margin-top: 24px;
+      display: flex;
+      gap: 12px;
+    }
+    @media (max-width: 640px) {
+      .qr-flex-container { flex-direction: column; gap: 24px; }
+      .qr-left-side { flex: 1; width: 100%; max-width: 240px; margin: 0 auto; }
+    }
+  </style>
 </head>
 
 <body>
@@ -46,16 +137,10 @@
         </div>
       </header>
 
-      <div class="api-pill">
-        <i class="fa-solid fa-server"></i>
-        <span id="apiBaseText"></span>
-        <button type="button" id="changeApiBtn">Đổi API</button>
-      </div>
-
       <section class="hero-band" aria-label="Tổng quan lịch sử đơn hàng">
         <div>
           <h1>Lịch sử đơn hàng</h1>
-          <p>Theo dõi các đơn đã chốt qua backend NT208, xem chi tiết và tạo liên kết thanh toán PayOS khi cần.</p>
+          <p>Theo dõi các đơn hàng của bạn và thực hiện thanh toán cho các đơn hàng đang chờ.</p>
         </div>
         <div class="hero-stats">
           <div class="hero-stat">
@@ -79,7 +164,7 @@
         <div class="section-toolbar">
           <div class="section-title">
             <h2>Đơn hàng của tôi</h2>
-            <p>Dữ liệu lấy từ <strong>/api/users/orders</strong> bằng JWT đang đăng nhập.</p>
+            <p>Danh sách các đơn hàng bạn đã thực hiện trên hệ thống.</p>
           </div>
           <div class="order-controls">
             <select class="order-filter" id="orderStatusFilter" aria-label="Lọc trạng thái đơn hàng">
@@ -126,6 +211,8 @@
     </article>
   </div>
 
+
+
   <script src="../assets/js/auth-cart-orders-common.js"></script>
   <script>
     const BF = window.ECommerce;
@@ -151,7 +238,11 @@
       prevOrdersBtn: document.getElementById("prevOrdersBtn"),
       nextOrdersBtn: document.getElementById("nextOrdersBtn"),
       orderModal: document.getElementById("orderModal"),
-      orderModalBody: document.getElementById("orderModalBody")
+      orderModalBody: document.getElementById("orderModalBody"),
+      paymentModal: document.getElementById("paymentModal"),
+      paymentModalBody: document.getElementById("paymentModalBody"),
+      paymentDoneBtn: document.getElementById("paymentDoneBtn"),
+      closePaymentModal: document.getElementById("closePaymentModal")
     };
 
     function setAppMessage(text, type = "info") {
@@ -228,10 +319,13 @@
                 </button>
                 ${(status !== 'cancelled' && paymentStatus !== 'paid') ? `
                   <button class="primary-button" type="button" data-order-pay="${order.id}">
-                    <i class="fa-solid fa-qrcode"></i>
-                    PayOS
+                    <i class="fa-solid fa-credit-card"></i>
+                    Thanh toán ngay
                   </button>
                 ` : ""}
+              </div>
+              <div class="payment-expand-area hidden" id="payment-area-${order.id}">
+                <!-- Nội dung QR sẽ được chèn vào đây khi bấm nút PayOS -->
               </div>
             </article>
           `;
@@ -291,9 +385,17 @@
     }
 
     async function createPayment(orderId, button) {
+      const expandArea = document.getElementById(`payment-area-${orderId}`);
+      
+      // Nếu đang mở rồi thì đóng lại (toggle)
+      if (expandArea && !expandArea.classList.contains("hidden") && expandArea.dataset.loaded === orderId) {
+        expandArea.classList.add("hidden");
+        return;
+      }
+
       BF.setButtonLoading(button, true, "Đang tạo QR");
       try {
-        const data = await BF.apiRequest("/api/payment/create_url", {
+        const res = await BF.apiRequest("/api/payment/create_url", {
           method: "POST",
           body: { 
             orderId: Number(orderId),
@@ -301,12 +403,61 @@
             cancelUrl: window.location.href
           }
         });
-        const url = data && data.data ? data.data.url : null;
-        if (!url) {
-          throw new Error("Backend không trả về URL thanh toán.");
+        const data = res.data;
+        if (!data || !data.checkoutUrl) {
+          throw new Error("Không thể tạo liên kết thanh toán. Vui lòng thử lại sau.");
         }
-        window.open(url, "_blank", "noopener");
-        setAppMessage("Đã tạo liên kết thanh toán PayOS.", "success");
+
+        const qrUrl = `https://img.vietqr.io/image/${data.bin}-${data.accountNumber}-compact2.png?amount=${data.amount}&addInfo=${encodeURIComponent(data.description)}&accountName=${encodeURIComponent(data.accountName)}`;
+
+        expandArea.innerHTML = `
+          <div class="qr-expand-content">
+            <div class="qr-flex-container">
+              <div class="qr-left-side">
+                <div class="qr-image-wrapper">
+                  <img src="${qrUrl}" alt="Mã QR Thanh toán">
+                </div>
+                <p class="qr-hint-text">
+                  <i class="fa-solid fa-qrcode"></i><br>
+                  Sử dụng ứng dụng ngân hàng để quét mã
+                </p>
+              </div>
+              <div class="qr-right-side">
+                <h4>Thông tin chuyển khoản</h4>
+                <div class="payment-details-table">
+                  <div class="detail-row">
+                    <span class="detail-label">Số tài khoản</span>
+                    <span class="detail-value highlight">${data.accountNumber}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Chủ tài khoản</span>
+                    <span class="detail-value">${data.accountName.toUpperCase()}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Số tiền cần chuyển</span>
+                    <span class="detail-value highlight">${BF.formatCurrency(data.amount)}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-label">Nội dung chuyển khoản</span>
+                    <span class="detail-value warning">${data.description}</span>
+                  </div>
+                </div>
+                <div class="qr-footer-actions">
+                   <a href="${data.checkoutUrl}" target="_blank" class="primary-button mini">
+                     Tiếp tục thanh toán <i class="fa-solid fa-chevron-right"></i>
+                   </a>
+                   <button class="ghost-button mini" onclick="loadOrders(state.page)">
+                     Đã chuyển khoản
+                   </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        expandArea.classList.remove("hidden");
+        expandArea.dataset.loaded = orderId;
+        setAppMessage("Đã tạo mã QR thanh toán phía dưới đơn hàng.", "success");
       } catch (error) {
         setAppMessage(error.message || "Không tạo được thanh toán PayOS.", "error");
       } finally {
@@ -319,14 +470,7 @@
       loadOrders(state.page);
     });
 
-    document.getElementById("changeApiBtn").addEventListener("click", function () {
-      const nextValue = window.prompt("API base URL", BF.getApiBaseUrl());
-      if (!nextValue) return;
-      BF.setApiBaseUrl(nextValue);
-      BF.renderUserHeader();
-      setAppMessage("Đã đổi API backend.", "info");
-      loadOrders(1);
-    });
+
 
     els.orderStatusFilter.addEventListener("change", function () {
       state.status = els.orderStatusFilter.value;
@@ -367,6 +511,8 @@
       if (payButton) createPayment(payButton.dataset.orderPay, payButton);
       if (cancelButton) cancelOrder(cancelButton.dataset.orderCancel, cancelButton);
     });
+
+
 
     document.getElementById("closeOrderModal").addEventListener("click", function () {
       els.orderModal.classList.add("hidden");

@@ -19,10 +19,11 @@ class OrderService {
      * @param {number} userId
      * @param {number} productId
      * @param {number} quantity
+     * @param {string} shippingAddress
      * @returns {Promise<object>} Order object
      * @throws Error nếu out of stock hoặc DB error
      */
-    async buyProduct(userId, productId, quantity) {
+    async buyProduct(userId, productId, quantity, shippingAddress = null) {
         let order = null;
         let redisRollbackNeeded = false;
 
@@ -74,6 +75,7 @@ class OrderService {
                             status: 'pending',
                             paymentStatus: 'unpaid',
                             shippingStatus: 'pending',
+                            shippingAddress: shippingAddress,
                             items: {
                                 create: [
                                     {

@@ -24,8 +24,12 @@ model User {
   phone       String?  @db.VarChar(20)
   address     String?  @db.Text
   role        String   @default("user") @db.VarChar(20)
+  avatar      String?  @db.Text
+  gender      String?  @db.VarChar(10)
+  dob         DateTime?
 
   orders      Order[]
+  addresses   Address[]
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -35,6 +39,25 @@ model User {
   passwordResetExpires DateTime?
 
   @@index([email])
+}
+
+model Address {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  fullName  String   @db.VarChar(255)
+  phone     String   @db.VarChar(20)
+  province  String   @db.VarChar(100)
+  district  String   @db.VarChar(100)
+  ward      String   @db.VarChar(100)
+  detail    String   @db.Text
+  isDefault Boolean  @default(false)
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }
 
 // ============================================

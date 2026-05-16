@@ -20,7 +20,7 @@ const orderService = require('../services/order.service');
 
 // API Mua hàng Flash Sale
 async function buy(req, res, next) {
-  const { productId, quantity } = req.body;
+  const { productId, quantity, shippingAddress } = req.body;
   const userId = req.user.userId;
   let redisDecrSuccess = false;
   try {
@@ -41,7 +41,7 @@ async function buy(req, res, next) {
     }
     redisDecrSuccess = true;
     const remainingStock = buyResult.remainingStock;
-    const orderResponse = await orderService.buyProduct(userId, productId, quantity);
+    const orderResponse = await orderService.buyProduct(userId, productId, quantity, shippingAddress);
     const order = orderResponse.order;
     return res.status(201).json({
       success: true,

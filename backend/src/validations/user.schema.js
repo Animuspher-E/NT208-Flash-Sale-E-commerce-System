@@ -49,6 +49,10 @@ const updateProfileSchema = z.object({
         .max(500, 'Địa chỉ không được quá 500 ký tự')
         .optional()
         .nullable(),
+    avatar: z
+        .string()
+        .optional()
+        .nullable(),
 });
 
 /**

@@ -60,7 +60,7 @@ function initUserUI() {
     if (loginBtn) loginBtn.classList.add("hidden");
     if (wrapper) wrapper.classList.remove("hidden");
     if (wrapper) wrapper.style.display = "flex";
-    if (avatar) avatar.src = user.avatar || "./img/default-avatar.png";
+    if (avatar) avatar.src = user.avatar || "pages/img/default-avatar.png";
   } else {
     // Chưa đăng nhập: hiện nút "Đăng nhập", ẩn nhóm hành động
     if (loginBtn) loginBtn.classList.remove("hidden");

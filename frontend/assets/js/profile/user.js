@@ -1,5 +1,7 @@
-const BF = window.ECommerce;
-const API_URL = BF.getApiBaseUrl();
+// Use existing BF from common.js
+if (typeof BF === 'undefined') {
+  var BF = window.ECommerce;
+}
 
 function getToken() { return BF.getToken(); }
 function getUser() { return BF.getUser() || {}; }
@@ -7,7 +9,7 @@ function setUser(userObj) {
   const storage = BF.getToken() ? localStorage : sessionStorage;
   storage.setItem("user", JSON.stringify(userObj));
 }
-let usernameInput, nameInput, emailInput, phoneInput, addressInput;
+let usernameInput, nameInput, emailInput, phoneInput, genderInput, dobInput;
 
 window.addEventListener("DOMContentLoaded", async () => {
   if (!BF.requireAuth()) return;
@@ -24,7 +26,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   renderAddresses();
 });
 
-let usernameInput, nameInput, emailInput, phoneInput, genderInput, dobInput;
+
 
 function bindInputs() {
   usernameInput = document.getElementById("username");
@@ -37,6 +39,8 @@ function bindInputs() {
 
 function initProfileUI() {
   const user = getUser();
+  console.log("[Profile] Initializing UI with user:", user);
+  
   const defaultAvatar = './img/default-avatar.png';
   const avatarPreview = document.getElementById('avatarPreview');
   const headerAvatar  = document.getElementById('headerAvatar');
@@ -66,36 +70,27 @@ function initProfileUI() {
 }
 
 async function loadProfile() {
-  const token = getToken();
-
   try {
-    const res = await fetch(`${API_URL}/api/users/profile`, {
-      headers: { Authorization: "Bearer " + token }
-    });
-
-    if (!res.ok) throw new Error();
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      console.warn('[loadProfile] server:', data?.message || data);
-      throw new Error(data?.message || 'Lỗi tải hồ sơ');
-    }
-
+    const data = await BF.apiRequest('/api/users/profile');
     const profile = data.data || data;
-
     const oldUser = getUser();
-
     const mergedUser = {
       ...oldUser,
       ...profile,
       avatar: oldUser.avatar || profile.avatar
     };
-
     setUser(mergedUser);
     initProfileUI();
+    // Make email read-only for security
+    if (emailInput) {
+      emailInput.readOnly = true;
+      emailInput.style.background = '#f0f0f0';
+      emailInput.style.cursor = 'not-allowed';
+      emailInput.style.color = '#555';
+      emailInput.title = 'Email không thể thay đổi';
+    }
   } catch (err) {
-    console.warn('API lỗi → dùng localStorage:', err.message);
+    console.warn('Không tải được hồ sơ từ máy chủ, dùng dữ liệu cục bộ:', err.message);
     initProfileUI();
   }
 }
@@ -161,6 +156,7 @@ async function saveProfile() {
 
   const gender = genderInput?.value;
   const dob = dobInput?.value;
+  const avatarPreview = document.getElementById('avatarPreview');
 
   const payload = { name };
   if (username && !usernameInput.readOnly) payload.username = username;
@@ -168,37 +164,27 @@ async function saveProfile() {
   if (phone)   payload.phone   = phone;
   if (gender)  payload.gender  = gender;
   if (dob)     payload.dob     = dob;
+  
+  // Nếu avatar là base64 (mới upload) thì gửi lên
+  if (avatarPreview && avatarPreview.src.startsWith('data:image')) {
+    payload.avatar = avatarPreview.src;
+  }
 
   try {
-    const res = await fetch(`${API_URL}/api/users/profile`, {
+    const result = await BF.apiRequest('/api/users/profile', {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + token
-      },
-      body: JSON.stringify(payload)
+      body: payload
     });
-
-    const result = await res.json();
-
-    if (!res.ok) {
-      // Đọc message từ backend (Zod trả về details array hoặc message)
-      const errMsg = result?.details?.[0]?.message
-        || result?.errors?.[0]?.message
-        || result?.message
-        || 'Cập nhật thất bại!';
-      throw new Error(errMsg);
-    }
 
     const updated = result.data || result;
     const oldUser = getUser();
-    setUser({ ...oldUser, ...updated, avatar: oldUser.avatar });
+    setUser({ ...oldUser, ...updated });
     initProfileUI();
 
     showMessage('profileMessage', 'Cập nhật thành công!', 'success');
-
   } catch (err) {
-    showMessage('profileMessage', err.message || 'Lỗi cập nhật!', 'error');
+    // BF.apiRequest tự parse lỗi từ server và throw Error với message rõ ràng
+    showMessage('profileMessage', err.message || 'Cập nhật thất bại!', 'error');
   }
 }
 
@@ -243,34 +229,10 @@ async function changePassword() {
 
   try {
 
-    const response = await fetch(
-      "http://localhost:3001/api/auth/change-password",
-      {
-
-        method: "PUT",
-
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + token
-        },
-
-        body: JSON.stringify({
-
-          oldPassword: oldPass,
-
-          newPassword: newPass
-        })
-      }
-    );
-
-    const data = await response.json();
-
-    if (!response.ok) {
-
-      throw new Error(
-        data.message || "Đổi mật khẩu thất bại!"
-      );
-    }
+    await BF.apiRequest('/api/auth/change-password', {
+      method: 'PUT',
+      body: { oldPassword: oldPass, newPassword: newPass }
+    });
 
     document.getElementById("oldPass").value = "";
 

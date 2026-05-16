@@ -41,7 +41,7 @@ class PaymentService {
         // 3. Gọi PayOS API để tạo link thanh toán
         try {
             const paymentLinkRes = await payos.paymentRequests.create(paymentData);
-            return paymentLinkRes.checkoutUrl;
+            return paymentLinkRes;
         } catch (error) {
             logger.error('PayOS Create Payment Link Error:', error);
             throw new Error(`Không thể tạo link thanh toán PayOS: ${error.message}`);
