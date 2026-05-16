@@ -262,7 +262,7 @@
         <div class="cart-layout" style="padding:18px;gap:20px;">
           <div id="cartList" class="cart-list"></div>
           <aside class="summary-card" aria-label="Tóm tắt giỏ hàng">
-            <h3><i class="fa-solid fa-receipt" style="color:var(--primary-500);margin-right:7px;"></i>Tóm tắt đơn</h3>
+            <h3><i class="fa-solid fa-receipt" style="color:var(--primary-500);margin-right:7px;"></i>Tóm tắt đơn hàng</h3>
             <div class="summary-line">
               <span>Sản phẩm đã chọn</span>
               <strong id="cartItemCount">0</strong>
@@ -483,7 +483,7 @@
 
     function renderCart() {
       if (!state.cart.length) {
-        els.cartList.innerHTML = BF.emptyState("fa-cart-shopping", "Giỏ hàng trống", "Thêm sản phẩm Flash Sale để chốt đơn.");
+        els.cartList.innerHTML = BF.emptyState("fa-cart-shopping", "Giỏ hàng trống", "Thêm sản phẩm để chốt đơn.");
         return;
       }
       els.cartList.innerHTML = state.cart.map(function (item) {

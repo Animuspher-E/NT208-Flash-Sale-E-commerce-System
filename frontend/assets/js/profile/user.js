@@ -134,6 +134,11 @@ async function saveProfile() {
     }
   }
 
+    const name = nameInput?.value.trim();
+  if (!name || name.length < 2) {
+    return showMessage('profileMessage', 'Họ tên phải có ít nhất 2 ký tự!', 'error');
+  }
+
   const email = emailInput?.value.trim();
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return showMessage('profileMessage', 'Email không hợp lệ!', 'error');
@@ -240,7 +245,6 @@ async function changePassword() {
     showMessage("passwordMessage", err.message);
   }
 }
-
 
 window.addEventListener("userUpdated", () => {
   initProfileUI();

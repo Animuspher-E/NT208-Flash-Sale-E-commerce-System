@@ -10,7 +10,6 @@
 </head>
 
 <body>
-
   <div class="header">
     <div class="logo" onclick="goHome()">
       <i class="fa-solid fa-bolt"></i>
@@ -79,7 +78,7 @@
 
         <div class="form-group">
           <label>Tên đăng nhập</label>
-          <input id="username" placeholder="Nhập tên đăng nhập">
+          <input id="username">
         </div>
 
         <div class="form-group">
@@ -157,8 +156,8 @@
           <input id="detailAddress" placeholder="Số nhà, tên đường">
         </div>
 
-        <div class="form-group" style="flex-direction: row; align-items: center; gap: 8px; margin-top: 10px; margin-bottom: 20px;">
-          <input type="checkbox" id="isDefaultAddress" style="width: 18px; height: 18px; cursor: pointer;">
+        <div class="form-group" style="flex-direction: row; align-items: center; gap: 10px; margin-top: 10px; margin-bottom: 20px;">
+          <input type="checkbox" id="isDefaultAddress" style="width: 13px; height: 13px; cursor: pointer;">
           <label for="isDefaultAddress" style="cursor: pointer; font-size: 14px; margin: 0;">Đặt làm mặc định</label>
         </div>
 
@@ -220,7 +219,5 @@
   <script src="../assets/js/home/data.js"></script>
   <script src="../assets/js/home/render.js"></script>
   <script src="../assets/js/home/search.js"></script>
-
 </body>
-
 </html>
