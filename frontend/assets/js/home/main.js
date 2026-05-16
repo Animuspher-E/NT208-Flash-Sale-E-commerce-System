@@ -79,6 +79,15 @@ window.addEventListener("DOMContentLoaded", async () => {
   initUserUI();
   initSocket();
 
+  // Kiểm tra tham số category từ URL
+  const params = new URLSearchParams(window.location.search);
+  const cat = params.get("category");
+  if (cat && typeof filterCategory === "function") {
+    // Tìm key category tương ứng từ tên hiển thị nếu cần, 
+    // hoặc truyền trực tiếp nếu filterCategory hỗ trợ
+    filterCategory(cat);
+  }
+
   // Logout
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
