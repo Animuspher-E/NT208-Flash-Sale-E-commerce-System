@@ -26,8 +26,6 @@ window.addEventListener("DOMContentLoaded", async () => {
   renderAddresses();
 });
 
-
-
 function bindInputs() {
   usernameInput = document.getElementById("username");
   nameInput     = document.getElementById("name");
@@ -129,16 +127,11 @@ async function saveProfile() {
   const username = usernameInput?.value.trim();
   if (username && !usernameInput.readOnly) {
     if (username.length < 4) {
-      return showMessage('profileMessage', 'Tên đăng nhập phải ít nhất 4 ký tự!', 'error');
+      return showMessage('profileMessage', 'Tên đăng nhập phải có ít nhất 4 ký tự!', 'error');
     }
     if (!/^[a-zA-Z0-9_]+$/.test(username)) {
       return showMessage('profileMessage', 'Tên đăng nhập chỉ gồm chữ, số hoặc _', 'error');
     }
-  }
-
-  const name = nameInput?.value.trim();
-  if (!name || name.length < 2) {
-    return showMessage('profileMessage', 'Tên phải ít nhất 2 ký tự!', 'error');
   }
 
   const email = emailInput?.value.trim();
@@ -216,14 +209,14 @@ async function changePassword() {
   }
 
   if (newPass !== confirmPass) {
-    return showMessage("passwordMessage", "Xác nhận mật khẩu không khớp!");
+    return showMessage("passwordMessage", "Mật khẩu không khớp!");
   }
 
   if (oldPass === newPass) {
 
     return showMessage(
       "passwordMessage",
-      "Mật khẩu mới không được trùng mật khẩu cũ!"
+      "Mật khẩu mới không được giống với mật khẩu cũ!"
     );
   }
 

@@ -52,7 +52,7 @@ function renderAddresses() {
 
   // Dùng dữ liệu từ server (cachedAddresses), không dùng localStorage
   if (cachedAddresses.length === 0) {
-    listEl.innerHTML = '<p style="color:#888;font-size:14px;margin-top:10px">Chưa có địa chỉ nào. Thêm địa chỉ giao hàng bên trên.</p>';
+    listEl.innerHTML = '<p style="color:#888;font-size:14px;margin-top:10px"><i>Bạn chưa có địa chỉ nào. Hãy thêm địa chỉ mới.</i></p>';
     return;
   }
 
