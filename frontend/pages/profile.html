@@ -32,6 +32,10 @@
         <span class="cart-badge" id="cart">0</span>
       </button>
 
+      <button class="icon-btn" onclick="window.location.href='../pages/orders.html'" title="Lịch sử đơn hàng">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+      </button>
+
       <button class="icon-btn" onclick="goProfile()">
         <img id="headerAvatar" src="./img/default-avatar.png" class="avatar-mini">
       </button>
@@ -107,9 +111,8 @@
           <input type="date" id="dob">
         </div>
 
-
         <button class="btn" onclick="saveProfile()">Lưu</button>
-        <p style="font-size:12px;color:#888;margin-top:8px">ℹ️ Tên đăng nhập chỉ có thể thay đổi một lần.</p>
+        <p style="font-size:14px;color:#888;margin-top:8px"><i>Tên đăng nhập chỉ có thể thay đổi một lần.</i></p>
 
         <div id="profileMessage" class="form-message"></div>
       </div>
@@ -164,8 +167,6 @@
         <div id="addressList"></div>
         <div id="addressMessage" class="form-message"></div>
       </div>
-
-
 
       <!-- PASSWORD -->
       <div id="passwordTab" class="hidden">
