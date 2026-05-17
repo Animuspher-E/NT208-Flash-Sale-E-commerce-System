@@ -27,7 +27,7 @@ function createRateLimit(options = {}) {
   return async function rateLimitMiddleware(req, res, next) {
     const redis = getRedisClient();
     const userId = req.user.userId; 
-    const key = `ratelimit:${userId}`;
+    const key = `ratelimit:${userId}:${req.body.productId || 'general'}`;
     try {
       const currentCount = await redis.incr(key);
       if (currentCount === 1) {

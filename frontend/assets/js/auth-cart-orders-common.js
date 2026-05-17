@@ -111,7 +111,9 @@
       if (auth && response.status === 401) {
         clearSession();
       }
-      throw new Error(getErrorMessage(data));
+      const err = new Error(getErrorMessage(data));
+      err.raw = data;
+      throw err;
     }
 
     return data;

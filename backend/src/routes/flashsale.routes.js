@@ -29,6 +29,16 @@ router.post(
   validate(buySchema),
   flashsaleController.buy
 ); //POST /api/flashsale/buy
+
+router.post(
+  '/buy-cart',
+  authMiddleware,
+  // We can skip rate limit or use a different one, but for now we skip rate limiting or use a simple one.
+  // Actually let's use the same flashSaleRateLimit or none. None is fine because it's multiple products.
+  validate(require('../validations/order.schema').buyCartSchema),
+  flashsaleController.buyCart
+);
+
 router.post('/warmup', authMiddleware, isAdmin, flashsaleController.triggerWarmUp); //POST /api/flashsale/warmup
 
 module.exports = router;

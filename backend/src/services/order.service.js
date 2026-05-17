@@ -214,6 +214,106 @@ class OrderService {
         }
     }
 
+    async buyMultipleProducts(userId, items, shippingAddress = null) {
+        let order = null;
+        try {
+            order = await prisma.$transaction(
+                async (tx) => {
+                    const user = await tx.user.findUnique({ where: { id: userId } });
+                    if (!user) throw new Error('USER_NOT_FOUND');
+
+                    const orderNumber = `ORD-${Date.now()}-${userId}`;
+                    let totalSubtotal = 0;
+                    let totalDiscount = 0;
+                    const orderItemsData = [];
+
+                    for (const item of items) {
+                        const product = await tx.product.findUnique({ where: { id: item.productId } });
+                        if (!product) throw new Error(`PRODUCT_NOT_FOUND: ${item.productId}`);
+                        if (product.stock < item.quantity) {
+                            throw new Error(`OUT_OF_STOCK: ${product.name}`);
+                        }
+
+                        const subtotal = product.price * item.quantity;
+                        const discountPercent = product.discount || 0;
+                        const discountAmount = subtotal * (discountPercent / 100);
+
+                        totalSubtotal += subtotal;
+                        totalDiscount += discountAmount;
+
+                        orderItemsData.push({
+                            productId: item.productId,
+                            quantity: item.quantity,
+                            unitPrice: product.price,
+                            subtotal: subtotal
+                        });
+
+                        await tx.product.update({
+                            where: { id: item.productId },
+                            data: { stock: { decrement: item.quantity } }
+                        });
+
+                        const inv = await tx.inventory.findFirst({ where: { productId: item.productId } });
+                        if (inv) {
+                            await tx.inventory.update({
+                                where: { productId: item.productId },
+                                data: {
+                                    availableStock: { decrement: item.quantity },
+                                    reservedStock: { increment: item.quantity }
+                                }
+                            });
+                        }
+                    }
+
+                    const newOrder = await tx.order.create({
+                        data: {
+                            userId,
+                            orderNumber,
+                            totalPrice: totalSubtotal,
+                            discountAmount: totalDiscount,
+                            finalPrice: totalSubtotal - totalDiscount,
+                            status: 'pending',
+                            paymentStatus: 'unpaid',
+                            shippingStatus: 'pending',
+                            shippingAddress: shippingAddress,
+                            items: {
+                                create: orderItemsData
+                            }
+                        },
+                        include: { items: true, user: { select: { id: true, email: true, name: true } } }
+                    });
+
+                    return newOrder;
+                },
+                { isolationLevel: 'Serializable', maxWait: 5000, timeout: 10000 }
+            );
+
+            // Update redis stats
+            for (const item of items) {
+                try {
+                    await redis.decr(`inventory:${item.productId}`);
+                    await redis.incr(`sales:${item.productId}:${new Date().toISOString().split('T')[0]}`);
+                } catch (e) {}
+                
+                try {
+                    const io = require('../config/socket').getIO();
+                    const updatedProduct = await prisma.product.findUnique({ where: { id: item.productId } });
+                    const inventoryPercent = (updatedProduct.stock / 1000) * 100;
+                    io.emit('product:inventory-updated', {
+                        productId: item.productId,
+                        stock: updatedProduct.stock,
+                        percent: inventoryPercent,
+                    });
+                } catch (e) {}
+            }
+
+            return { success: true, order };
+        } catch (error) {
+            logger.error(`Multiple products order creation failed: ${error.message}`, { userId, items });
+            throw error;
+        }
+    }
+
     /**
      * Get order history của user
      * @param {number} userId

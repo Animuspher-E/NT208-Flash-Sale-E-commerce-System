@@ -60,6 +60,79 @@ async function buy(req, res, next) {
     next(error);
   }
 }
+
+async function buyCart(req, res, next) {
+  const { items, shippingAddress } = req.body;
+  const userId = req.user.userId;
+  const redis = require('../config/redis').getRedisClient();
+
+  const successfulItems = [];
+  const failures = [];
+  const flashSaleDecrItems = []; // track which items had Redis stock decremented (for rollback)
+
+  for (const item of items) {
+    // Kiểm tra sản phẩm này có trong Flash Sale (Redis) không
+    const stockKey = `flashsale:product_${item.productId}:stock`;
+    const redisStock = await redis.get(stockKey);
+    const isFlashSaleProduct = redisStock !== null;
+
+    if (isFlashSaleProduct) {
+      // Sản phẩm Flash Sale → dùng Lua script (kiểm tra already_bought + trừ kho Redis)
+      const buyResult = await flashsaleService.buyProduct(item.productId, userId);
+      if (buyResult.success) {
+        successfulItems.push({
+          productId: item.productId,
+          quantity: item.quantity,
+          remainingStock: buyResult.remainingStock,
+          isFlashSale: true
+        });
+        flashSaleDecrItems.push(item.productId);
+      } else {
+        failures.push({
+          productId: item.productId,
+          reason: buyResult.reason === 'already_bought'
+            ? 'Flash Sale giới hạn 1 lượt mua/sản phẩm'
+            : 'Sản phẩm đã hết hàng'
+        });
+      }
+    } else {
+      // Sản phẩm thường → bỏ qua Redis, kiểm tra tồn kho sau ở DB transaction
+      successfulItems.push({
+        productId: item.productId,
+        quantity: item.quantity,
+        remainingStock: null,
+        isFlashSale: false
+      });
+    }
+  }
+
+  if (successfulItems.length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: 'Không thể tạo đơn hàng.',
+      failures
+    });
+  }
+
+  try {
+    const orderResponse = await orderService.buyMultipleProducts(userId, successfulItems, shippingAddress);
+    return res.status(201).json({
+      success: true,
+      message: 'Chốt đơn thành công!',
+      data: {
+        orderId: orderResponse.order.id,
+        successfulItems,
+        failures
+      }
+    });
+  } catch (error) {
+    // Chỉ rollback Redis cho sản phẩm Flash Sale
+    for (const productId of flashSaleDecrItems) {
+      await flashsaleService.rollbackStock(productId, userId);
+    }
+    next(error);
+  }
+}
 // API Lấy danh sách sản phẩm Flash Sale
 async function getProducts(req, res, next) {
   try {
@@ -108,4 +181,4 @@ async function triggerWarmUp(req, res, next) {
   }
 }
 
-module.exports = { buy, getProducts, getStock, triggerWarmUp };
+module.exports = { buy, buyCart, getProducts, getStock, triggerWarmUp };

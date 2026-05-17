@@ -23,4 +23,12 @@ const buySchema = z.object({
     .max(1, 'Mỗi người chỉ được mua tối đa 1 sản phẩm Flash Sale')
 });
 
-module.exports = { buySchema };
+const buyCartSchema = z.object({
+  items: z.array(z.object({
+    productId: z.number().int().positive(),
+    quantity: z.number().int().min(1)
+  })).min(1, 'Giỏ hàng không được trống'),
+  shippingAddress: z.string().nullable().optional()
+});
+
+module.exports = { buySchema, buyCartSchema };

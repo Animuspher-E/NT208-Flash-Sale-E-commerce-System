@@ -20,7 +20,11 @@
       background: #fff;
       transition: box-shadow 0.2s;
     }
-    .cart-item:hover { box-shadow: 0 4px 18px rgba(20,86,184,0.10); }
+
+    .cart-item:hover {
+      box-shadow: 0 4px 18px rgba(20, 86, 184, 0.10);
+    }
+
     .cart-item-check {
       display: flex;
       align-items: center;
@@ -29,10 +33,14 @@
       background: var(--surface);
       border-right: 1px solid var(--line-soft);
     }
+
     .cart-item-check input[type=checkbox] {
-      width: 18px; height: 18px; cursor: pointer;
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
       accent-color: var(--primary-600);
     }
+
     .cart-thumb {
       width: 110px;
       height: 100px;
@@ -41,15 +49,31 @@
       background: var(--surface-strong);
       position: relative;
     }
-    .cart-thumb img { width:100%; height:100%; object-fit:cover; }
-    .cart-thumb a { display:block; height:100%; }
+
+    .cart-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .cart-thumb a {
+      display: block;
+      height: 100%;
+    }
+
     .oos-badge {
-      position: absolute; top: 6px; left: 6px;
-      background: var(--accent); color: #fff;
-      font-size: 10px; font-weight: 800;
-      padding: 2px 7px; border-radius: 4px;
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 4px;
       letter-spacing: 0.3px;
     }
+
     .item-main {
       flex: 1;
       padding: 14px 16px;
@@ -58,37 +82,67 @@
       justify-content: center;
       gap: 6px;
     }
+
     .item-main h3 {
-      font-size: 15px; font-weight: 700;
-      color: var(--text); margin: 0;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      margin: 0;
       line-height: 1.35;
     }
-    .item-main h3 a:hover { color: var(--primary-600); }
+
+    .item-main h3 a:hover {
+      color: var(--primary-600);
+    }
+
     .item-price-row {
-      display: flex; align-items: baseline; gap: 8px;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
     }
+
     .item-price-row strong {
-      font-size: 16px; font-weight: 800; color: var(--accent-700);
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--accent-700);
     }
-    .item-price-row small { font-size: 12px; color: var(--muted); }
+
+    .item-price-row small {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
     .qty-control {
-      display: flex; align-items: center; gap: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
+
     .qty-btn {
-      width: 28px; height: 28px;
+      width: 28px;
+      height: 28px;
       border-radius: 6px;
       border: 1px solid var(--line);
       background: var(--surface);
       color: var(--text);
-      font-size: 16px; font-weight: 700;
+      font-size: 16px;
+      font-weight: 700;
       cursor: pointer;
       transition: background 0.15s;
     }
-    .qty-btn:hover:not(:disabled) { background: var(--surface-strong); }
-    .qty-val {
-      min-width: 28px; text-align: center;
-      font-size: 14px; font-weight: 700; color: var(--text);
+
+    .qty-btn:hover:not(:disabled) {
+      background: var(--surface-strong);
     }
+
+    .qty-val {
+      min-width: 28px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
     .cart-item-actions {
       display: flex;
       flex-direction: column;
@@ -100,41 +154,67 @@
       background: var(--surface);
       min-width: 120px;
     }
+
     .btn-buy-now {
-      display: flex; align-items: center; justify-content: center; gap: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
       background: linear-gradient(90deg, var(--primary-700), var(--primary-500));
       color: #fff;
-      border: none; border-radius: 6px;
-      font-size: 12px; font-weight: 700;
-      padding: 7px 10px; cursor: pointer;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 7px 10px;
+      cursor: pointer;
       transition: opacity 0.2s;
       white-space: nowrap;
     }
-    .btn-buy-now:hover { opacity: 0.88; }
+
+    .btn-buy-now:hover {
+      opacity: 0.88;
+    }
+
     .btn-remove {
-      display: flex; align-items: center; justify-content: center; gap: 5px;
-      background: none; border: 1px solid #fecdd3;
-      color: var(--error); border-radius: 6px;
-      font-size: 12px; font-weight: 600;
-      padding: 6px 10px; cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      background: none;
+      border: 1px solid #fecdd3;
+      color: var(--error);
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 10px;
+      cursor: pointer;
       transition: background 0.15s;
     }
-    .btn-remove:hover { background: #fff1f2; }
+
+    .btn-remove:hover {
+      background: #fff1f2;
+    }
+
     /* === SUMMARY CARD REDESIGN === */
     .summary-card {
       background: #fff;
       border: 1px solid var(--line-soft);
       border-radius: 12px;
       padding: 20px;
-      position: sticky; top: 16px;
+      position: sticky;
+      top: 16px;
     }
+
     .summary-card h3 {
-      font-size: 16px; font-weight: 800;
+      font-size: 16px;
+      font-weight: 800;
       color: var(--text);
       padding-bottom: 12px;
       margin-bottom: 4px;
       border-bottom: 2px solid var(--line-soft);
     }
+
     .summary-line {
       display: flex;
       justify-content: space-between;
@@ -144,10 +224,18 @@
       border-bottom: 1px solid var(--line-soft);
       color: var(--muted);
     }
-    .summary-line strong { color: var(--text); font-size: 15px; }
-    .summary-line.total strong {
-      color: var(--accent-700); font-size: 18px; font-weight: 900;
+
+    .summary-line strong {
+      color: var(--text);
+      font-size: 15px;
     }
+
+    .summary-line.total strong {
+      color: var(--accent-700);
+      font-size: 18px;
+      font-weight: 900;
+    }
+
     .shipping-info-box {
       margin-top: 14px;
       padding: 12px 14px;
@@ -156,14 +244,19 @@
       border-radius: 8px;
       font-size: 13px;
     }
+
     .shipping-info-box .shipping-label {
-      font-weight: 700; font-size: 12px;
+      font-weight: 700;
+      font-size: 12px;
       color: var(--primary-600);
       text-transform: uppercase;
       letter-spacing: 0.5px;
       margin-bottom: 6px;
-      display: flex; align-items: center; gap: 5px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
     }
+
     .checkout-btn {
       width: 100%;
       margin-top: 16px;
@@ -172,18 +265,36 @@
       border-radius: 8px;
       background: linear-gradient(90deg, var(--primary-700), var(--primary-500));
       color: #fff;
-      font-size: 16px; font-weight: 800;
-      display: flex; align-items: center; justify-content: center; gap: 10px;
+      font-size: 16px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
       cursor: pointer;
-      box-shadow: 0 4px 14px rgba(20,86,184,0.25);
+      box-shadow: 0 4px 14px rgba(20, 86, 184, 0.25);
       transition: opacity 0.2s, transform 0.15s;
     }
-    .checkout-btn:hover { opacity: 0.92; transform: translateY(-1px); }
-    .checkout-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .checkout-btn:hover {
+      opacity: 0.92;
+      transform: translateY(-1px);
+    }
+
+    .checkout-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
     /* toolbar */
     .select-all-label {
-      display: flex; align-items: center; gap: 7px;
-      font-size: 13px; font-weight: 600; color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
       cursor: pointer;
       padding: 6px 12px;
       border: 1px solid var(--line);
@@ -191,15 +302,407 @@
       background: #fff;
       transition: border-color 0.15s;
     }
-    .select-all-label:hover { border-color: var(--primary-500); color: var(--primary-600); }
-    .select-all-label input { accent-color: var(--primary-600); width:16px; height:16px; }
+
+    .select-all-label:hover {
+      border-color: var(--primary-500);
+      color: var(--primary-600);
+    }
+
+    .select-all-label input {
+      accent-color: var(--primary-600);
+      width: 16px;
+      height: 16px;
+    }
+
     /* app-panel */
-    .app-panel { background: #fff; border-radius: 12px; border: 1px solid var(--line-soft); }
-    .cart-list { display: flex; flex-direction: column; gap: 10px; }
+    .app-panel {
+      background: #fff;
+      border-radius: 12px;
+      border: 1px solid var(--line-soft);
+    }
+
+    .cart-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
     @media (max-width: 680px) {
-      .cart-item { flex-wrap: wrap; }
-      .cart-thumb { width: 100%; height: 160px; }
-      .cart-item-actions { flex-direction: row; min-width: auto; width: 100%; border-left: none; border-top: 1px solid var(--line-soft); }
+      .cart-item {
+        flex-wrap: wrap;
+      }
+
+      .cart-thumb {
+        width: 100%;
+        height: 160px;
+      }
+
+      .cart-item-actions {
+        flex-direction: row;
+        min-width: auto;
+        width: 100%;
+        border-left: none;
+        border-top: 1px solid var(--line-soft);
+      }
+    }
+
+
+    /* ===================================================
+       POPUP — ấm, tự nhiên, như người thật thiết kế
+    =================================================== */
+    @keyframes popupSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(28px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes iconSettle {
+      0% {
+        opacity: 0;
+        transform: scale(0.6);
+      }
+
+      70% {
+        transform: scale(1.08);
+      }
+
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    .custom-popup-overlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 99999;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s ease, visibility 0.2s;
+      padding: 20px;
+    }
+
+    .custom-popup-overlay::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 20, 35, 0.4);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+    }
+
+    .custom-popup-overlay.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .popup-box {
+      position: relative;
+      background: #fafaf9;
+      border-radius: 10px;
+      width: 100%;
+      max-width: 460px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.13), 0 1px 4px rgba(0, 0, 0, 0.07);
+      animation: none;
+    }
+
+    .custom-popup-overlay.show .popup-box {
+      animation: popupSlideUp 0.26s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    /* Drag handle (mobile feel) */
+    .popup-handle {
+      width: 36px;
+      height: 4px;
+      border-radius: 99px;
+      background: #d1d5db;
+      margin: 14px auto 0;
+    }
+
+    @media (min-width: 560px) {
+      .popup-handle {
+        display: none;
+      }
+    }
+
+    /* Header — không gradient cứng, chỉ là một vùng màu nhạt ấm */
+    .popup-header {
+      padding: 24px 28px 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 18px;
+    }
+
+    .popup-box.type-success .popup-header {
+      background: #f6fdf7;
+    }
+
+    .popup-box.type-error .popup-header {
+      background: #fef7f7;
+    }
+
+    .popup-box.type-info .popup-header {
+      background: #f5f9ff;
+    }
+
+    .popup-box.type-warning .popup-header {
+      background: #fffbf3;
+    }
+
+    /* Icon — nhỏ hơn, bên trái, cảm giác tự nhiên như avatar */
+    .popup-icon-wrap {
+      flex-shrink: 0;
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .custom-popup-overlay.show .popup-icon-wrap {
+      animation: iconSettle 0.4s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+    }
+
+    .popup-box.type-success .popup-icon-wrap {
+      background: #d1fae5;
+      color: #059669;
+    }
+
+    .popup-box.type-error .popup-icon-wrap {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .popup-box.type-info .popup-icon-wrap {
+      background: #dbeafe;
+      color: #2563eb;
+    }
+
+    .popup-box.type-warning .popup-icon-wrap {
+      background: #fef3c7;
+      color: #d97706;
+    }
+
+    .popup-heading {
+      flex: 1;
+    }
+
+    .popup-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: #1c1917;
+      line-height: 1.35;
+      margin: 0 0 4px;
+      letter-spacing: -0.1px;
+    }
+
+    .popup-subtitle {
+      font-size: 13px;
+      color: #78716c;
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    /* Divider — nhẹ thôi */
+    .popup-divider {
+      height: 1px;
+      background: #e7e5e4;
+      margin: 0 28px;
+    }
+
+    /* Body — list sản phẩm */
+    .popup-body {
+      padding: 16px 28px 20px;
+      max-height: 260px;
+      overflow-y: auto;
+    }
+
+    .popup-body::-webkit-scrollbar {
+      width: 3px;
+    }
+
+    .popup-body::-webkit-scrollbar-thumb {
+      background: #d6d3d1;
+      border-radius: 99px;
+    }
+
+    /* Mỗi sản phẩm — đơn giản như dòng trong danh sách */
+    .popup-item-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      font-size: 14px;
+      border-bottom: 1px solid #f5f5f4;
+    }
+
+    .popup-item-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .popup-item-row:first-child {
+      padding-top: 0;
+    }
+
+    .row-dot {
+      flex-shrink: 0;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-top: 2px;
+    }
+
+    .row-success .row-dot {
+      background: #34d399;
+    }
+
+    .row-error .row-dot {
+      background: #f87171;
+    }
+
+    .popup-item-row .row-name {
+      flex: 1;
+      font-weight: 600;
+      color: #292524;
+      font-size: 13.5px;
+      line-height: 1.35;
+    }
+
+    .popup-item-row .row-reason {
+      font-size: 12px;
+      color: #a8a29e;
+      margin-top: 2px;
+    }
+
+    .row-info-wrap {
+      flex: 1;
+    }
+
+    .popup-plain-msg {
+      color: #57534e;
+      font-size: 14px;
+      line-height: 1.7;
+      padding: 4px 0;
+    }
+
+    /* Footer */
+    .popup-footer {
+      padding: 0 28px 28px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .popup-footer.single {
+      justify-content: stretch;
+    }
+
+    .popup-footer.single .popup-btn {
+      width: 100%;
+    }
+
+    .popup-btn {
+      flex: 1;
+      padding: 11px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      letter-spacing: 0;
+    }
+
+    .popup-btn:active {
+      transform: scale(0.98);
+      opacity: 0.9;
+    }
+
+    .popup-btn-primary {
+      color: #fff;
+    }
+
+    .popup-btn-primary:hover {
+      filter: brightness(1.06);
+    }
+
+    /* Màu nút theo loại — không quá bão hòa, nhìn tự nhiên */
+    .type-success .popup-btn-primary {
+      background: #10b981;
+    }
+
+    .type-error .popup-btn-primary {
+      background: #ef4444;
+    }
+
+    .type-info .popup-btn-primary {
+      background: #3b82f6;
+    }
+
+    .type-warning .popup-btn-primary {
+      background: #f59e0b;
+    }
+
+    .popup-btn-ghost {
+      background: transparent;
+      color: #78716c;
+      border: 1.5px solid #e7e5e4;
+    }
+
+    .popup-btn-ghost:hover {
+      background: #fafaf9;
+      color: #44403c;
+    }
+
+    /* Progress bar auto-close — mỏng và tinh tế */
+    .popup-progress {
+      height: 2px;
+      background: #e7e5e4;
+    }
+
+    .popup-progress-bar {
+      height: 100%;
+      width: 100%;
+      transform-origin: left;
+      transition: transform linear;
+    }
+
+    .type-success .popup-progress-bar {
+      background: #10b981;
+    }
+
+    .type-error .popup-progress-bar {
+      background: #ef4444;
+    }
+
+    .type-info .popup-progress-bar {
+      background: #3b82f6;
     }
   </style>
 </head>
@@ -247,7 +750,8 @@
       <section class="app-panel">
         <div class="section-toolbar">
           <div class="section-title">
-            <h2>Giỏ hàng <span style="font-size:15px;font-weight:500;color:var(--muted);" id="cartCountLabel"></span></h2>
+            <h2>Giỏ hàng <span style="font-size:15px;font-weight:500;color:var(--muted);" id="cartCountLabel"></span>
+            </h2>
           </div>
           <div class="toolbar-actions" style="display:flex;gap:10px;align-items:center;">
             <label class="select-all-label">
@@ -262,7 +766,8 @@
         <div class="cart-layout" style="padding:18px;gap:20px;">
           <div id="cartList" class="cart-list"></div>
           <aside class="summary-card" aria-label="Tóm tắt giỏ hàng">
-            <h3><i class="fa-solid fa-receipt" style="color:var(--primary-500);margin-right:7px;"></i>Tóm tắt đơn hàng</h3>
+            <h3><i class="fa-solid fa-receipt" style="color:var(--primary-500);margin-right:7px;"></i>Tóm tắt đơn hàng
+            </h3>
             <div class="summary-line">
               <span>Sản phẩm đã chọn</span>
               <strong id="cartItemCount">0</strong>
@@ -317,7 +822,20 @@
     };
 
     function setAppMessage(text, type = "info") {
-      BF.setMessage(els.appMessage, text, type);
+      if (els.appMessage) els.appMessage.style.display = "none";
+      if (!text) return;
+
+      let title = "Thông báo";
+      if (type === "error") title = "Lỗi";
+      if (type === "success") title = "Thành công";
+
+      if (text.includes("Vui lòng chọn ít nhất 1 sản phẩm")) title = "Chưa chọn sản phẩm";
+      if (text.includes("Vui lòng thêm địa chỉ")) title = "Thiếu địa chỉ giao hàng";
+      if (text.includes("Sản phẩm hết hàng:")) title = "Sản phẩm hết hàng";
+      if (text.includes("Đã thêm sản phẩm") || text.includes("Đã tăng số lượng")) title = "Thêm vào giỏ";
+      if (text.includes("Đã xóa giỏ")) title = "Xóa giỏ hàng";
+
+      showBeautifulPopup(type, title, text);
     }
 
     function renderStats() {
@@ -351,7 +869,7 @@
       const modal = document.createElement('div');
       modal.id = 'addressSelectorModal';
       modal.style = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:9999;';
-      
+
       const content = `
         <div style="background:#fff;padding:25px;border-radius:12px;width:90%;max-width:450px;box-shadow:0 10px 25px rgba(0,0,0,0.1);">
           <h3 style="margin-top:0;margin-bottom:15px;font-size:18px;">Chọn địa chỉ nhận hàng</h3>
@@ -372,7 +890,7 @@
           </div>
         </div>
       `;
-      
+
       modal.innerHTML = content;
       document.body.appendChild(modal);
     }
@@ -391,7 +909,7 @@
           // Tìm index của địa chỉ mặc định
           const defaultIdx = state.addresses.findIndex(a => a.isDefault);
           if (defaultIdx !== -1) state.selectedAddressIndex = defaultIdx;
-          
+
           renderStats();
         }
       } catch (err) {
@@ -506,9 +1024,9 @@
             <div class="item-main">
               <h3><a href="${detailUrl}">${BF.escapeHtml(item.name || 'Sản phẩm')}</a></h3>
               <div class="qty-control">
-                <button class="qty-btn" onclick="changeQuantity(${item.id}, -1)" ${oos?'disabled':''}>−</button>
+                <button class="qty-btn" onclick="changeQuantity(${item.id}, -1)" ${oos ? 'disabled' : ''}>−</button>
                 <span class="qty-val">${qty}</span>
-                <button class="qty-btn" onclick="changeQuantity(${item.id}, 1)" ${oos?'disabled':''}>+</button>
+                <button class="qty-btn" onclick="changeQuantity(${item.id}, 1)" ${oos ? 'disabled' : ''}>+</button>
               </div>
               <div class="item-price-row">
                 <strong>${BF.formatCurrency(item.price * qty)}</strong>
@@ -569,7 +1087,7 @@
 
       const newQty = (Number(item.quantity) || 1) + delta;
       if (newQty < 1) return; // Không cho xuống dưới 1, nếu muốn xóa phải nhấn nút Xóa
-      
+
       // Kiểm tra tồn kho nếu cần (tùy chọn)
       if (delta > 0 && item.stock && newQty > item.stock) {
         setAppMessage(`Chỉ còn ${item.stock} sản phẩm trong kho.`, "error");
@@ -633,7 +1151,6 @@
         setTimeout(() => { window.location.href = 'profile.html?tab=address'; }, 2000);
         return;
       }
-      // [Feature 2] Kiểm tra tồn kho trước khi mua
       const outOfStockItems = checkedItems.filter(i => i.outOfStock);
       if (outOfStockItems.length) {
         setAppMessage(`Sản phẩm hết hàng: ${outOfStockItems.map(i => i.name).join(', ')}. Vui lòng bỏ chọn hoặc xóa khỏi giỏ.`, 'error');
@@ -641,39 +1158,172 @@
       }
       state.isCheckingOut = true;
       BF.setButtonLoading(els.checkoutBtn, true, 'Đang chốt đơn');
-      // [Feature 5] Skip & Continue - mua lần lượt, lỗi thì giữ lại
-      const purchasedIds = [];
-      const failures = [];
-      for (const item of checkedItems) {
-        try {
-          await buyProduct(item, { silent: true });
-          purchasedIds.push(Number(item.id));
-          state.checkedIds.delete(Number(item.id));
-        } catch (error) {
-          failures.push({ name: item.name, reason: error.message });
+
+      const addr = state.addresses[state.selectedAddressIndex];
+      const shippingAddress = addr ? `${addr.fullName} | ${addr.phone} | ${addr.detail}, ${addr.ward}, ${addr.district}, ${addr.province}` : null;
+
+      try {
+        const data = await BF.apiRequest("/api/flashsale/buy-cart", {
+          method: "POST",
+          body: {
+            items: checkedItems.map(i => ({ productId: Number(i.id), quantity: Number(i.quantity) || 1 })),
+            shippingAddress: shippingAddress
+          }
+        });
+
+        const successfulItems = data.data ? data.data.successfulItems : [];
+        const failures = data.data ? data.data.failures : [];
+
+        const purchasedIds = successfulItems.map(i => Number(i.productId));
+
+        // Remove purchased items from cart
+        state.cart = state.cart.filter(item => !purchasedIds.includes(Number(item.id)));
+        purchasedIds.forEach(id => state.checkedIds.delete(id));
+        saveAndRenderCart();
+        await loadProducts();
+
+        if (purchasedIds.length && !failures.length) {
+          // All success — show success popup then auto-redirect
+          const successItems = successfulItems.map(it => {
+            const p = checkedItems.find(c => Number(c.id) === Number(it.productId));
+            return { status: 'success', name: p ? p.name : `Sản phẩm #${it.productId}` };
+          });
+          showBeautifulPopup('success', `Chốt đơn thành công!`, successItems, {
+            subtitle: `Đã đặt ${purchasedIds.length} sản phẩm vào 1 đơn hàng`,
+            autoClose: 2200,
+            onConfirm: () => { window.location.href = 'orders.html'; }
+          });
+          setTimeout(() => { window.location.href = 'orders.html'; }, 2200);
+        } else if (purchasedIds.length && failures.length) {
+          // Partial — show mixed items
+          const allItems = [
+            ...successfulItems.map(it => {
+              const p = checkedItems.find(c => Number(c.id) === Number(it.productId));
+              return { status: 'success', name: p ? p.name : `Sản phẩm #${it.productId}` };
+            }),
+            ...failures.map(f => {
+              const p = checkedItems.find(c => Number(c.id) === Number(f.productId));
+              return { status: 'error', name: p ? p.name : `Sản phẩm #${f.productId}`, reason: f.reason };
+            })
+          ];
+          showBeautifulPopup('info', 'Hoàn tất một phần', allItems, {
+            subtitle: `${purchasedIds.length} thành công · ${failures.length} thất bại`
+          });
+        } else {
+          // Tất cả thất bại — hiện danh sách lý do
+          const allErrItems = failures.map(f => {
+            const p = checkedItems.find(c => Number(c.id) === Number(f.productId));
+            return { status: 'error', name: p ? p.name : `Sản phẩm #${f.productId}`, reason: f.reason };
+          });
+          showBeautifulPopup('error', 'Không đặt được đơn hàng', allErrItems);
         }
+
+      } catch (error) {
+        let errItems;
+        if (error.raw && error.raw.failures && error.raw.failures.length) {
+          errItems = error.raw.failures.map(f => {
+            const p = checkedItems.find(i => Number(i.id) === Number(f.productId));
+            return { status: 'error', name: p ? p.name : `Sản phẩm #${f.productId}`, reason: f.reason };
+          });
+        } else {
+          errItems = error.message
+            .replace(/^Không thể (chốt đơn|tạo đơn hàng)[.:]?\s*/i, '')
+            || 'Vui lòng thử lại sau ít phút.';
+        }
+        showBeautifulPopup('error', 'Không đặt được đơn hàng', errItems);
       }
-      state.cart = state.cart.filter(item => !purchasedIds.includes(Number(item.id)));
-      saveAndRenderCart();
-      await loadProducts();
-      if (purchasedIds.length && !failures.length) {
-        setAppMessage(`Chốt đơn thành công ${purchasedIds.length} sản phẩm! Đang chuyển trang...`, 'success');
-        setTimeout(() => { window.location.href = 'orders.html'; }, 1200);
-      } else if (purchasedIds.length && failures.length) {
-        const failMsg = failures.map(f => `"${f.name}": ${f.reason}`).join(' | ');
-        setAppMessage(`✅ Đã mua ${purchasedIds.length} sản phẩm. ⚠️ ${failures.length} sản phẩm còn lỗi: ${failMsg}`, 'info');
-      } else {
-        const failMsg = failures.map(f => `"${f.name}": ${f.reason}`).join(' | ');
-        setAppMessage(`Không thể chốt đơn: ${failMsg || 'Lỗi không xác định.'}`, 'error');
-      }
+
       state.isCheckingOut = false;
       BF.setButtonLoading(els.checkoutBtn, false);
+    }
+
+    function showBeautifulPopup(type, title, items = [], options = {}) {
+      // items = [{status: 'success'|'error', name, reason}] OR string for plain message
+      const overlay = document.createElement('div');
+      overlay.className = 'custom-popup-overlay';
+
+      const iconMap = {
+        success: '<i class="fa-solid fa-check"></i>',
+        error:   '<i class="fa-solid fa-xmark"></i>',
+        info:    '<i class="fa-solid fa-circle-info"></i>',
+        warning: '<i class="fa-solid fa-circle-exclamation"></i>'
+      };
+      const subtitleMap = {
+        success: 'Đơn hàng đã được đặt thành công',
+        error:   'Vui lòng kiểm tra lại và thử lại',
+        info:    'Một số sản phẩm cần chú ý bên dưới',
+        warning: 'Cần xác nhận trước khi tiếp tục'
+      };
+
+      // Build items HTML — dot + tên, lý do bên dưới nếu có
+      let bodyHtml = '';
+      if (typeof items === 'string') {
+        bodyHtml = `<div class="popup-plain-msg">${items}</div>`;
+      } else if (Array.isArray(items) && items.length > 0) {
+        bodyHtml = items.map(it => `
+          <div class="popup-item-row row-${it.status}">
+            <div class="row-dot" style="flex-shrink:0; align-self:flex-start; margin-top:5px;"></div>
+            <div class="row-info-wrap">
+              <div class="row-name">${it.name}</div>
+              ${it.reason ? `<div class="row-reason">${it.reason}</div>` : ''}
+            </div>
+          </div>
+        `).join('');
+      }
+
+      const autoClose = options.autoClose || 0;
+      const subtitle = options.subtitle || subtitleMap[type] || '';
+      const btnLabel = type === 'success'
+        ? '<i class="fa-solid fa-bag-shopping"></i> Xem đơn hàng'
+        : 'Đã hiểu';
+
+      overlay.innerHTML = `
+        <div class="popup-box type-${type}">
+          <div class="popup-handle"></div>
+          <div class="popup-header">
+            <div class="popup-icon-wrap">${iconMap[type] || iconMap.info}</div>
+            <div class="popup-heading">
+              <p class="popup-title">${title}</p>
+              ${subtitle ? `<p class="popup-subtitle">${subtitle}</p>` : ''}
+            </div>
+          </div>
+          ${bodyHtml ? `<div class="popup-divider"></div>
+          <div class="popup-body">${bodyHtml}</div>` : ''}
+          <div class="popup-footer single">
+            <button class="popup-btn popup-btn-primary" id="popupCloseBtn">${btnLabel}</button>
+          </div>
+          ${autoClose ? `<div class="popup-progress"><div class="popup-progress-bar" id="popupProgress"></div></div>` : ''}
+        </div>
+      `;
+
+      document.body.appendChild(overlay);
+      requestAnimationFrame(() => overlay.classList.add('show'));
+
+      function closePopup() {
+        overlay.classList.remove('show');
+        setTimeout(() => overlay.remove(), 300);
+      }
+
+      overlay.querySelector('#popupCloseBtn').addEventListener('click', () => {
+        closePopup();
+        if (options.onConfirm) options.onConfirm();
+      });
+      overlay.addEventListener('click', (e) => { if (e.target === overlay) closePopup(); });
+
+      if (autoClose > 0) {
+        const bar = overlay.querySelector('#popupProgress');
+        if (bar) {
+          bar.style.transition = `transform ${autoClose}ms linear`;
+          requestAnimationFrame(() => { bar.style.transform = 'scaleX(0)'; });
+        }
+        setTimeout(() => { closePopup(); if (options.onConfirm) options.onConfirm(); }, autoClose);
+      }
     }
 
     document.getElementById("logoutBtn").addEventListener("click", BF.logout);
     document.getElementById("clearCartBtn").addEventListener("click", clearCart);
     document.getElementById("checkoutBtn").addEventListener("click", checkoutCart);
-    document.getElementById("selectAllCheck").addEventListener("change", function() { toggleSelectAll(this.checked); });
+    document.getElementById("selectAllCheck").addEventListener("change", function () { toggleSelectAll(this.checked); });
 
     els.cartList.addEventListener("click", function (event) {
       const button = event.target.closest("[data-cart-remove]");
