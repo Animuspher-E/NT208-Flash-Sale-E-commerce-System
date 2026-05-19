@@ -551,15 +551,6 @@ body {
   margin-top: 5px;
 }
 
-.avatar-mini{
-  width:32px;
-  height:32px;
-  border-radius:50%;
-  object-fit:cover;
-  border:1px solid #e0e0e0;
-  cursor:pointer;
-}
-
 .hidden {
   display: none !important;
 }
@@ -595,6 +586,7 @@ body {
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid #0e429e;
+  cursor:pointer;
 }
 
 .user-dropdown {

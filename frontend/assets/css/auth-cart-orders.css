@@ -1211,3 +1211,96 @@ img {
 .nav-tab.active {
   box-shadow: none;
 }
+/* ==================== */ 
+
+/* GHI ĐÈ ĐỂ FIX HEADER CHO ĐỒNG BỘ VỚI HOME, PROFILE */
+.header, 
+.app-header {
+  width: min(1240px, 100%) !important;
+  margin: 0 auto !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;       
+  justify-content: space-between !important;
+  padding: 20px !important;
+  background: #ffffff !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+  top: 0 !important;
+}
+
+.nav, 
+.header-actions {
+  display: flex !important;
+  align-items: center !important;      
+  justify-content: flex-end !important;
+  gap: 20px !important;
+  height: auto !important;
+}
+
+.icon-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 36px !important;  
+  width: 36px !important;
+}
+
+.avatar-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.avatar-mini {
+  width: 36px !important;
+  height: 36px !important;
+  margin: 0 !important;
+}
+
+.avatar-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 50%;
+  transition: box-shadow 0.2s, transform 0.15s;
+}
+
+.avatar-btn:hover {
+  box-shadow: 0 0 0 3px rgba(14, 66, 158, 0.3);
+  transform: scale(1.05);
+}
+
+.app-page, 
+.auth-page {
+  padding-top: 0 !important;
+}
+
+/* Viền mặc định cho các tab */
+.nav-tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    text-decoration: none;
+    color: var(--text);
+    border: 1px solid var(--line); /* Đường viền mặc định */
+    border-radius: 6px; /* Bo góc nhẹ cho tab */
+    transition: all 0.2s ease;
+}
+
+/* Hiệu ứng khi di chuột qua (Hover) */
+.nav-tab:hover {
+    background-color: var(--surface);
+    border-color: var(--primary-500);
+}
+
+/* Đổi màu viền và màu nền cho tab đang được chọn (Lịch sử) */
+.nav-tab.active {
+    background-color: var(--primary-500);
+    color: var(--white);
+    border-color: var(--primary-500);
+}
