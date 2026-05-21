@@ -1,6 +1,7 @@
 const payos = require('../config/payos');
 const prisma = require('../config/database');
 const logger = require('../config/logger');
+const { incrementSoldForOrder } = require('./productSold.service');
 
 class PaymentService {
     parseOrderIdFromPayosCode(orderCode) {
@@ -15,17 +16,22 @@ class PaymentService {
             return { order, alreadyPaid: true };
         }
 
-        const updated = await prisma.order.update({
-            where: { id: orderId },
-            data: {
-                paymentStatus: 'paid',
-                status: 'confirmed',
-            },
-        });
+        const updated = await prisma.$transaction(async (tx) => {
+            const orderUpdated = await tx.order.update({
+                where: { id: orderId },
+                data: {
+                    paymentStatus: 'paid',
+                    status: 'confirmed',
+                },
+            });
 
-        await prisma.payment.updateMany({
-            where: { orderId, status: 'pending' },
-            data: { status: 'completed', paidAt: new Date() },
+            await tx.payment.updateMany({
+                where: { orderId, status: 'pending' },
+                data: { status: 'completed', paidAt: new Date() },
+            });
+
+            await incrementSoldForOrder(orderId, tx);
+            return orderUpdated;
         });
 
         logger.info(`Xác nhận thanh toán THÀNH CÔNG cho Order: ${orderId}`);

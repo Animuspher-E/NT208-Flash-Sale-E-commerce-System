@@ -11,32 +11,6 @@ function spec(highlights, rows) {
 
 /** Nội dung theo tên sản phẩm (khớp chính xác) */
 const PRODUCT_CONTENT = {
-  'iPhone 15 Pro Max 256GB': {
-    description:
-      'iPhone 15 Pro Max là flagship cao cấp của Apple với khung titan, chip A17 Pro và hệ thống camera chuyên nghiệp. Màn hình Super Retina XDR 6.7 inch mang lại trải nghiệm hiển thị sắc nét, hỗ trợ ProMotion 120Hz mượt mà khi lướt web, chơi game và xem phim.',
-    specs: spec(
-      [
-        'Chip A17 Pro 3nm — hiệu năng đồ họa và AI vượt trội thế hệ trước',
-        'Camera chính 48MP với zoom quang học và chế độ chụp đêm Night Mode',
-        'Khung titan Grade 5 nhẹ, bền, chống trầy tốt hơn thép không gỉ',
-        'Nút Tác Vụ (Action Button) tùy chỉnh phím tắt theo nhu cầu',
-        'Cổng USB-C, hỗ trợ sạc nhanh và truyền dữ liệu tốc độ cao',
-      ],
-      [
-        { label: 'Thương hiệu', value: 'Apple' },
-        { label: 'Dung lượng', value: '256GB' },
-        { label: 'Màn hình', value: '6.7" Super Retina XDR, 120Hz ProMotion' },
-        { label: 'Chip', value: 'Apple A17 Pro (3nm)' },
-        { label: 'RAM', value: '8GB' },
-        { label: 'Camera sau', value: '48MP chính + 12MP góc siêu rộng + 12MP tele 5x' },
-        { label: 'Camera trước', value: '12MP TrueDepth' },
-        { label: 'Pin', value: '~4422 mAh, sạc nhanh 20W, MagSafe 15W' },
-        { label: 'Kháng nước', value: 'IP68' },
-        { label: 'Trọng lượng', value: '221g' },
-        { label: 'Hệ điều hành', value: 'iOS 17 (nâng cấp được)' },
-      ]
-    ),
-  },
   'Giày Chạy Bộ Nike Air Zoom': {
     description:
       'Giày chạy bộ Nike Air Zoom được thiết kế cho vận động viên cần độ đệm cao và phản hồi lực nhanh. Đế giày tích hợp công nghệ Zoom Air giúp giảm chấn khi tiếp đất, phù hợp chạy đường phố, tập gym và đi bộ hàng ngày.',

@@ -504,13 +504,9 @@ class OrderService {
      */
     async confirmPayment(orderId) {
         try {
-            const order = await prisma.order.update({
-                where: { id: orderId },
-                data: {
-                    paymentStatus: 'paid',
-                    status: 'confirmed',
-                },
-            });
+            const paymentService = require('./payment.service');
+            const result = await paymentService.markOrderAsPaid(orderId);
+            const order = result.order;
 
             logger.info(`Payment confirmed for order: ${orderId}`);
 
