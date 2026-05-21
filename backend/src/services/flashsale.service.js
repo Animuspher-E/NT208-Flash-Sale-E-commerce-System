@@ -1,64 +1,56 @@
 // ================================================
 // File: src/services/flashsale.service.js
 // Mục đích: Xử lý mua hàng Flash Sale - LÕI TỐC ĐỘ
-//   Đây là phần quan trọng nhất, phải xử lý cực nhanh
-//   vì có hàng nghìn người cùng nhấn "Mua" một lúc
-//
-// Kỹ thuật chính: Atomic Operations trên Redis
-//   - "Atomic" nghĩa là: thực hiện nguyên một khối, không bị ngắt quãng
-//   - Dùng Lua Script để đảm bảo 2 thao tác (kiểm tra + trừ kho) chạy cùng nhau
-//   - Redis là single-threaded nên không bao giờ bị race condition
-//
-// Ví dụ Race Condition (KHÔNG dùng Atomic):
-//   User A đọc: stock = 1 (còn hàng)
-//   User B đọc: stock = 1 (còn hàng)  <- cùng lúc
-//   User A trừ: stock = 0 (OK)
-//   User B trừ: stock = -1 (Sai! Over-selling!)
-//
-// Với Atomic (Lua Script):
-//   User A: [đọc + kiểm tra + trừ] = 1 khối không bị ngắt
-//   User B: chờ User A xong mới chạy
-//   -> stock không bao giờ < 0
 // ================================================
 
 const { getRedisClient } = require('../config/redis');
 const { getSocketIO } = require('../config/socket');
 const REDIS_KEY_STOCK = (productId) => `flashsale:product_${productId}:stock`;
-const REDIS_KEY_USERS = (productId) => `flashsale:product_${productId}:users`;
+const REDIS_KEY_USER_QTY = (productId) => `flashsale:product_${productId}:user_qty`;
+
 const BUY_LUA_SCRIPT = `
-  -- Kiểm tra user đã mua hay chưa
-  local alreadyBought = redis.call('SISMEMBER', KEYS[2], ARGV[1])
-  if alreadyBought == 1 then
-    return -1
+  local userQty = tonumber(redis.call('HGET', KEYS[2], ARGV[1])) or 0
+  local qty = tonumber(ARGV[2])
+  if qty == nil or qty <= 0 then
+    return -3
   end
 
-  -- Đọc tồn kho hiện tại
   local stock = tonumber(redis.call('GET', KEYS[1]))
   if stock == nil or stock <= 0 then
     return -2
   end
 
-  -- Trừ kho đi 1 (DECR)
-  redis.call('DECR', KEYS[1])
+  -- Giới hạn mua = tồn kho còn lại (user có thể mua tối đa bằng số lượng trong kho)
+  if qty > stock then
+    return -2
+  end
 
-  -- Ghi nhớ userId vào tập hợp "đã mua" (SADD)
-  redis.call('SADD', KEYS[2], ARGV[1])
+  redis.call('DECRBY', KEYS[1], qty)
+  redis.call('HINCRBY', KEYS[2], ARGV[1], qty)
 
-  -- Trả về tồn kho sau khi trừ
-  return stock - 1
+  return stock - qty
 `;
 
-async function buyProduct(productId, userId) {
+async function buyProduct(productId, userId, quantity = 1) {
+  const qty = Math.max(1, parseInt(quantity, 10) || 1);
   const redis = getRedisClient();
   const result = await redis.eval(
     BUY_LUA_SCRIPT,
     2,
     REDIS_KEY_STOCK(productId),
-    REDIS_KEY_USERS(productId),
-    userId.toString()
+    REDIS_KEY_USER_QTY(productId),
+    userId.toString(),
+    qty.toString()
   );
-  if (result === -1) return { success: false, reason: 'already_bought' };
-  if (result === -2) return { success: false, reason: 'out_of_stock' };
+
+  if (result === -2) {
+    const remainingStock = await getStock(productId);
+    return { success: false, reason: 'out_of_stock', remainingStock };
+  }
+  if (result === -3) {
+    return { success: false, reason: 'invalid_quantity' };
+  }
+
   const remainingStock = result;
   try {
     const io = getSocketIO();
@@ -73,17 +65,36 @@ async function buyProduct(productId, userId) {
   return { success: true, remainingStock };
 }
 
-async function rollbackStock(productId, userId) {
+async function rollbackStock(productId, userId, quantity = 1) {
+  const qty = Math.max(1, parseInt(quantity, 10) || 1);
   const redis = getRedisClient();
-  await redis.incr(REDIS_KEY_STOCK(productId));
-  await redis.srem(REDIS_KEY_USERS(productId), userId.toString());
-  console.log(`[Flashsale] Rollback: đã hoàn trả stock cho product_${productId}, user=${userId}`);
+  await redis.incrby(REDIS_KEY_STOCK(productId), qty);
+  const newUserQty = await redis.hincrby(
+    REDIS_KEY_USER_QTY(productId),
+    userId.toString(),
+    -qty
+  );
+  if (newUserQty <= 0) {
+    await redis.hdel(REDIS_KEY_USER_QTY(productId), userId.toString());
+  }
+  console.log(`[Flashsale] Rollback: +${qty} stock cho product_${productId}, user=${userId}`);
 }
 
 async function getStock(productId) {
   const redis = getRedisClient();
   const stock = await redis.get(REDIS_KEY_STOCK(productId));
-  return parseInt(stock) || 0;
+  return parseInt(stock, 10) || 0;
 }
 
-module.exports = { buyProduct, rollbackStock, getStock };
+async function getUserPurchasedQty(productId, userId) {
+  const redis = getRedisClient();
+  const qty = await redis.hget(REDIS_KEY_USER_QTY(productId), userId.toString());
+  return parseInt(qty, 10) || 0;
+}
+
+module.exports = {
+  buyProduct,
+  rollbackStock,
+  getStock,
+  getUserPurchasedQty,
+};

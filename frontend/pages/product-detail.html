@@ -159,25 +159,18 @@
                 <!-- Description -->
                 <div class="tab-pane fade show active" id="desc-tab">
                     <h5>Chi tiết sản phẩm</h5>
-                    <p>iPhone 15 Pro Max. Được đúc từ titan và trang bị chip A17 Pro đột phá, nút Tác Vụ có thể tùy chỉnh và hệ thống camera iPhone mạnh mẽ nhất từ trước đến nay.</p>
-                    <p><b>Các tính năng nổi bật:</b></p>
-                    <ul>
-                        <li>THIẾT KẾ BẰNG TITAN – iPhone 15 Pro Max có thiết kế bằng titan chuẩn hàng không vũ trụ, bền bỉ và nhẹ nhàng.</li>
-                        <li>CHIP A17 PRO ĐỘT PHÁ – GPU cấp độ chuyên nghiệp giúp các trò chơi di động trở nên vô cùng sống động.</li>
-                        <li>HỆ THỐNG CAMERA CHUYÊN NGHIỆP – Độ linh hoạt đáng kinh ngạc với 7 ống kính chuyên nghiệp.</li>
-                        <li>NÚT TÁC VỤ CÓ THỂ TÙY CHỈNH – Phím tắt nhanh đến tính năng yêu thích của bạn.</li>
-                    </ul>
+                    <p id="productDescIntro">Đang tải mô tả...</p>
+                    <div id="productDescHighlights" class="hidden">
+                        <p><b>Các tính năng nổi bật:</b></p>
+                        <ul id="productDescHighlightsList"></ul>
+                    </div>
                 </div>
                 <!-- Specs -->
                 <div class="tab-pane fade" id="spec-tab">
-                    <table class="table table-striped">
-                        <tr><td width="200" class="text-muted">Thương hiệu</td><td>Apple</td></tr>
-                        <tr><td class="text-muted">Màn hình</td><td>6.7 inch, Super Retina XDR</td></tr>
-                        <tr><td class="text-muted">Chip set</td><td>A17 Pro (3nm)</td></tr>
-                        <tr><td class="text-muted">Camera sau</td><td>48MP + 12MP + 12MP</td></tr>
-                        <tr><td class="text-muted">Camera trước</td><td>12MP</td></tr>
-                        <tr><td class="text-muted">Pin</td><td>4,422 mAh, Sạc nhanh 20W</td></tr>
-                        <tr><td class="text-muted">Trọng lượng</td><td>221g</td></tr>
+                    <table class="table table-striped" id="productSpecsTable">
+                        <tbody id="productSpecsBody">
+                            <tr><td colspan="2" class="text-muted">Đang tải thông số...</td></tr>
+                        </tbody>
                     </table>
                 </div>
                 <!-- Reviews -->
@@ -302,8 +295,12 @@
 
         function updateQty(delta) {
             const input = document.getElementById('qtyVal');
-            let val = parseInt(input.value) + delta;
+            let val = parseInt(input.value, 10) + delta;
             if (val < 1) val = 1;
+            const maxStock = parseInt(input.dataset.maxStock, 10);
+            if (maxStock > 0 && val > maxStock) {
+                val = maxStock;
+            }
             input.value = val;
         }
 

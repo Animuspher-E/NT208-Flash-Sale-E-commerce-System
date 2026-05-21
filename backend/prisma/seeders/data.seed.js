@@ -93,22 +93,6 @@ async function main() {
   const flashSaleProducts = await Promise.all([
     prisma.product.create({
       data: {
-        name: 'iPhone 15 Pro Max 256GB',
-        description: 'Flagship mới nhất từ Apple với chip A17 Pro mạnh mẽ.',
-        price: 28990000,
-        originalPrice: 34990000,
-        discount: 17,
-        stock: 10,
-        isFlashSale: true,
-        flashSaleStart: new Date(),
-        flashSaleEnd: new Date(Date.now() + 86400000),
-        categoryId: catElec.id,
-        location: 'TP. Hồ Chí Minh',
-        image: 'https://images.unsplash.com/photo-1696446701796-da61225697cc?q=80&w=600&auto=format&fit=crop'
-      }
-    }),
-    prisma.product.create({
-      data: {
         name: 'Giày Chạy Bộ Nike Air Zoom',
         description: 'Êm ái, hỗ trợ phản hồi lực cực tốt cho vận động viên.',
         price: 1800000,
@@ -166,19 +150,17 @@ async function main() {
     { name: 'Áo Thun Trắng T1 Keria Chính Hãng', price: 1500000, categoryId: catFashion.id, stock: 15, location: 'Quốc Tế', image: 'https://shop-t1-na.gg/cdn/shop/files/keria-front_1024x.jpg?v=1719006601' },
     { name: '2025 T1 Uniform Jersey LOL', price: 2300000, categoryId: catFashion.id, stock: 200, location: 'Quốc Tế', image: 'https://acecookvietnam.vn/wp/wp-content/uploads/2025/10/SIUKAY-TO-HAI-SAN-scaled.png' },
     { name: 'Áo Khoác Jean Nam Trắng Tay Dài', price: 320000, categoryId: catFashion.id, stock: 250, location: 'Phú Thọ', image: 'https://dienthoaigiakho.vn/tin-cong-nghe/wp-content/uploads/2025/12/hinh-nen-son-k.3.jpg' },
+    { name: 'Khăn Twilly I DO "SAY HI"', price: 179000, discount: 18, categoryId: catFashion.id, stock: 400, location: 'TP. Hồ Chí Minh', image: 'https://cdn.hstatic.net/products/200000225139/6480_0b0c35d4775b65021bd2e027e8e9e484_59ee7aebb4434bc2af0cd210e553d53e_9c1e45381e084be2890486c4b444e407_grande.jpg' },
+    { name: 'T1 2024 Worlds Jacket Áo Khoác Thi Đấu', price: 4300000, discount: 18, categoryId: catFashion.id, stock: 200, location: 'TP. Hồ Chí Minh', image: 'https://www.paragonjackets.com/wp-content/uploads/2024/09/2024-T1-Worlds-Uniform-White-Hooded-Jacket.jpg' },
 
     // Gia dụng
-    { name: 'Nồi chiên không dầu Philips', price: 3500000, categoryId: catHome.id, stock: 25, location: 'TP. HCM', image: 'https://images.unsplash.com/photo-1626071466175-79679659d839?q=80&w=600&auto=format&fit=crop' },
     { name: 'Máy hút bụi cầm tay', price: 1200000, categoryId: catHome.id, stock: 40, location: 'Cần Thơ', image: 'https://images.unsplash.com/photo-1558317374-067fb5f30001?q=80&w=600&auto=format&fit=crop' },
     
     // Sức khỏe & Làm đẹp
     { name: 'Kem chống nắng La Roche-Posay', price: 450000, categoryId: catBeauty.id, stock: 200, location: 'TP. HCM', image: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?q=80&w=600&auto=format&fit=crop' },
-    { name: 'Sữa rửa mặt Cetaphil 500ml', price: 320000, categoryId: catBeauty.id, stock: 180, location: 'Hà Nội', image: 'https://images.unsplash.com/photo-1556228578-8c7c2f23b73d?q=80&w=600&auto=format&fit=crop' },
     { name: "Kem dưỡng sáng da L'Oreal White Perfect Day Cream", price: 250000, categoryId: catBeauty.id, stock: 50, location: 'TP. Hồ Chí Minh', image: 'https://image.hsv-tech.io/1987x0/bbx/products/44467b6c-6480-41ec-8ea4-93f948ff94e3.webp' },
 
     // Thể thao
-    { name: 'Thảm tập Yoga chống trượt', price: 250000, categoryId: catSport.id, stock: 100, location: 'TP. HCM', image: 'https://images.unsplash.com/photo-1592432676556-269e8020860d?q=80&w=600&auto=format&fit=crop' },
-    { name: 'Vợt cầu lông Yonex', price: 1500000, categoryId: catSport.id, stock: 35, location: 'Hải Phòng', image: 'https://images.unsplash.com/photo-1626225453014-49c63bc3015a?q=80&w=600&auto=format&fit=crop' },
     
     // Sách
     { name: 'Sách: Đắc Nhân Tâm', price: 85000, categoryId: catBook.id, stock: 300, location: 'Hà Nội', image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=600&auto=format&fit=crop' },
@@ -191,6 +173,12 @@ async function main() {
     { name: 'NCT DREAM x PINKFONG - Sticker hình dán NCT-REX [HAECHAN ver.]', price: 329000, categoryId: catBook.id, stock: 35, location: 'Hải Phòng', image: 'https://blog.delivered.co.kr/wp-content/uploads/2021/08/NCTDREAM-PINKFONG-4.jpg' },
     { name: 'Nhật Ký Tình Yêu Between Us Scrapbook Handmade', price: 220000, categoryId: catBook.id, stock: 300, location: 'Đà Nẵng', image: 'https://down-vn.img.susercontent.com/file/vn-11134207-7r98o-lsmkaxng7xcpdb' },
     { name: 'T1 Membership HAPPY KERIA DAY 2023', price: 2500000, categoryId: catBook.id, stock: 50, location: 'Long An', image: 'https://i.ebayimg.com/images/g/9c8AAOSwSvxmFI1o/s-l400.jpg' },
+    { name: 'NCT DREAM x PINKFONG - LOCAMOBILITY CARD [RENJUN ver.]', price: 530000, discount: 15, categoryId: catBook.id, stock: 323, location: 'Huế', image: 'https://www.musicplaza.com/cdn/shop/products/runjun.jpg?v=1661932739' },
+    { name: 'Keychain Móc Khoá T1 FAKER LCK LOL K24', price: 350000, discount: 15, categoryId: catBook.id, stock: 20, location: 'Hà Nội', image: 'https://i.ebayimg.com/images/g/d-0AAeSwMOppCw7H/s-l400.jpg' },
+    { name: 'buitruonglinh - 1st Album [Từng Ngày Như Mãi Mãi]', price: 469000, discount: 15, categoryId: catBook.id, stock: 350, location: 'Hà Nội', image: 'https://cdn.hstatic.net/products/200001039392/poster_1x1_2_54dbc9cb1b1b4130b829916ff608ba11_grande.jpg' },
+    { name: 'Móc khoá mèo máy Doraemon', price: 50000, discount: 15, categoryId: catBook.id, stock: 200, location: 'Cần Thơ', image: 'https://jola.vn/Product/g4qcT91BT/o1cn01a9ld2u1pzdthyahyv-2846551855-0-cib.jpg' },
+    { name: 'Album We Young - Nhóm nhạc Hàn Quốc NCT DREAM', price: 325000, discount: 15, categoryId: catBook.id, stock: 258, location: 'Thanh Hoá', image: 'https://jola.vn/Product/g4qcT91BT/o1cn01a9ld2u1pzdthyahyv-2846551855-0-cib.jpg' },
+    { name: 'Bút lông màu Acrylic Markers - Deli EC189', price: 180000, discount: 15, categoryId: catBook.id, stock: 200, location: 'Thái Nguyên', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSEVfgYdoDah4-aTdoWOnObzC7Z8D-L9HjG4w&s' },
 
     // Test Product
     { name: 'Sản phẩm Test 1K', price: 1000, categoryId: catElec.id, stock: 100000, location: 'Toàn quốc', image: 'https://placehold.co/600x600?text=Test+1K' }

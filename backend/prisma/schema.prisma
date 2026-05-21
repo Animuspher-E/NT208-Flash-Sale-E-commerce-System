@@ -79,6 +79,7 @@ model Product {
   id              Int       @id @default(autoincrement())
   name            String    @db.VarChar(255)
   description     String?   @db.Text
+  specs           String?   @db.Text // JSON: { highlights: string[], rows: {label,value}[] }
 
   // Pricing
   price           Float

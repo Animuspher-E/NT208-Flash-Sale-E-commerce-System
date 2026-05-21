@@ -381,6 +381,32 @@
       }
     }
 
+    async function confirmPaymentTransfer(orderId, button) {
+      BF.setButtonLoading(button, true, "Đang kiểm tra");
+      try {
+        const result = await BF.apiRequest("/api/payment/sync_status", {
+          method: "POST",
+          body: { orderId: Number(orderId) }
+        });
+
+        if (result && result.isPaid) {
+          setAppMessage("Thanh toán thành công! Trạng thái đơn hàng đã được cập nhật.", "success");
+          const expandArea = document.getElementById(`payment-area-${orderId}`);
+          if (expandArea) expandArea.classList.add("hidden");
+        } else {
+          setAppMessage(
+            (result && result.message) || "PayOS chưa ghi nhận thanh toán. Vui lòng đợi vài phút rồi thử lại.",
+            "info"
+          );
+        }
+        loadOrders(state.page);
+      } catch (error) {
+        setAppMessage(error.message || "Không thể xác minh thanh toán.", "error");
+      } finally {
+        BF.setButtonLoading(button, false);
+      }
+    }
+
     async function createPayment(orderId, button) {
       const expandArea = document.getElementById(`payment-area-${orderId}`);
       
@@ -406,6 +432,9 @@
         }
 
         const qrUrl = `https://img.vietqr.io/image/${data.bin}-${data.accountNumber}-compact2.png?amount=${data.amount}&addInfo=${encodeURIComponent(data.description)}&accountName=${encodeURIComponent(data.accountName)}`;
+
+        const payosOrderCode = data.orderCode;
+        expandArea.dataset.orderCode = payosOrderCode ? String(payosOrderCode) : "";
 
         expandArea.innerHTML = `
           <div class="qr-expand-content">
@@ -443,7 +472,7 @@
                    <a href="${data.checkoutUrl}" target="_blank" class="primary-button mini">
                      Tiếp tục thanh toán <i class="fa-solid fa-chevron-right"></i>
                    </a>
-                   <button class="ghost-button mini" onclick="loadOrders(state.page)">
+                   <button class="ghost-button mini" type="button" data-order-confirm-pay="${orderId}">
                      Đã chuyển khoản
                    </button>
                 </div>
@@ -503,10 +532,12 @@
       const detailButton = event.target.closest("[data-order-detail]");
       const payButton = event.target.closest("[data-order-pay]");
       const cancelButton = event.target.closest("[data-order-cancel]");
+      const confirmPayButton = event.target.closest("[data-order-confirm-pay]");
       
       if (detailButton) showOrderDetail(detailButton.dataset.orderDetail);
       if (payButton) createPayment(payButton.dataset.orderPay, payButton);
       if (cancelButton) cancelOrder(cancelButton.dataset.orderCancel, cancelButton);
+      if (confirmPayButton) confirmPaymentTransfer(confirmPayButton.dataset.orderConfirmPay, confirmPayButton);
     });
 
 

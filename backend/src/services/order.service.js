@@ -479,10 +479,13 @@ class OrderService {
                 });
             });
 
-            // 3. Rollback stock in Redis (Flash sale only allows 1 item per product per user normally, but we loop to be safe)
             const flashsaleService = require('./flashsale.service');
             for (const item of updatedOrder.items) {
-                await flashsaleService.rollbackStock(item.productId, userId);
+                await flashsaleService.rollbackStock(
+                    item.productId,
+                    userId,
+                    item.quantity
+                );
             }
 
             logger.info(`Order cancelled: ${orderId}`);
@@ -501,13 +504,9 @@ class OrderService {
      */
     async confirmPayment(orderId) {
         try {
-            const order = await prisma.order.update({
-                where: { id: orderId },
-                data: {
-                    paymentStatus: 'paid',
-                    status: 'confirmed',
-                },
-            });
+            const paymentService = require('./payment.service');
+            const result = await paymentService.markOrderAsPaid(orderId);
+            const order = result.order;
 
             logger.info(`Payment confirmed for order: ${orderId}`);
 

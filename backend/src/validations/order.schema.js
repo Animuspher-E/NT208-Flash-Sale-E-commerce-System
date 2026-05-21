@@ -20,7 +20,7 @@ const buySchema = z.object({
     .number({ required_error: 'quantity là bắt buộc' })
     .int('quantity phải là số nguyên')
     .min(1, 'quantity phải ít nhất là 1')
-    .max(1, 'Mỗi người chỉ được mua tối đa 1 sản phẩm Flash Sale')
+    .max(9999, 'Số lượng mua quá lớn')
 });
 
 const buyCartSchema = z.object({

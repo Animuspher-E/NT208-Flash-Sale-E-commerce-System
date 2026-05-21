@@ -20,6 +20,7 @@ const validate = require('../middlewares/validate');
 const { buySchema } = require('../validations/order.schema');
 const flashsaleController = require('../controllers/flashsale.controller');
 router.get('/products', flashsaleController.getProducts); //GET /api/flashsale/products
+router.get('/products/:productId', flashsaleController.getProductById); //GET /api/flashsale/products/:id
 router.get('/stock/:productId', flashsaleController.getStock); //GET /api/flashsale/stock/:productId
 //Đăng nhập -> Chống spam -> Kiểm tra dữ liệu -> Mua hàng        
 router.post(

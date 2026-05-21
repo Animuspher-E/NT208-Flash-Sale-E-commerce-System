@@ -14,7 +14,7 @@
 // ================================================
 
 const flashsaleService = require('../services/flashsale.service');
-const { getAllProductsFromCache } = require('../services/cache.service');
+const { getAllProductsFromCache, getProductFromCache } = require('../services/cache.service');
 const { warmUpCache } = require('../services/cache.service');
 const orderService = require('../services/order.service');
 
@@ -22,26 +22,30 @@ const orderService = require('../services/order.service');
 async function buy(req, res, next) {
   const { productId, quantity, shippingAddress } = req.body;
   const userId = req.user.userId;
+  const qty = Math.max(1, parseInt(quantity, 10) || 1);
   let redisDecrSuccess = false;
   try {
-    const buyResult = await flashsaleService.buyProduct(productId, userId);
+    const buyResult = await flashsaleService.buyProduct(productId, userId, qty);
     if (!buyResult.success) {
-      if (buyResult.reason === 'already_bought') {
+      if (buyResult.reason === 'out_of_stock') {
+        const remain = buyResult.remainingStock ?? 0;
         return res.status(400).json({
           success: false,
-          message: 'Bạn đã mua sản phẩm này rồi! Mỗi người chỉ được mua 1 lần.'
+          message: remain > 0
+            ? `Chỉ còn ${remain} sản phẩm trong kho. Vui lòng giảm số lượng.`
+            : 'Rất tiếc! Sản phẩm đã hết hàng.'
         });
       }
-      if (buyResult.reason === 'out_of_stock') {
+      if (buyResult.reason === 'invalid_quantity') {
         return res.status(400).json({
           success: false,
-          message: 'Rất tiếc! Sản phẩm đã hết hàng.'
+          message: 'Số lượng mua không hợp lệ.'
         });
       }
     }
     redisDecrSuccess = true;
     const remainingStock = buyResult.remainingStock;
-    const orderResponse = await orderService.buyProduct(userId, productId, quantity, shippingAddress);
+    const orderResponse = await orderService.buyProduct(userId, productId, qty, shippingAddress);
     const order = orderResponse.order;
     return res.status(201).json({
       success: true,
@@ -55,7 +59,7 @@ async function buy(req, res, next) {
   } catch (error) {
     if (redisDecrSuccess) {
       error.needRollback = true;
-      error.rollbackInfo = { productId, userId };
+      error.rollbackInfo = { productId, userId, quantity: qty };
     }
     next(error);
   }
@@ -77,21 +81,23 @@ async function buyCart(req, res, next) {
     const isFlashSaleProduct = redisStock !== null;
 
     if (isFlashSaleProduct) {
-      // Sản phẩm Flash Sale → dùng Lua script (kiểm tra already_bought + trừ kho Redis)
-      const buyResult = await flashsaleService.buyProduct(item.productId, userId);
+      // Sản phẩm Flash Sale → trừ kho Redis theo số lượng trong giỏ
+      const itemQty = Math.max(1, parseInt(item.quantity, 10) || 1);
+      const buyResult = await flashsaleService.buyProduct(item.productId, userId, itemQty);
       if (buyResult.success) {
         successfulItems.push({
           productId: item.productId,
-          quantity: item.quantity,
+          quantity: itemQty,
           remainingStock: buyResult.remainingStock,
           isFlashSale: true
         });
-        flashSaleDecrItems.push(item.productId);
+        flashSaleDecrItems.push({ productId: item.productId, quantity: itemQty });
       } else {
+        const remain = buyResult.remainingStock ?? 0;
         failures.push({
           productId: item.productId,
-          reason: buyResult.reason === 'already_bought'
-            ? 'Flash Sale giới hạn 1 lượt mua/sản phẩm'
+          reason: remain > 0
+            ? `Chỉ còn ${remain} sản phẩm trong kho`
             : 'Sản phẩm đã hết hàng'
         });
       }
@@ -127,13 +133,17 @@ async function buyCart(req, res, next) {
     });
   } catch (error) {
     // Chỉ rollback Redis cho sản phẩm Flash Sale
-    for (const productId of flashSaleDecrItems) {
-      await flashsaleService.rollbackStock(productId, userId);
+    for (const decrItem of flashSaleDecrItems) {
+      await flashsaleService.rollbackStock(
+        decrItem.productId,
+        userId,
+        decrItem.quantity
+      );
     }
     next(error);
   }
 }
-// API Lấy danh sách sản phẩm Flash Sale
+// API Lấy danh sách sản phẩm
 async function getProducts(req, res, next) {
   try {
     const products = await getAllProductsFromCache();
@@ -143,6 +153,34 @@ async function getProducts(req, res, next) {
       data: products
     });
 
+  } catch (error) {
+    next(error);
+  }
+}
+
+// API Chi tiết 1 sản phẩm (mô tả + thông số từ DB)
+async function getProductById(req, res, next) {
+  try {
+    const productId = parseInt(req.params.productId, 10);
+    if (!productId || productId <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'productId không hợp lệ',
+      });
+    }
+
+    const product = await getProductFromCache(productId);
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: 'Không tìm thấy sản phẩm',
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: product,
+    });
   } catch (error) {
     next(error);
   }
@@ -181,4 +219,4 @@ async function triggerWarmUp(req, res, next) {
   }
 }
 
-module.exports = { buy, buyCart, getProducts, getStock, triggerWarmUp };
+module.exports = { buy, buyCart, getProducts, getProductById, getStock, triggerWarmUp };
