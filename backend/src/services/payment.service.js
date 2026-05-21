@@ -3,6 +3,35 @@ const prisma = require('../config/database');
 const logger = require('../config/logger');
 
 class PaymentService {
+    parseOrderIdFromPayosCode(orderCode) {
+        const orderIdStr = String(orderCode).slice(0, -5);
+        return parseInt(orderIdStr, 10);
+    }
+
+    async markOrderAsPaid(orderId) {
+        const order = await prisma.order.findUnique({ where: { id: orderId } });
+        if (!order) throw new Error('Order not found');
+        if (order.paymentStatus === 'paid') {
+            return { order, alreadyPaid: true };
+        }
+
+        const updated = await prisma.order.update({
+            where: { id: orderId },
+            data: {
+                paymentStatus: 'paid',
+                status: 'confirmed',
+            },
+        });
+
+        await prisma.payment.updateMany({
+            where: { orderId, status: 'pending' },
+            data: { status: 'completed', paidAt: new Date() },
+        });
+
+        logger.info(`Xác nhận thanh toán THÀNH CÔNG cho Order: ${orderId}`);
+        return { order: updated, alreadyPaid: false };
+    }
+
     /**
      * Tạo link thanh toán qua PayOS
      */
@@ -41,7 +70,27 @@ class PaymentService {
         // 3. Gọi PayOS API để tạo link thanh toán
         try {
             const paymentLinkRes = await payos.paymentRequests.create(paymentData);
-            return paymentLinkRes;
+
+            await prisma.payment.upsert({
+                where: { transactionId: String(uniqueOrderCode) },
+                update: {
+                    amount: order.finalPrice,
+                    method: 'payos',
+                    status: 'pending',
+                },
+                create: {
+                    orderId: order.id,
+                    amount: order.finalPrice,
+                    method: 'payos',
+                    transactionId: String(uniqueOrderCode),
+                    status: 'pending',
+                },
+            });
+
+            return {
+                ...paymentLinkRes,
+                orderCode: uniqueOrderCode,
+            };
         } catch (error) {
             logger.error('PayOS Create Payment Link Error:', error);
             throw new Error(`Không thể tạo link thanh toán PayOS: ${error.message}`);
@@ -58,25 +107,14 @@ class PaymentService {
 
             // Giải mã orderId từ uniqueOrderCode (bỏ 5 chữ số cuối là timestamp)
             const payosOrderCode = data.orderCode;
-            const orderIdStr = String(payosOrderCode).slice(0, -5);
-            const orderId = parseInt(orderIdStr, 10);
+            const orderId = this.parseOrderIdFromPayosCode(payosOrderCode);
 
-            // Trong PayOS Webhook, data.code === '00' hoặc 'SUCCESS' thường là thành công
-            // Tuy nhiên verifyPaymentWebhookData đã trả về data sạch sau khi kiểm tra signature
-            
             const order = await prisma.order.findUnique({
                 where: { id: orderId }
             });
 
             if (order && order.paymentStatus !== 'paid') {
-                await prisma.order.update({
-                    where: { id: parseInt(orderId) },
-                    data: {
-                        paymentStatus: 'paid',
-                        status: 'confirmed'
-                    }
-                });
-                logger.info(`Xác nhận thanh toán THÀNH CÔNG qua PayOS cho Order: ${orderId}`);
+                await this.markOrderAsPaid(orderId);
                 return { success: true, message: 'Thanh toán thành công' };
             }
 
@@ -96,26 +134,10 @@ class PaymentService {
         try {
             // Lấy thông tin thanh toán từ PayOS
             const paymentInfo = await payos.paymentRequests.get(orderCode);
-            
-            // Giải mã orderId (bỏ 5 chữ số cuối)
-            const orderIdStr = String(orderCode).slice(0, -5);
-            const orderId = parseInt(orderIdStr, 10);
+            const orderId = this.parseOrderIdFromPayosCode(orderCode);
 
             if (paymentInfo.status === 'PAID') {
-                const order = await prisma.order.findUnique({
-                    where: { id: orderId }
-                });
-
-                if (order && order.paymentStatus !== 'paid') {
-                    await prisma.order.update({
-                        where: { id: orderId },
-                        data: {
-                            paymentStatus: 'paid',
-                            status: 'confirmed'
-                        }
-                    });
-                    logger.info(`Xác nhận thanh toán (Return) THÀNH CÔNG qua PayOS cho Order: ${orderId}`);
-                }
+                await this.markOrderAsPaid(orderId);
                 return { success: true, isPaid: true };
             }
             return { success: true, isPaid: false };
@@ -123,6 +145,45 @@ class PaymentService {
             logger.error('PayOS Verify Return Error:', error);
             throw new Error(`Không thể xác minh giao dịch: ${error.message}`);
         }
+    }
+
+    /**
+     * Đồng bộ trạng thái thanh toán theo orderId (khi user bấm "Đã chuyển khoản")
+     */
+    async syncPaymentByOrderId(orderId, userId) {
+        const order = await prisma.order.findFirst({
+            where: { id: orderId, userId },
+        });
+
+        if (!order) throw new Error('Order not found');
+        if (order.paymentStatus === 'paid') {
+            return { success: true, isPaid: true, message: 'Đơn hàng đã được thanh toán' };
+        }
+
+        const pendingPayment = await prisma.payment.findFirst({
+            where: { orderId, status: 'pending', transactionId: { not: null } },
+            orderBy: { createdAt: 'desc' },
+        });
+
+        if (!pendingPayment || !pendingPayment.transactionId) {
+            throw new Error(
+                'Không tìm thấy phiên thanh toán. Vui lòng bấm "Thanh toán ngay" để tạo mã QR, sau đó bấm "Đã chuyển khoản".'
+            );
+        }
+
+        const orderCode = Number(pendingPayment.transactionId);
+        const paymentInfo = await payos.paymentRequests.get(orderCode);
+
+        if (paymentInfo.status === 'PAID') {
+            await this.markOrderAsPaid(orderId);
+            return { success: true, isPaid: true, message: 'Thanh toán thành công' };
+        }
+
+        return {
+            success: true,
+            isPaid: false,
+            message: 'PayOS chưa ghi nhận thanh toán. Vui lòng đợi vài phút rồi thử lại.',
+        };
     }
 }
 

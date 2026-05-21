@@ -20,20 +20,12 @@
 //   ErrorHandler nhận và xử lý ngay, không để lỗi lọt ra ngoài
 // ================================================
 
-const { getRedisClient } = require('../config/redis');
-const REDIS_KEY_STOCK = (productId) => `flashsale:product_${productId}:stock`;
-const REDIS_KEY_USERS = (productId) => `flashsale:product_${productId}:users`;
+const flashsaleService = require('../services/flashsale.service');
 
-async function rollbackRedis(productId, userId) {
-  const redis = getRedisClient();
+async function rollbackRedis(productId, userId, quantity = 1) {
   try {
-    console.log(`[Rollback] Bắt đầu hoàn trả kho cho product=${productId}, user=${userId}`);
-    // Bước 1: Cộng lại 1 vào tồn kho Redis (INCR)
-    const newStock = await redis.incr(REDIS_KEY_STOCK(productId));
-    console.log(`[Rollback] Đã cộng lại kho. Tồn kho mới: ${newStock}`);
-    // Bước 2: Xóa userId khỏi tập hợp đã mua (SREM = Set Remove)
-    await redis.srem(REDIS_KEY_USERS(productId), userId);
-    console.log(`[Rollback] Đã xóa userId=${userId} khỏi danh sách đã mua`);
+    console.log(`[Rollback] Hoàn trả ${quantity} sp cho product=${productId}, user=${userId}`);
+    await flashsaleService.rollbackStock(productId, userId, quantity);
   } catch (rollbackError) {
     console.error(`[Rollback] CRITICAL: Rollback thất bại! productId=${productId}, userId=${userId}`);
     console.error('[Rollback] Chi tiết lỗi:', rollbackError.message);
@@ -43,8 +35,8 @@ async function rollbackRedis(productId, userId) {
 async function errorHandler(err, req, res, next) {
   console.error(`[ErrorHandler] Lỗi tại ${req.method} ${req.path}:`, err.message);
   if (err.needRollback && err.rollbackInfo) {
-    const { productId, userId } = err.rollbackInfo;
-    await rollbackRedis(productId, userId);
+    const { productId, userId, quantity } = err.rollbackInfo;
+    await rollbackRedis(productId, userId, quantity);
   }
   const statusCode = err.statusCode || 500;
   const message = err.message || 'Lỗi máy chủ nội bộ. Vui lòng thử lại sau.';

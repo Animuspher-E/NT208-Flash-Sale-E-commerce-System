@@ -13,4 +13,7 @@ router.post('/payos_webhook', paymentController.payosWebhook);
 // API thủ công cho frontend khi redirect từ màn hình thanh toán
 router.post('/verify_return', verifyToken, paymentController.verifyReturnUrl);
 
+// Đồng bộ trạng thái sau khi user chuyển khoản / quét QR
+router.post('/sync_status', verifyToken, paymentController.syncPaymentStatus);
+
 module.exports = router;

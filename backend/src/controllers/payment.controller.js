@@ -46,6 +46,23 @@ class PaymentController {
         const result = await paymentService.verifyPaymentReturn(orderCode);
         res.json(result);
     });
+
+    /**
+     * POST /api/payment/sync_status
+     * Kiểm tra PayOS và cập nhật DB khi user đã chuyển khoản
+     */
+    syncPaymentStatus = catchAsync(async (req, res) => {
+        const { orderId } = req.body;
+        if (!orderId) {
+            return res.status(400).json({ success: false, message: 'Tham số orderId là bắt buộc' });
+        }
+
+        const result = await paymentService.syncPaymentByOrderId(
+            parseInt(orderId, 10),
+            req.userId
+        );
+        res.json(result);
+    });
 }
 
 module.exports = new PaymentController();
