@@ -140,26 +140,26 @@ body {
     background: #e0e0e0;
 }
 
-.price-box {
+.product-main-card .price-box {
     background: rgba(11, 44, 107, 0.03);
     padding: 25px;
     border-radius: 12px;
     margin-bottom: 30px;
     border: 1px solid rgba(11, 44, 107, 0.05);
 }
-.old-price {
+.product-main-card .old-price {
     text-decoration: line-through;
     color: var(--text-muted);
     font-size: 16px;
     margin-bottom: 5px;
     display: block;
 }
-.current-price {
+.product-main-card .current-price {
     color: var(--primary-red);
     font-size: 36px;
     font-weight: 800;
 }
-.discount-badge {
+.product-main-card .discount-badge {
     background: var(--primary-red);
     color: #fff;
     font-size: 13px;

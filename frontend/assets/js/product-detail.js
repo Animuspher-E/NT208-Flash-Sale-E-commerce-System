@@ -89,9 +89,6 @@ function renderProduct(p) {
         <div class="thumb-item active" onclick="changeImg(this, '${p.image}')">
             <img src="${p.image}">
         </div>
-        <div class="thumb-item" onclick="changeImg(this, 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=500')">
-            <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=500">
-        </div>
     `;
 
     // Content
