@@ -90,14 +90,14 @@ img {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 50px;
-  color: var(--white);
-  background: linear-gradient(180deg, var(--bg-800), #0a2a58, #0d2250);
+  padding: 40px;
+  background: #2d2d2d;
 }
 
-.brand-box {
-  width: 100%;
-  max-width: 430px;
+.auth-logo-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
 }
 
 .brand-tag {
