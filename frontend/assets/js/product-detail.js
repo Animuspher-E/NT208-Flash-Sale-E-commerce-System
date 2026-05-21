@@ -50,11 +50,13 @@ function initLogout() {
 
 async function loadProductDetail(id) {
     try {
-        // Fetch all products or a specific one if backend supports it
-        // For simplicity with existing frontend logic, we fetch all and find
-        const data = await BF.apiRequest("/api/flashsale/products", { auth: false });
-        products = Array.isArray(data.data) ? data.data : [];
-        currentProduct = products.find(p => p.id == id);
+        const [detailRes, listRes] = await Promise.all([
+            BF.apiRequest(`/api/flashsale/products/${id}`, { auth: false }),
+            BF.apiRequest("/api/flashsale/products", { auth: false }),
+        ]);
+
+        currentProduct = detailRes && detailRes.data ? detailRes.data : null;
+        products = Array.isArray(listRes.data) ? listRes.data : [];
 
         if (!currentProduct) {
             alert("Sản phẩm không tồn tại!");
@@ -66,6 +68,8 @@ async function loadProductDetail(id) {
         renderRelated(products, currentProduct.category);
     } catch (error) {
         console.error("Lỗi tải chi tiết sản phẩm:", error);
+        alert(error.message || "Không tải được thông tin sản phẩm.");
+        window.location.href = "../home.html";
     }
 }
 
@@ -117,9 +121,7 @@ function renderProduct(p) {
     const stockText = document.querySelector('.d-flex.align-items-center .text-muted');
     if (stockText) stockText.textContent = `${p.stock || 0} sản phẩm có sẵn`;
 
-    // Description
-    const descTab = document.querySelector('#desc-tab p');
-    if (descTab) descTab.textContent = p.description || "Thông tin sản phẩm đang được cập nhật...";
+    renderProductContent(p);
 
     // Action Buttons
     const addBtn = document.querySelector('.btn-add-cart');
@@ -127,6 +129,72 @@ function renderProduct(p) {
 
     addBtn.onclick = () => addToCartDetail();
     buyBtn.onclick = () => buyNowDetail();
+}
+
+function parseProductSpecs(raw) {
+    if (!raw) return { highlights: [], rows: [] };
+    if (typeof raw === "object") return raw;
+    try {
+        const parsed = JSON.parse(raw);
+        return {
+            highlights: Array.isArray(parsed.highlights) ? parsed.highlights : [],
+            rows: Array.isArray(parsed.rows) ? parsed.rows : [],
+        };
+    } catch {
+        return { highlights: [], rows: [] };
+    }
+}
+
+function renderProductContent(p) {
+    const introEl = document.getElementById("productDescIntro");
+    const highlightsWrap = document.getElementById("productDescHighlights");
+    const highlightsList = document.getElementById("productDescHighlightsList");
+    const specsBody = document.getElementById("productSpecsBody");
+
+    if (introEl) {
+        introEl.textContent = p.description || "Thông tin sản phẩm đang được cập nhật...";
+    }
+
+    const specData = parseProductSpecs(p.specs);
+    const highlights = specData.highlights || [];
+
+    if (highlightsWrap && highlightsList) {
+        if (highlights.length) {
+            highlightsWrap.classList.remove("hidden");
+            highlightsList.innerHTML = highlights
+                .map(function (item) {
+                    return `<li>${BF.escapeHtml(item)}</li>`;
+                })
+                .join("");
+        } else {
+            highlightsWrap.classList.add("hidden");
+            highlightsList.innerHTML = "";
+        }
+    }
+
+    if (specsBody) {
+        const rows = specData.rows || [];
+        if (rows.length) {
+            specsBody.innerHTML = rows
+                .map(function (row) {
+                    return `
+                        <tr>
+                            <td width="200" class="text-muted">${BF.escapeHtml(row.label || "")}</td>
+                            <td>${BF.escapeHtml(row.value || "")}</td>
+                        </tr>
+                    `;
+                })
+                .join("");
+        } else {
+            specsBody.innerHTML =
+                '<tr><td colspan="2" class="text-muted">Chưa có thông số kỹ thuật cho sản phẩm này.</td></tr>';
+        }
+    }
+
+    const qtyInput = document.getElementById("qtyVal");
+    if (qtyInput && p.stock) {
+        qtyInput.dataset.maxStock = String(p.stock);
+    }
 }
 
 function renderRatingStars(rating) {

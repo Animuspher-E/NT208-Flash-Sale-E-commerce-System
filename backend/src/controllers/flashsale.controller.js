@@ -14,7 +14,7 @@
 // ================================================
 
 const flashsaleService = require('../services/flashsale.service');
-const { getAllProductsFromCache } = require('../services/cache.service');
+const { getAllProductsFromCache, getProductFromCache } = require('../services/cache.service');
 const { warmUpCache } = require('../services/cache.service');
 const orderService = require('../services/order.service');
 
@@ -143,7 +143,7 @@ async function buyCart(req, res, next) {
     next(error);
   }
 }
-// API Lấy danh sách sản phẩm Flash Sale
+// API Lấy danh sách sản phẩm
 async function getProducts(req, res, next) {
   try {
     const products = await getAllProductsFromCache();
@@ -153,6 +153,34 @@ async function getProducts(req, res, next) {
       data: products
     });
 
+  } catch (error) {
+    next(error);
+  }
+}
+
+// API Chi tiết 1 sản phẩm (mô tả + thông số từ DB)
+async function getProductById(req, res, next) {
+  try {
+    const productId = parseInt(req.params.productId, 10);
+    if (!productId || productId <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'productId không hợp lệ',
+      });
+    }
+
+    const product = await getProductFromCache(productId);
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: 'Không tìm thấy sản phẩm',
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: product,
+    });
   } catch (error) {
     next(error);
   }
@@ -191,4 +219,4 @@ async function triggerWarmUp(req, res, next) {
   }
 }
 
-module.exports = { buy, buyCart, getProducts, getStock, triggerWarmUp };
+module.exports = { buy, buyCart, getProducts, getProductById, getStock, triggerWarmUp };
