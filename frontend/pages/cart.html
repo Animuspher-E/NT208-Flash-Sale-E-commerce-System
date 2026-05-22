@@ -810,7 +810,7 @@
     const els = {
       appMessage: document.getElementById("appMessage"),
       cartList: document.getElementById("cartList"),
-      cartCount: document.getElementById("cartCount"),
+      cartCount: document.getElementById("cartCount") || document.getElementById("cartCountLabel"),
       cartItemCount: document.getElementById("cartItemCount"),
       cartSubtotal: document.getElementById("cartSubtotal"),
       cartStatus: document.getElementById("cartStatus"),
@@ -838,10 +838,10 @@
       // Tính dựa trên item được tích chọn
       const checkedItems = state.cart.filter(item => state.checkedIds.has(Number(item.id)));
       const total = checkedItems.reduce((sum, item) => sum + (Number(item.price || 0) * (Number(item.quantity) || 1)), 0);
-      els.cartCount.textContent = state.cart.length;
-      els.cartItemCount.textContent = `${checkedItems.length}/${state.cart.length}`;
-      els.cartSubtotal.textContent = BF.formatCurrency(total);
-      els.cartStatus.textContent = checkedItems.length ? `Đã chọn ${checkedItems.length} sản phẩm` : "Chưa chọn sản phẩm";
+      if (els.cartCount) els.cartCount.textContent = state.cart.length;
+      if (els.cartItemCount) els.cartItemCount.textContent = `${checkedItems.length}/${state.cart.length}`;
+      if (els.cartSubtotal) els.cartSubtotal.textContent = BF.formatCurrency(total);
+      if (els.cartStatus) els.cartStatus.textContent = checkedItems.length ? `Đã chọn ${checkedItems.length} sản phẩm` : "Chưa chọn sản phẩm";
 
       // Sync select-all checkbox
       const selectAll = document.getElementById('selectAllCheck');
