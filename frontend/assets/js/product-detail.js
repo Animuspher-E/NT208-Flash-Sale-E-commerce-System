@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const productId = urlParams.get('id');
 
     if (!productId) {
-        window.location.href = "../home.html";
+        window.location.href = "../index.html";
         return;
     }
 
@@ -60,7 +60,7 @@ async function loadProductDetail(id) {
 
         if (!currentProduct) {
             alert("Sản phẩm không tồn tại!");
-            window.location.href = "../home.html";
+            window.location.href = "../index.html";
             return;
         }
 
@@ -69,7 +69,7 @@ async function loadProductDetail(id) {
     } catch (error) {
         console.error("Lỗi tải chi tiết sản phẩm:", error);
         alert(error.message || "Không tải được thông tin sản phẩm.");
-        window.location.href = "../home.html";
+        window.location.href = "../index.html";
     }
 }
 
@@ -81,7 +81,7 @@ function renderProduct(p) {
     document.querySelector('.breadcrumb-item.active').textContent = p.name;
     const catLink = document.querySelector('.breadcrumb-item:nth-child(2) a');
     catLink.textContent = p.category || "Điện tử";
-    catLink.href = `../home.html?category=${encodeURIComponent(p.category || "Điện tử")}`;
+    catLink.href = `../index.html?category=${encodeURIComponent(p.category || "Điện tử")}`;
 
     // Images
     const mainImg = document.getElementById('mainImg');
@@ -313,3 +313,4 @@ function buyNowDetail() {
     
     window.location.href = "cart.html";
 }
+

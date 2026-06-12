@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (event.key === "Enter") {
         const keyword = input.value.trim();
         if (keyword) {
-          window.location.href = `../home.html?search=${encodeURIComponent(keyword)}`;
+          window.location.href = `../index.html?search=${encodeURIComponent(keyword)}`;
         }
       }
     });
