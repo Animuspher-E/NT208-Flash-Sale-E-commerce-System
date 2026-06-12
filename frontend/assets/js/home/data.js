@@ -1,7 +1,7 @@
 let products = [];
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-const API_URL = (window.FLASH_SALE_API_URL || localStorage.getItem("api_url") || "http://localhost:3001").replace(/\/$/, "");
+const API_URL = (window.FLASH_SALE_API_URL || localStorage.getItem("api_url") || "https://nt208-flash-sale-e-commerce-system.onrender.com").replace(/\/$/, "");
 
 async function fetchFlashSaleProducts() {
   try {

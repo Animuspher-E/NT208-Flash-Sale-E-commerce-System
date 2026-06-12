@@ -1,5 +1,5 @@
 (function () {
-  const DEFAULT_API_BASE_URL = "http://localhost:3001";
+  const DEFAULT_API_BASE_URL = "https://nt208-flash-sale-e-commerce-system.onrender.com";
   const API_STORAGE_KEY = "api_url";
   const TOKEN_KEY = "token";
   const USER_KEY = "user";
