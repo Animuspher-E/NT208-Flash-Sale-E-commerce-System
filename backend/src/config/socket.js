@@ -20,8 +20,11 @@ let io = null;
 function connectSocket(httpServer) {
   io = new Server(httpServer, {
     cors: {
-      origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+      origin: function (origin, callback) {
+        callback(null, true);
+      },
       methods: ['GET', 'POST'],
+      credentials: true
     },
     pingTimeout: 60000,
     pingInterval: 25000,

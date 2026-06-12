@@ -122,7 +122,7 @@ function requireLogin() {
 let socket;
 function initSocket() {
   if (typeof io !== 'undefined') {
-    socket = io("http://localhost:3001");
+    socket = io(API_URL);
 
     socket.on("connect", () => {
       console.log("[Socket] Connected to server");

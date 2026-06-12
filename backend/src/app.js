@@ -31,6 +31,7 @@ app.use(cors({
       /^file:\/\//.test(origin) ||
       /^https?:\/\/localhost(:\d+)?$/.test(origin) ||
       /^https?:\/\/127\.0\.0\.1(:\d+)?$/.test(origin) ||
+      /\.vercel\.app$/.test(origin) ||
       origin === (process.env.FRONTEND_URL || '')
     ) {
       return callback(null, true);

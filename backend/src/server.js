@@ -18,7 +18,7 @@ const app = require('./app');
 const { connectRedis } = require('./config/redis');
 const { connectSocket } = require('./config/socket');
 const { connectRabbitMQ } = require('./config/rabbitmq');
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 console.log(`[Server] Đang chạy tại PORT: ${PORT}`);
 
 async function startServer() {
