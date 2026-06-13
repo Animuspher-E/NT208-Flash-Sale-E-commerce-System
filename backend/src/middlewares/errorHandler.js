@@ -1,25 +1,3 @@
-// ================================================
-// File: src/middlewares/errorHandler.js
-// Mục đích: Bắt và xử lý MỌI lỗi trong app
-//   Đây là middleware đặc biệt - nhận 4 tham số (err, req, res, next)
-//   Express tự nhận ra đây là Error Handler
-//
-// QUAN TRỌNG: Chứa logic ROLLBACK
-//   Khi ghi vào Database thất bại (bước order.service),
-//   cần HOÀN TRẢ lại tồn kho trên Redis (INCR +1)
-//   và xóa userId khỏi danh sách đã mua
-//
-// Cách hoạt động:
-//   1. Bất kỳ controller/service nào throw Error -> Express tự gọi middleware này
-//   2. Kiểm tra loại lỗi
-//   3. Nếu là lỗi FLASH_SALE_ROLLBACK -> hoàn trả Redis
-//   4. Trả về response lỗi chuẩn
-//
-// Ví dụ:
-//   Controller gọi: next(error) hoặc throw error (trong async function)
-//   ErrorHandler nhận và xử lý ngay, không để lỗi lọt ra ngoài
-// ================================================
-
 const flashsaleService = require('../services/flashsale.service');
 
 async function rollbackRedis(productId, userId, quantity = 1) {
@@ -60,3 +38,4 @@ function catchAsync(fn) {
 
 module.exports = errorHandler;
 module.exports.catchAsync = catchAsync;
+

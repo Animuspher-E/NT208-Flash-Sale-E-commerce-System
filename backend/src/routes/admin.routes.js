@@ -1,9 +1,3 @@
-// ================================================
-// File: src/routes/admin.routes.js
-// Mục đích: Các API endpoint dành riêng cho Admin
-//   Tất cả đều cần: authMiddleware + isAdmin
-// ================================================
-
 const express = require('express');
 const router = express.Router();
 const { authMiddleware, isAdmin } = require('../middlewares/auth');
@@ -33,3 +27,4 @@ router.get('/orders', adminController.getOrders);
 router.get('/customers', adminController.getCustomers);
 
 module.exports = router;
+

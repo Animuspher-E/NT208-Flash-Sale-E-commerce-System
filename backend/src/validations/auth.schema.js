@@ -1,11 +1,3 @@
-// ================================================
-// File: src/validations/auth.schema.js
-// Mục đích: Định nghĩa Zod schemas cho Auth endpoints
-//   Dùng để validate input từ client trước khi xử lý
-//   - registerSchema: Email, password, name
-//   - loginSchema: Email, password
-// ================================================
-
 const { z } = require('zod');
 
 /**
@@ -116,3 +108,4 @@ module.exports = {
     forgotPasswordSchema,
     resetPasswordSchema,
 };
+

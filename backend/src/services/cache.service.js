@@ -1,8 +1,3 @@
-// ================================================
-// File: src/services/cache.service.js
-// Cache Redis cho tồn kho Flash Sale; mô tả/specs luôn lấy từ DB
-// ================================================
-
 const { getRedisClient } = require('../config/redis');
 const prisma = require('../config/database');
 const REDIS_KEY_INFO = (productId) => `flashsale:product_${productId}:info`;
@@ -160,3 +155,4 @@ module.exports = {
   getProductFromCache,
   getAllProductsFromCache,
 };
+

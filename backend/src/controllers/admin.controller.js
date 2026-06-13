@@ -1,12 +1,3 @@
-// ================================================
-// File: src/controllers/admin.controller.js
-// Mục đích: Xử lý các API quản trị dành cho Admin
-//   - Thống kê tổng quan (dashboard stats)
-//   - Quản lý sản phẩm (CRUD + bật/tắt Flash Sale)
-//   - Xem danh sách đơn hàng
-//   - Xem danh sách khách hàng
-// ================================================
-
 const prisma = require('../config/database');
 
 // ─────────────────────────────────────────────
@@ -316,3 +307,4 @@ module.exports = {
   getStats, getProducts, createProduct, updateProduct,
   deleteProduct, toggleFlashSale, bulkAddFlashSale, getOrders, getCustomers, getCategories
 };
+

@@ -1,8 +1,3 @@
-// ================================================
-// File: src/config/logger.js
-// Mục đích: Cấu hình Logger tập trung cho dự án
-// ================================================
-
 const colors = {
     reset: '\x1b[0m',
     bright: '\x1b[1m',
@@ -81,3 +76,4 @@ class Logger {
     }
 }
 module.exports = new Logger('BackendApp');
+

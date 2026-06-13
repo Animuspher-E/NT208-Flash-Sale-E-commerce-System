@@ -1,12 +1,3 @@
-// ================================================
-// File: src/app.js
-// Mục đích: Cấu hình Express App
-//   Nơi ghép tất cả các thành phần lại với nhau:
-//   - Middleware toàn cục (cors, helmet, json parser)
-//   - Route cho từng API group
-//   - Error Handler (phải đặt CUỐI CÙNG)
-// ================================================
-
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -63,3 +54,4 @@ app.get('/health', (req, res) => {
 app.use(errorHandler);
 
 module.exports = app;
+

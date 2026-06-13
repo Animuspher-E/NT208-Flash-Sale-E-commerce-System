@@ -1,15 +1,3 @@
-// ================================================
-// File: src/validations/order.schema.js
-// Mục đích: Định nghĩa "khuôn mẫu" dữ liệu cho đơn hàng
-//   Dùng Zod để khai báo luật kiểm tra input
-//   Được dùng bởi middleware validate.js
-//
-// Ví dụ input hợp lệ:
-//   { "productId": 3, "quantity": 1 }
-// Ví dụ input không hợp lệ:
-//   { "productId": "abc", "quantity": -1 }
-// ================================================
-
 const { z } = require('zod');
 const buySchema = z.object({
   productId: z
@@ -32,3 +20,4 @@ const buyCartSchema = z.object({
 });
 
 module.exports = { buySchema, buyCartSchema };
+

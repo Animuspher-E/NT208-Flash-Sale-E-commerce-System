@@ -1,8 +1,3 @@
-// ================================================
-// File: src/controllers/user.controller.js
-// Mục đích: Xử lý user requests: profile, orders, statistics
-// ================================================
-
 const userService = require('../services/user.service');
 const logger = require('../config/logger');
 const { catchAsync } = require('../middlewares/errorHandler');
@@ -132,3 +127,4 @@ class UserController {
 }
 
 module.exports = new UserController();
+

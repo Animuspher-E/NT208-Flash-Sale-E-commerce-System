@@ -1,18 +1,3 @@
-// ================================================
-// File: src/controllers/flashsale.controller.js
-// Mục đích: Tiếp nhận request và điều phối xử lý Flash Sale
-//   Controller chỉ làm 2 việc:
-//     1. Đọc dữ liệu từ req (request của client)
-//     2. Gọi service và trả về response cho client
-//   Không chứa logic nghiệp vụ (logic ở service)
-//
-// Các API this controller xử lý:
-//   POST /api/flashsale/buy            => Mua hàng Flash Sale
-//   GET  /api/flashsale/products       => Lấy danh sách sản phẩm Flash Sale
-//   GET  /api/flashsale/stock/:id    => Lấy tồn kho 1 sản phẩm
-//   POST /api/flashsale/warmup         => Kích hoạt Cache Warm-up (Admin)
-// ================================================
-
 const flashsaleService = require('../services/flashsale.service');
 const { getAllProductsFromCache, getProductFromCache } = require('../services/cache.service');
 const { warmUpCache } = require('../services/cache.service');
@@ -220,3 +205,4 @@ async function triggerWarmUp(req, res, next) {
 }
 
 module.exports = { buy, buyCart, getProducts, getProductById, getStock, triggerWarmUp };
+

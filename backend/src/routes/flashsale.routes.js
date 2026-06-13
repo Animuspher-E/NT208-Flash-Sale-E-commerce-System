@@ -1,17 +1,3 @@
-// ================================================
-// File: src/routes/flashsale.routes.js
-// Mục đích: Khai báo các API Endpoints cho Flash Sale
-//   Đây là "bảng chỉ đường" - mỗi URL -> hàm xử lý tương ứng
-// Danh sách API:
-//   GET  /api/flashsale/products       => Lấy danh sách sản phẩm
-//   GET  /api/flashsale/stock/:id    => Lấy tồn kho 1 sản phẩm
-//   POST /api/flashsale/buy            => Mua hàng (cần đăng nhập)
-//   POST /api/flashsale/warmup         => Kích hoạt Warm-up (Admin)
-// Cấu trúc middleware stack cho POST /buy:
-//   authMiddleware -> flashSaleRateLimit -> validate(buySchema) -> controller.buy
-//   (xác thực)       (chống spam)          (kiểm tra dữ liệu)     (xử lý mua)
-// ================================================
-
 const express = require('express');
 const router = express.Router();
 const { authMiddleware, isAdmin } = require('../middlewares/auth');
@@ -43,3 +29,4 @@ router.post(
 router.post('/warmup', authMiddleware, isAdmin, flashsaleController.triggerWarmUp); //POST /api/flashsale/warmup
 
 module.exports = router;
+

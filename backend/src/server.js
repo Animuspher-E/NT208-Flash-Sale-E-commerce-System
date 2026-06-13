@@ -1,17 +1,3 @@
-// ================================================
-// File: src/server.js
-// Mục đích: Điểm khởi đầu của toàn bộ ứng dụng
-//   Đây là file chạy đầu tiên khi gõ: node server.js
-//
-// Thứ tự khởi động (quan trọng!):
-//   1. Load biến môi trường từ .env
-//   2. Kết nối Redis
-//   3. Kết nối Database (Prisma) - của dev1
-//   4. Tạo HTTP Server từ Express App
-//   5. Đính kèm Socket.io vào HTTP Server
-//   6. Bắt đầu lắng nghe cổng
-// ================================================
-
 require('dotenv').config();
 const http = require('http');
 const app = require('./app');
@@ -54,3 +40,4 @@ async function startServer() {
 }
 
 startServer();
+

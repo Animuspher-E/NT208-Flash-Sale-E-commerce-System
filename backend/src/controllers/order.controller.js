@@ -1,8 +1,3 @@
-// ================================================
-// File: src/controllers/order.controller.js
-// Mục đích: Xử lý order requests: buy product, cancel order
-// ================================================
-
 const orderService = require('../services/order.service');
 const logger = require('../config/logger');
 const { catchAsync } = require('../middlewares/errorHandler');
@@ -64,3 +59,4 @@ class OrderController {
 }
 
 module.exports = new OrderController();
+

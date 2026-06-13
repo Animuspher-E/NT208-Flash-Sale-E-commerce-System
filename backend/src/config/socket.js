@@ -1,19 +1,3 @@
-// ================================================
-// File: src/config/socket.js
-// Mục đích: Khởi tạo Socket.io Server
-//   Socket.io cho phép server đẩy dữ liệu xuống client
-//   mà không cần client phải hỏi trước (real-time)
-//
-// Cách hoạt động:
-//   1. Client mở trang web -> tự động kết nối Socket
-//   2. Khi có người mua hàng -> server emit sự kiện STOCK_UPDATED
-//   3. Tất cả browser đang mở trang đều nhận được và cập nhật UI
-//
-// Ví dụ:
-//   Server: io.emit('STOCK_UPDATED', { productId: 1, stock: 99 })
-//   Client: socket.on('STOCK_UPDATED', (data) => setStock(data.stock))
-// ================================================
-
 const { Server } = require('socket.io');
 let io = null;
 
@@ -48,3 +32,4 @@ function getSocketIO() {
   return io;
 }
 module.exports = { connectSocket, getSocketIO };
+

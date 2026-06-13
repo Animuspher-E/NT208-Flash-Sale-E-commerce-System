@@ -1,13 +1,3 @@
-// ================================================
-// File: src/services/user.service.js
-// Mục đích: Xử lý business logic cho User
-//   - Lấy profile user
-//   - Cập nhật profile
-//   - Lấy danh sách orders
-//   - Lấy chi tiết 1 order
-//   - Lấy statistics
-// ================================================
-
 const prisma = require('../config/database');
 const logger = require('../config/logger');
 
@@ -344,3 +334,4 @@ class UserService {
 }
 
 module.exports = new UserService();
+

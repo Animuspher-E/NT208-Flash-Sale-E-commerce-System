@@ -1,9 +1,3 @@
-// ================================================
-// File: src/validations/user.schema.js
-// Mục đích: Định nghĩa Zod schemas cho User endpoints
-//   - updateProfileSchema: Cập nhật thông tin user
-// ================================================
-
 const { z } = require('zod');
 
 /**
@@ -82,3 +76,4 @@ module.exports = {
     updateProfileSchema,
     getOrdersQuerySchema,
 };
+

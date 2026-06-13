@@ -1,8 +1,3 @@
-// ================================================
-// File: src/services/flashsale.service.js
-// Mục đích: Xử lý mua hàng Flash Sale - LÕI TỐC ĐỘ
-// ================================================
-
 const { getRedisClient } = require('../config/redis');
 const { getSocketIO } = require('../config/socket');
 const REDIS_KEY_STOCK = (productId) => `flashsale:product_${productId}:stock`;
@@ -98,3 +93,4 @@ module.exports = {
   getStock,
   getUserPurchasedQty,
 };
+
