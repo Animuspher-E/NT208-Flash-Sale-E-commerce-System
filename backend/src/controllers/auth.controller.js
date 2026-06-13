@@ -187,46 +187,4 @@ class AuthController {
 
 module.exports = new AuthController();
 
-/*
-- Trích xuất dữ liệu(req.body, req.params, req.query)
-    - Gọi service
-        - Format response
 
-2. KHÔNG CHỨA BUSINESS LOGIC:
-   ❌ BAD:
-exports.buyProduct = async (req, res) => {
-    const product = await prisma.product.findUnique(...)
-    if (product.stock < qty) throw error
-     ... toàn bộ logic ở đây
-}
-   
-   ✓ GOOD:
-exports.buyProduct = async (req, res) => {
-    const result = await orderService.buyProduct(userId, productId, qty)
-    res.json(result)
-}
-
-3. ERROR HANDLING:
-   Dùng catchAsync() để wrap function
-   → Tự động bắt error và forward tới errorHandler
-
-4. RESPONSE FORMAT:
-{
-    success: true / false,
-        message: "...",
-            data: { ... },
-    error: "..."(nếu fail)
-}
-
-5. HTTP STATUS CODES:
-- 200: OK
-    - 201: Created
-        - 400: Bad Request(validation error)
-            - 401: Unauthorized(not authenticated)
-                - 403: Forbidden(not authorized)
-                    - 404: Not Found
-                        - 429: Too Many Requests(rate limit)
-                            - 500: Internal Server Error
-
-============================================
-*/

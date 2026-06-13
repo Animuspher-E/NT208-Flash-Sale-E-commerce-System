@@ -8,7 +8,7 @@ const connectRabbitMQ = async () => {
         const amqpServer = process.env.RABBITMQ_URL || 'amqp://user:password@localhost:5672';
         connection = await amqp.connect(amqpServer);
         channel = await connection.createChannel();
-        console.log('✅ RabbitMQ Connected Successfully');
+        console.log('RabbitMQ Connected Successfully');
         await setupQueues();
 
     } catch (error) {
