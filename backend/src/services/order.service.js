@@ -7,7 +7,7 @@ const logger = require('../config/logger');
 
 class OrderService {
     /**
-     * CORE FUNCTION: Mua sản phẩm (Flash Sale)
+     * ⚠️ CORE FUNCTION: Mua sản phẩm (Flash Sale)
      * Sử dụng prisma.$transaction để ATOMIC xử lý:
      * 1. Check tồn kho
      * 2. Tạo order
@@ -147,7 +147,7 @@ class OrderService {
             // ========================================
             // TRANSACTION THÀNH CÔNG → Cập nhật Redis
             // ========================================
-            // Nếu Redis fail → Log error nhưng đừng throw
+            // ⚠️ Nếu Redis fail → Log error nhưng đừng throw
             // Vì Database đã updated, mất tính sync là chấp nhận được
             try {
                 await redis.decr(`inventory:${productId}`);
@@ -188,7 +188,7 @@ class OrderService {
             };
         } catch (error) {
             // ========================================
-            // TRANSACTION FAILED → ROLLBACK
+            // ⚠️ TRANSACTION FAILED → ROLLBACK
             // ========================================
             logger.error(`Order creation failed: ${error.message}`, {
                 userId,
@@ -520,4 +520,44 @@ class OrderService {
 
 module.exports = new OrderService();
 
+/*
+============================================
+PRISMA TRANSACTION EXPLAINED:
+============================================
 
+1. LẠI CẬU "Transaction" LÀ GÌ?
+   Transaction = Một loạt database operations
+   Hoặc TẤT CẢ thành công, hoặc TẤT CẢ fail & rollback
+   
+2. VÍ DỤ KHÔNG TRANSACTION:
+   Step 1: Check stock = 5 ✓
+   Step 2: Create order ✓
+   [SYSTEM CRASH]
+   Step 3: Decrement stock (không chạy)
+   → THẢM HỌA: Order tạo nhưng stock không trừ!
+   
+3. VỚI TRANSACTION:
+   Step 1: Check stock = 5 ✓
+   Step 2: Create order ✓
+   [SYSTEM CRASH]
+   → Tự động ROLLBACK: Order không tạo
+   
+4. ISOLATION LEVEL:
+   - READ_UNCOMMITTED: Dirty reads (không nên dùng)
+   - READ_COMMITTED: Default
+   - REPEATABLE_READ: Repeat queries = same result
+   - SERIALIZABLE: Mỗi transaction xử lý riêng (chậm nhưng safe)
+   
+5. FLASH SALE SCENARIO:
+   10,000 users click "buy" cùng lúc
+   
+   Nếu không Serializable:
+   User A & B cùng check stock = 1
+   A tạo order → stock = 0
+   B tạo order → stock = -1 (BUG!)
+   
+   Với Serializable:
+   Chỉ 1 trong 2 thực hiện, 1 cái fail → Retry
+
+============================================
+*/
